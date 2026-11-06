@@ -2,429 +2,1176 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>รายงานงานซ่อมบำรุง A4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maintenance Report | Factory</title>
 <style>
+  :root {
+    --navy: #17304d;
+    --blue: #2563eb;
+    --blue-light: #edf4ff;
+    --ink: #202b3a;
+    --muted: #718096;
+    --line: #dfe5ed;
+    --bg: #f3f6fa;
+    --green: #13845d;
+    --red: #b33d49;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; background: #f1f3f7; color: #202633; font-family: system-ui, sans-serif; }
-  header { padding: 15px 20px; background: #174ea6; color: white; }
-  header h1 { margin: 0; font-size: 21px; }
-  header p { margin: 4px 0 0; font-size: 13px; }
-  .app { display: grid; grid-template-columns: 320px minmax(0,1fr); gap: 16px; padding: 16px; align-items: start; }
-  .panel, .preview { background: white; border: 1px solid #dfe4ec; border-radius: 12px; padding: 15px; }
-  .controls { display: grid; gap: 11px; }
-  .field { display: grid; gap: 5px; }
-  label { font-size: 13px; font-weight: 650; }
-  input, select, textarea, button { font: inherit; }
-  input[type="text"], input[type="date"], input[type="number"], select, textarea {
-    width: 100%; padding: 8px; border: 1px solid #cbd2dc; border-radius: 7px; background: #fff;
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--bg);
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
   }
-  textarea { min-height: 62px; resize: vertical; }
-  input[type="file"] { width: 100%; }
-  button { padding: 8px 10px; border: 0; border-radius: 7px; background: #e9edf5; cursor: pointer; }
-  button.primary { color: white; background: #2457d6; }
-  button.danger { color: #9e2020; background: #fff0f0; }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  .row { display: flex; flex-wrap: wrap; gap: 7px; }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .note { color: #647087; font-size: 12px; line-height: 1.5; margin: 0; }
-  .preview h2 { margin: 0 0 12px; font-size: 17px; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    min-height: 66px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 22px;
+    color: white;
+    background: var(--navy);
+    box-shadow: 0 4px 18px #14243b20;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: white;
+    background: #ffffff1a;
+    font-size: 18px;
+  }
+  .brand h1 { margin: 0; font-size: 16px; }
+  .brand small { display: block; margin-top: 3px; color: #c1cddd; font-size: 11px; }
+  .top-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+  .top-actions button {
+    padding: 8px 11px;
+    border: 1px solid #ffffff35;
+    border-radius: 8px;
+    color: white;
+    background: #ffffff12;
+    font-size: 12px;
+  }
+  .top-actions button:hover { background: #ffffff24; }
+  .top-actions .primary { border-color: var(--blue); background: var(--blue); }
+
+  .app {
+    max-width: 1700px;
+    margin: auto;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 355px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  .sidebar { display: grid; gap: 13px; }
+  .card {
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 6px 22px #172b4d08;
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 13px;
+    font-size: 14px;
+    font-weight: 750;
+  }
+  .card-title .icon {
+    width: 27px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    color: var(--blue);
+    background: var(--blue-light);
+  }
+  .field { display: grid; gap: 5px; margin-bottom: 10px; }
+  .field:last-child { margin-bottom: 0; }
+  label, .field-label { color: #45536a; font-size: 12px; font-weight: 700; }
+  input[type="text"], input[type="date"], select, textarea {
+    width: 100%;
+    min-height: 37px;
+    padding: 8px 9px;
+    border: 1px solid #d6dde7;
+    border-radius: 8px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+  }
+  textarea { min-height: 58px; resize: vertical; }
+  input:focus, select:focus, textarea:focus {
+    border-color: #8eafff;
+    box-shadow: 0 0 0 3px #2563eb16;
+  }
+  input[type="file"] { width: 100%; font-size: 12px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .btn {
+    min-height: 35px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    background: white;
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .btn:hover { background: #f7f9fc; border-color: #bac7d8; }
+  .btn.blue { color: white; border-color: var(--blue); background: var(--blue); }
+  .btn.green { color: #137553; border-color: #c5e9da; background: #f2fbf7; }
+  .btn.red { color: var(--red); border-color: #f1d5d9; background: #fff8f8; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .upload-box {
+    padding: 12px;
+    border: 1px dashed #b5c4db;
+    border-radius: 10px;
+    background: #f8faff;
+  }
+  .upload-box small { display: block; margin: 4px 0 7px; color: var(--muted); font-size: 11px; }
+  .divider { height: 1px; margin: 12px 0; background: var(--line); }
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .task-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 7px;
+    border: 1px solid #e8ecf2;
+    border-radius: 8px;
+    background: #fbfcfe;
+    color: #405066;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .task-check input { margin: 1px 0 0; accent-color: var(--blue); }
+  .hint { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+  .workspace { min-width: 0; }
+  .workspace-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 2px 0 12px;
+  }
+  .workspace-head h2 { margin: 0; font-size: 18px; }
+  .workspace-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+  .page-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 13px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: white;
+  }
+  .page-toolbar select { width: auto; min-width: 110px; }
+  .page-count { margin-left: auto; color: var(--muted); font-size: 12px; }
   .pages { display: grid; justify-items: center; gap: 18px; }
+  .page-caption { width: min(100%, 850px); margin-bottom: -13px; color: var(--muted); font-size: 11px; }
+
+  /* กระดาษรายงาน */
   .paper {
-    --cols: 2; --rows: 3; --margin: 8mm; --gap: 3mm; --photo: 4in;
-    width: min(100%, 794px); aspect-ratio: 210 / 297;
-    padding: var(--margin); background: white;
-    box-shadow: 0 2px 14px #17233a24;
-    display: flex; flex-direction: column; gap: 5px;
-    overflow: hidden; color: #111; position: relative;
+    --cols: 2;
+    --rows: 2;
+    --frame: 5in;
+    width: min(100%, 794px);
+    aspect-ratio: 210 / 297;
+    padding: 7mm;
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+    overflow: hidden;
+    color: #172235;
+    background: white;
+    border: 1px solid #dfe4ea;
+    box-shadow: 0 10px 30px #172b4d14;
   }
-  .paper.landscape { width: min(100%, 1122px); aspect-ratio: 297 / 210; }
-  .paper-head { text-align: center; border-bottom: 1px solid #222; padding-bottom: 5px; }
-  .paper-head h2 { margin: 0; font-size: 16px; }
-  .paper-head .machine { font-size: 18px; font-weight: 750; }
-  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 10px; text-align: left; margin-top: 4px; }
-  .meta span { border-bottom: 1px dotted #888; min-height: 16px; }
-  .section-title { text-align: center; font-size: 14px; font-weight: 750; padding: 2px; }
-  .report-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 9px; }
-  .report-fields .wide { grid-column: 1 / -1; }
-  .report-field { border: 1px solid #777; min-height: 23px; padding: 3px; overflow-wrap: anywhere; }
-  .report-field b { margin-right: 4px; }
+  .paper.landscape {
+    width: min(100%, 1122px);
+    aspect-ratio: 297 / 210;
+  }
+  .report-head {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 5px;
+  }
+  .report-title { margin: 0; text-align: center; font-size: 13px; font-weight: 800; }
+  .report-mark {
+    justify-self: start;
+    padding: 3px 6px;
+    border-radius: 12px;
+    color: #244e9c;
+    background: #edf3ff;
+    font-size: 7px;
+    font-weight: 700;
+  }
+  .report-page-no {
+    justify-self: end;
+    color: #66748a;
+    font-size: 7px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3px 8px;
+    padding: 5px 7px;
+    border: 1px solid #d5dce6;
+    border-radius: 4px;
+    font-size: 7px;
+  }
+  .meta-item { min-width: 0; overflow-wrap: anywhere; }
+  .section-box {
+    padding: 4px 6px;
+    border: 1px solid #d5dce6;
+    border-radius: 4px;
+    font-size: 7px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .section-box strong, .measure strong { color: #2b426b; }
+  .task-list { display: inline-flex; flex-wrap: wrap; gap: 2px 8px; margin-left: 4px; }
+  .task-result { white-space: nowrap; }
+  .measure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .measure {
+    min-height: 18px;
+    padding: 4px 6px;
+    border: 1px solid #d5dce6;
+    border-radius: 4px;
+    font-size: 7px;
+    overflow-wrap: anywhere;
+  }
   .photo-grid {
-    flex: 1; min-height: 0; display: grid;
-    grid-template-columns: repeat(var(--cols), minmax(0,1fr));
-    grid-template-rows: repeat(var(--rows), minmax(0,1fr));
-    gap: var(--gap);
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+    gap: 2.5mm;
   }
-  .cell { position: relative; min-width: 0; min-height: 0; border: 1px solid #777; display: grid; place-items: center; overflow: hidden; background: #fff; }
-  .cell img { display: block; width: min(var(--photo),100%); height: min(var(--photo),100%); object-fit: contain; object-position: center; }
-  .placeholder { color: #8993a3; font-size: 11px; }
-  .cell-tools { position: absolute; left: 3px; right: 3px; bottom: 3px; display: flex; justify-content: center; gap: 3px; }
-  .cell-tools button { padding: 3px 5px; background: #ffffffed; font-size: 10px; }
-  .page-label { width: min(100%, 794px); color: #566176; font-size: 12px; margin: 0 0 -14px; }
-  .camera { display: none; position: fixed; inset: 0; z-index: 10; background: #0009; place-items: center; padding: 12px; }
-  .camera.open { display: grid; }
-  .camera-box { width: min(600px,100%); padding: 14px; border-radius: 12px; background: white; }
-  .camera video { width: 100%; max-height: 65vh; background: #111; }
-  @media(max-width:850px) { .app { grid-template-columns: 1fr; padding: 10px; } }
+  .photo-cell {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #cbd4e0;
+    border-radius: 4px;
+    background: #fbfcfe;
+  }
+  .photo-frame {
+    width: min(var(--frame), 100%);
+    max-height: 100%;
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: white;
+  }
+  .photo-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .empty-slot { color: #9aa5b4; font-size: 8px; text-align: center; }
+  .photo-tools {
+    position: absolute;
+    inset: auto 3px 3px;
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+  }
+  .photo-tools button {
+    padding: 3px 5px;
+    border: 1px solid #e1e6ee;
+    border-radius: 5px;
+    color: #405066;
+    background: #fffffff2;
+    font-size: 8px;
+  }
+  .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .signature {
+    padding-top: 8px;
+    border-top: 1px solid #667286;
+    text-align: center;
+    font-size: 7px;
+  }
+
+  .camera-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    place-items: center;
+    padding: 14px;
+    background: #0b1728aa;
+  }
+  .camera-modal.open { display: grid; }
+  .camera-box { width: min(620px, 100%); padding: 15px; border-radius: 14px; background: white; }
+  .camera-box h2 { margin: 0 0 10px; font-size: 17px; }
+  .camera-box video { width: 100%; max-height: 65vh; border-radius: 9px; background: #111; }
+  .camera-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+
+  @media (max-width: 960px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  }
+  @media (max-width: 650px) {
+    .topbar { align-items: flex-start; padding: 9px 12px; }
+    .brand small { display: none; }
+    .top-actions { justify-content: flex-end; }
+    .top-actions button { padding: 7px 8px; font-size: 11px; }
+    .app { padding: 10px; }
+    .sidebar { grid-template-columns: 1fr; }
+    .page-count { width: 100%; margin-left: 0; }
+  }
+
   @media print {
     body { background: white; }
-    header, .panel, .preview h2, .page-label, .cell-tools { display: none !important; }
-    .app { display: block; padding: 0; }
-    .preview { border: 0; padding: 0; }
+    .topbar, .sidebar, .workspace-head, .page-toolbar, .page-caption, .photo-tools {
+      display: none !important;
+    }
+    .app { display: block; margin: 0; padding: 0; }
+    .workspace { width: 100%; }
     .pages { display: block; }
-    .paper { width: 210mm !important; height: 297mm !important; aspect-ratio: auto !important; box-shadow: none; break-after: page; page-break-after: always; }
+    .paper {
+      width: 210mm !important;
+      height: 297mm !important;
+      aspect-ratio: auto !important;
+      padding: 7mm;
+      border: 0;
+      box-shadow: none;
+      break-after: page;
+      page-break-after: always;
+    }
     .paper.landscape { width: 297mm !important; height: 210mm !important; }
     .paper:last-child { break-after: auto; page-break-after: auto; }
-    @page { margin: 0; }
+    @page portrait { size: A4 portrait; margin: 0; }
+    @page landscape { size: A4 landscape; margin: 0; }
+    .paper.portrait { page: portrait; }
+    .paper.landscape { page: landscape; }
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>รายงานงานซ่อมบำรุงและตรวจสอบเครื่องจักร</h1>
-  <p>จัดรูปและบันทึกรายงานลงกระดาษ A4</p>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">⚙</div>
+    <div>
+      <h1>Maintenance Report</h1>
+      <small>แบบฟอร์มรายงานงานซ่อมบำรุงโรงงาน</small>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button id="openJob">เปิดงาน</button>
+    <button id="saveJob">บันทึกงาน</button>
+    <button id="wordButton">Word</button>
+    <button class="primary" id="pdfButton">พิมพ์ / PDF</button>
+  </div>
 </header>
 
 <main class="app">
-  <aside class="panel">
-    <div class="controls">
+  <aside class="sidebar">
+    <section class="card">
+      <h2 class="card-title"><span class="icon">▤</span> ข้อมูลหน้างาน</h2>
       <div class="field">
-        <label for="machine">รหัสเครื่องจักร / หัวข้อ</label>
-        <input id="machine" type="text" value="OVERHAUL MOTOR">
+        <label for="machine">รหัสเครื่องจักร</label>
+        <input id="machine" type="text" placeholder="เช่น MTR-001">
       </div>
-      <div class="two">
-        <div class="field"><label for="team">ทีมที่เข้าทำ</label><input id="team" type="text" placeholder="ชื่อทีมหรือผู้รับผิดชอบ"></div>
-        <div class="field"><label for="safety">เจ้าหน้าที่ความปลอดภัย</label><input id="safety" type="text" placeholder="ชื่อเจ้าหน้าที่"></div>
-      </div>
-      <div class="field"><label for="workDate">วันที่เข้าทำ</label><input id="workDate" type="date"></div>
-
-      <hr>
-
-      <div class="field">
-        <label for="currentPage">หน้าที่กำลังตั้งค่า</label>
-        <select id="currentPage"></select>
-      </div>
-      <div class="row">
-        <button id="addPage" class="primary">＋ เพิ่มหน้า</button>
-        <button id="deletePage" class="danger">ลบหน้านี้</button>
-      </div>
-      <div class="field">
-        <label for="section">หัวข้อรายงานในหน้านี้</label>
-        <select id="section">
-          <option>OVERHAUL MOTOR</option>
-          <option>OVERHAUL BLOWER</option>
-          <option>เปลี่ยนสายพาน และตั้ง Alignment Laser</option>
-          <option>วัดค่าความร้อน Temperature และค่าความสั่นสะเทือน Vibration (mm/s)</option>
-          <option>ข้อเสนอแนะ Comment / Alarm Code</option>
-          <option>หมายเหตุ</option>
-        </select>
-      </div>
-      <div class="two">
+      <div class="two-col">
         <div class="field">
-          <label for="orientation">แนวกระดาษ</label>
-          <select id="orientation"><option value="portrait">แนวตั้ง</option><option value="landscape">แนวนอน</option></select>
+          <label for="team">Teams / ทีมที่เข้าทำ</label>
+          <input id="team" type="text" placeholder="ชื่อทีม">
         </div>
         <div class="field">
-          <label for="layout">จำนวนช่องรูป</label>
-          <select id="layout"><option value="6">6 รูป</option><option value="8">8 รูป</option><option value="12">12 รูป</option></select>
+          <label for="date">วันที่เข้าทำ</label>
+          <input id="date" type="date">
         </div>
       </div>
-      <div class="field">
-        <label for="photoSize">ขนาดรูปสูงสุดในช่อง</label>
-        <select id="photoSize">
-          <option value="4">4 × 4 นิ้ว</option><option value="5">5 × 5 นิ้ว</option>
-          <option value="6">6 × 6 นิ้ว</option><option value="7">7 × 7 นิ้ว</option>
-          <option value="8">8 × 8 นิ้ว</option><option value="9">9 × 9 นิ้ว</option>
-        </select>
+      <div class="two-col">
+        <div class="field">
+          <label for="supervisor">หัวหน้างาน</label>
+          <input id="supervisor" type="text">
+        </div>
+        <div class="field">
+          <label for="safety">เจ้าหน้าที่ความปลอดภัย</label>
+          <input id="safety" type="text">
+        </div>
       </div>
-      <div class="two">
-        <div class="field"><label for="margin">ขอบ (มม.)</label><input id="margin" type="number" min="0" max="25" value="8"></div>
-        <div class="field"><label for="gap">ช่องไฟ (มม.)</label><input id="gap" type="number" min="0" max="15" value="3"></div>
-      </div>
+    </section>
 
+    <section class="card">
+      <h2 class="card-title"><span class="icon">▦</span> รูปภาพและรูปแบบหน้า</h2>
       <div class="field">
         <label for="photos">เพิ่มรูปหลายรูปพร้อมกัน</label>
-        <input id="photos" type="file" accept="image/*" multiple>
+        <div class="upload-box">
+          <small>เลือกภาพหลายไฟล์ รูปจะลงช่องว่างและจัดกึ่งกลางให้อัตโนมัติ</small>
+          <input id="photos" type="file" accept="image/*" multiple>
+        </div>
       </div>
-      <div class="row">
-        <button id="cameraBtn">ถ่ายรูป</button>
-        <button id="switchCamera">สลับกล้อง</button>
+      <div class="two-col">
+        <div class="field">
+          <label for="orientation">แนวกระดาษ</label>
+          <select id="orientation">
+            <option value="portrait">แนวตั้ง</option>
+            <option value="landscape">แนวนอน</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="layout">จำนวนรูปต่อหน้า</label>
+          <select id="layout">
+            <option value="4">4 รูป</option>
+            <option value="6">6 รูป</option>
+            <option value="8">8 รูป</option>
+            <option value="12">12 รูป</option>
+          </select>
+        </div>
       </div>
-      <div class="row">
-        <button id="saveJob">บันทึกงาน</button>
-        <button id="openJob">เปิดงาน</button>
-        <button id="pdf" class="primary">พิมพ์ / PDF</button>
-        <button id="word">ส่งออก Word</button>
-        <input id="openFile" type="file" accept=".json,application/json" hidden>
+      <div class="field">
+        <label for="frame">ขนาดกรอบภาพสูงสุด</label>
+        <select id="frame">
+          <option value="4">4 × 4 นิ้ว</option>
+          <option value="5">5 × 5 นิ้ว</option>
+          <option value="6">6 × 6 นิ้ว</option>
+          <option value="7">7 × 7 นิ้ว</option>
+          <option value="8">8 × 8 นิ้ว</option>
+          <option value="9">9 × 9 นิ้ว</option>
+        </select>
       </div>
-      <p class="note">รูปจะถูกจัดให้อยู่กลางช่อง และเพิ่มลงช่องว่างของหน้าที่เลือกก่อน หากเต็มระบบจะเพิ่มหน้าใหม่ให้อัตโนมัติ ขนาดรูปเป็นขนาดสูงสุด รูปจะย่อให้พอดีกับช่องโดยไม่บิดเบี้ยว</p>
-    </div>
+      <div class="btn-row">
+        <button class="btn green" id="cameraButton">◉ ถ่ายรูป</button>
+        <button class="btn red" id="closeJob">ปิดงาน / เริ่มงานใหม่</button>
+      </div>
+      <p class="hint">ขนาดกรอบเป็นขนาดสูงสุด พื้นที่จริงจะพอดีกับช่องที่เลือก รูปจะรักษาสัดส่วนเดิม</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title"><span class="icon">✓</span> รายการตรวจงาน</h2>
+      <div class="field-label">ก่อนทำ</div>
+      <div id="beforeChecks" class="check-grid"></div>
+      <div class="divider"></div>
+      <div class="field-label">หลังทำ</div>
+      <div id="afterChecks" class="check-grid"></div>
+      <p class="hint">ติ๊กเลือกได้หลายหัวข้อในแต่ละหน้า</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title"><span class="icon">⌁</span> ค่าตรวจวัดและหมายเหตุ</h2>
+      <div class="two-col">
+        <div class="field">
+          <label for="temperature">Temperature</label>
+          <input id="temperature" type="text" placeholder="°C">
+        </div>
+        <div class="field">
+          <label for="vibration">Vibration (mm/s)</label>
+          <input id="vibration" type="text">
+        </div>
+      </div>
+      <div class="field">
+        <label for="comment">ข้อเสนอแนะ Comment / Alarm Code</label>
+        <textarea id="comment"></textarea>
+      </div>
+      <div class="field">
+        <label for="notes">หมายเหตุ</label>
+        <textarea id="notes"></textarea>
+      </div>
+    </section>
   </aside>
 
-  <section class="preview">
-    <h2>ตัวอย่างเอกสาร A4</h2>
+  <section class="workspace">
+    <div class="workspace-head">
+      <div>
+        <h2>ตัวอย่างรายงาน A4</h2>
+        <p>ตรวจสอบรูปแบบรายงานก่อนพิมพ์หรือส่งออก</p>
+      </div>
+    </div>
+    <div class="page-toolbar">
+      <select id="pageSelect" aria-label="เลือกหน้าที่แก้ไข"></select>
+      <button class="btn blue" id="addPage">＋ เพิ่มหน้า</button>
+      <button class="btn red" id="deletePage">ลบหน้านี้</button>
+      <span class="page-count" id="pageCount"></span>
+    </div>
     <div id="pages" class="pages"></div>
   </section>
 </main>
 
-<div id="camera" class="camera">
+<div class="camera-modal" id="cameraModal">
   <div class="camera-box">
-    <h2>ถ่ายภาพ</h2>
+    <h2>ถ่ายรูปหน้างาน</h2>
     <video id="video" autoplay playsinline></video>
-    <p id="cameraNote" class="note"></p>
-    <div class="row" style="margin-top:8px">
-      <button id="capture" class="primary">ถ่ายภาพ</button>
-      <button id="closeCamera">ปิดกล้อง</button>
+    <div class="camera-actions">
+      <button class="btn" id="switchCamera">สลับกล้อง</button>
+      <button class="btn blue" id="takePhoto">ถ่ายภาพ</button>
+      <button class="btn red" id="closeCamera">ปิดกล้อง</button>
     </div>
+    <p class="hint" id="cameraMessage"></p>
   </div>
 </div>
 
+<input id="openFile" type="file" accept=".json,application/json" hidden>
+
 <script>
-const $ = id => document.getElementById(id);
-const sections = {
-  "OVERHAUL MOTOR": ["CLEANING", "PM", "ก่อนทำ", "หลังทำ"],
-  "OVERHAUL BLOWER": ["CLEANING", "PM", "ก่อนทำ", "หลังทำ"],
-  "เปลี่ยนสายพาน และตั้ง Alignment Laser": ["CLEANING", "PM", "ก่อนทำ", "หลังทำ"],
-  "วัดค่าความร้อน Temperature และค่าความสั่นสะเทือน Vibration (mm/s)": ["CLEANING", "PM", "Temperature", "Vibration (mm/s)"],
-  "ข้อเสนอแนะ Comment / Alarm Code": ["CLEANING", "PM", "Comment", "Alarm Code"],
-  "หมายเหตุ": ["CLEANING", "PM", "หมายเหตุ"]
-};
-const createPage = () => ({
-  section: $("machine").value || "OVERHAUL MOTOR",
-  orientation: "portrait", layout: 6, size: 4, margin: 8, gap: 3,
-  fields: {}, photos: []
-});
-let job = { pages: [createPage()], current: 0, meta: { machine: "OVERHAUL MOTOR", team: "", safety: "", date: "" } };
-let cameraStream = null, cameraFacing = "environment";
+(() => {
+  const $ = id => document.getElementById(id);
+  const TASKS = [
+    "OVERHAUL MOTOR",
+    "OVERHAUL BLOWER",
+    "เปลี่ยนสายพาน",
+    "ตั้ง Alignment Laser",
+    "CLEANING",
+    "PM"
+  ];
+  const allowedLayouts = [4, 6, 8, 12];
 
-function gridDims(page) {
-  if (page.orientation === "portrait") return page.layout === 6 ? [2,3] : page.layout === 8 ? [2,4] : [3,4];
-  return page.layout === 6 ? [3,2] : page.layout === 8 ? [4,2] : [4,3];
-}
-function syncMeta() {
-  job.meta = { machine: $("machine").value, team: $("team").value, safety: $("safety").value, date: $("workDate").value };
-}
-["machine","team","safety","workDate"].forEach(id => $(id).addEventListener("input", () => { syncMeta(); render(); }));
+  function createPage() {
+    return {
+      orientation: "portrait",
+      layout: 4,
+      frame: 5,
+      before: [],
+      after: [],
+      temperature: "",
+      vibration: "",
+      comment: "",
+      notes: "",
+      photos: Array(4).fill(null)
+    };
+  }
 
-function render() {
-  job.current = Math.max(0, Math.min(job.current, job.pages.length - 1));
-  $("machine").value = job.meta.machine || "";
-  $("team").value = job.meta.team || "";
-  $("safety").value = job.meta.safety || "";
-  $("workDate").value = job.meta.date || "";
+  let job = {
+    info: {
+      machine: "",
+      team: "",
+      date: "",
+      supervisor: "",
+      safety: ""
+    },
+    pages: [createPage()],
+    current: 0
+  };
 
-  const selector = $("currentPage");
-  selector.replaceChildren();
-  job.pages.forEach((_, i) => {
-    const o = document.createElement("option");
-    o.value = i; o.textContent = `หน้า ${i+1}`; selector.append(o);
-  });
-  selector.value = job.current;
-  const p = job.pages[job.current];
-  $("section").value = p.section;
-  $("orientation").value = p.orientation;
-  $("layout").value = String(p.layout);
-  $("photoSize").value = String(p.size);
-  $("margin").value = p.margin;
-  $("gap").value = p.gap;
-  $("deletePage").disabled = job.pages.length <= 1;
+  let selectedSlot = null;
+  let cameraStream = null;
+  let cameraFacing = "environment";
 
-  const root = $("pages"); root.replaceChildren();
-  job.pages.forEach((page, pi) => {
-    const label = document.createElement("div");
-    label.className = "page-label";
-    label.textContent = `หน้า ${pi+1} · ${page.section}`;
-    root.append(label);
-
-    const paper = document.createElement("article");
-    paper.className = `paper ${page.orientation}`;
-    const [cols, rows] = gridDims(page);
-    paper.style.setProperty("--cols", cols);
-    paper.style.setProperty("--rows", rows);
-    paper.style.setProperty("--margin", `${page.margin}mm`);
-    paper.style.setProperty("--gap", `${page.gap}mm`);
-    paper.style.setProperty("--photo", `${page.size}in`);
-
-    const head = document.createElement("div");
-    head.className = "paper-head";
-    head.innerHTML = `<div class="machine"></div><h2>รายงานการซ่อมบำรุง / ตรวจสอบ</h2>`;
-    head.querySelector(".machine").textContent = job.meta.machine || "รหัสเครื่องจักร";
-    const meta = document.createElement("div"); meta.className = "meta";
-    [
-      ["ทีมที่เข้าทำ", job.meta.team], ["เจ้าหน้าที่ความปลอดภัย", job.meta.safety],
-      ["วันที่เข้าทำ", job.meta.date]
-    ].forEach(([k,v]) => {
-      const span = document.createElement("span");
-      span.textContent = `${k}: ${v || ""}`; meta.append(span);
-    });
-    head.append(meta); paper.append(head);
-
-    const title = document.createElement("div");
-    title.className = "section-title"; title.textContent = page.section; paper.append(title);
-
-    const fields = document.createElement("div"); fields.className = "report-fields";
-    (sections[page.section] || ["CLEANING","PM","หมายเหตุ"]).forEach((key, fi) => {
-      const box = document.createElement("div");
-      box.className = "report-field" + (["ก่อนทำ","หลังทำ","Comment","หมายเหตุ"].includes(key) ? " wide" : "");
-      const bold = document.createElement("b"); bold.textContent = key + ":";
-      const input = document.createElement("input");
-      input.type = "text"; input.value = page.fields[key] || "";
-      input.setAttribute("data-page", pi); input.setAttribute("data-field", key);
-      input.style.cssText = "border:0;outline:0;width:70%;font-size:inherit;padding:0";
-      input.addEventListener("input", e => { page.fields[key] = e.target.value; });
-      box.append(bold, input); fields.append(box);
-    });
-    paper.append(fields);
-
-    const grid = document.createElement("div"); grid.className = "photo-grid";
-    for (let si = 0; si < page.layout; si++) {
-      const cell = document.createElement("div"); cell.className = "cell";
-      const photo = page.photos[si];
-      if (photo) {
-        const img = document.createElement("img"); img.src = photo; img.alt = "รูปประกอบ"; cell.append(img);
-      } else {
-        const empty = document.createElement("span"); empty.className = "placeholder"; empty.textContent = `ช่อง ${si+1}`; cell.append(empty);
-      }
-      const tools = document.createElement("div"); tools.className = "cell-tools";
-      const add = document.createElement("button"); add.textContent = photo ? "เปลี่ยนรูป" : "เพิ่มรูป";
-      add.addEventListener("click", () => { pendingSlot = {pi,si}; singleFile.click(); });
-      const del = document.createElement("button"); del.textContent = "ลบ";
-      del.disabled = !photo;
-      del.addEventListener("click", () => { page.photos[si] = null; render(); });
-      tools.append(add,del); cell.append(tools); grid.append(cell);
+  function getGridSize(page) {
+    const count = Number(page.layout);
+    if (page.orientation === "landscape") {
+      if (count === 4) return [2, 2];
+      if (count === 6) return [3, 2];
+      if (count === 8) return [4, 2];
+      return [4, 3];
     }
-    paper.append(grid); root.append(paper);
-  });
-}
-let pendingSlot = null;
-const singleFile = document.createElement("input");
-singleFile.type = "file"; singleFile.accept = "image/*"; singleFile.hidden = true;
-document.body.append(singleFile);
-
-$("currentPage").addEventListener("change", e => { job.current = Number(e.target.value); render(); });
-$("section").addEventListener("change", e => { job.pages[job.current].section = e.target.value; render(); });
-$("orientation").addEventListener("change", e => { job.pages[job.current].orientation = e.target.value; render(); });
-$("layout").addEventListener("change", e => {
-  const p = job.pages[job.current]; p.layout = Number(e.target.value); p.photos.length = p.layout; render();
-});
-$("photoSize").addEventListener("change", e => { job.pages[job.current].size = Number(e.target.value); render(); });
-$("margin").addEventListener("input", e => { job.pages[job.current].margin = clamp(e.target.value,0,25,8); render(); });
-$("gap").addEventListener("input", e => { job.pages[job.current].gap = clamp(e.target.value,0,15,3); render(); });
-
-$("addPage").addEventListener("click", () => {
-  const p = createPage();
-  const prev = job.pages[job.current];
-  p.section = prev.section; p.orientation = prev.orientation; p.layout = prev.layout;
-  p.size = prev.size; p.margin = prev.margin; p.gap = prev.gap;
-  job.pages.splice(job.current + 1, 0, p); job.current++; render();
-});
-$("deletePage").addEventListener("click", () => {
-  if (job.pages.length > 1) { job.pages.splice(job.current,1); job.current = Math.max(0,job.current-1); render(); }
-});
-
-function firstEmpty(start) {
-  for (let pi=start; pi<job.pages.length; pi++) {
-    const si = job.pages[pi].photos.findIndex(x => !x);
-    if (si >= 0) return {pi,si};
+    if (count === 4) return [2, 2];
+    if (count === 6) return [2, 3];
+    if (count === 8) return [2, 4];
+    return [3, 4];
   }
-  const prev = job.pages[job.pages.length-1];
-  const next = createPage();
-  next.section = prev.section; next.orientation = prev.orientation; next.layout = prev.layout;
-  next.size = prev.size; next.margin = prev.margin; next.gap = prev.gap;
-  job.pages.push(next);
-  return {pi:job.pages.length-1, si:0};
-}
-function placePhoto(src, slot) {
-  const pos = slot || firstEmpty(job.current);
-  job.pages[pos.pi].photos[pos.si] = src;
-  job.current = pos.pi; render();
-}
-function readData(file) {
-  return new Promise((resolve,reject) => {
-    const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file);
-  });
-}
-$("photos").addEventListener("change", async e => {
-  for (const f of e.target.files) if (f.type.startsWith("image/")) placePhoto(await readData(f));
-  e.target.value = "";
-});
-singleFile.addEventListener("change", async e => {
-  const f = e.target.files[0];
-  if (f && pendingSlot) placePhoto(await readData(f), pendingSlot);
-  pendingSlot = null; e.target.value = "";
-});
 
-$("saveJob").addEventListener("click", () => {
-  syncMeta();
-  const blob = new Blob([JSON.stringify(job)], {type:"application/json"});
-  download(blob, "รายงานซ่อมบำรุง.json");
-});
-$("openJob").addEventListener("click", () => $("openFile").click());
-$("openFile").addEventListener("change", async e => {
-  const f = e.target.files[0]; if (!f) return;
-  try {
-    const loaded = JSON.parse(await f.text());
-    if (!Array.isArray(loaded.pages) || !loaded.pages.length) throw new Error();
-    job = loaded;
-    job.current = Number(job.current) || 0;
-    job.meta ||= {machine:"",team:"",safety:"",date:""};
-    job.pages.forEach(p => {
-      p.layout = [6,8,12].includes(Number(p.layout)) ? Number(p.layout) : 6;
-      p.photos = Array.from({length:p.layout},(_,i)=>p.photos?.[i] || null);
-      p.fields ||= {}; p.size = Number(p.size)||4; p.margin=Number(p.margin)||8; p.gap=Number(p.gap)||3;
-      p.orientation = p.orientation === "landscape" ? "landscape" : "portrait";
+  function buildChecklists() {
+    [["beforeChecks", "before"], ["afterChecks", "after"]].forEach(([id, key]) => {
+      const root = $(id);
+      root.replaceChildren();
+      TASKS.forEach(task => {
+        const label = document.createElement("label");
+        label.className = "task-check";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.task = task;
+        checkbox.addEventListener("change", () => {
+          const selected = job.pages[job.current][key];
+          if (checkbox.checked && !selected.includes(task)) selected.push(task);
+          if (!checkbox.checked) {
+            job.pages[job.current][key] = selected.filter(item => item !== task);
+          }
+          renderPages();
+        });
+
+        const text = document.createElement("span");
+        text.textContent = task;
+        label.append(checkbox, text);
+        root.append(label);
+      });
     });
-    render();
-  } catch { alert("เปิดไฟล์ไม่สำเร็จ กรุณาเลือกไฟล์งาน JSON ที่บันทึกจากแอปนี้"); }
-  e.target.value = "";
-});
-$("pdf").addEventListener("click", () => window.print());
-
-$("word").addEventListener("click", () => {
-  syncMeta();
-  const html = [...document.querySelectorAll(".paper")].map(p => p.outerHTML).join("");
-  const styles = [...document.querySelectorAll("style")].map(s => s.innerHTML).join("\n");
-  const doc = `<!doctype html><html><head><meta charset="utf-8"><style>${styles}
-    body{font-family:Arial,sans-serif}.paper{width:210mm;height:297mm;box-shadow:none;page-break-after:always}
-    .paper.landscape{width:297mm;height:210mm}.cell-tools{display:none}
-    </style></head><body>${html}</body></html>`;
-  download(new Blob(["\ufeff",doc],{type:"application/msword"}),"รายงานซ่อมบำรุง.doc");
-});
-function download(blob,name) {
-  const a=document.createElement("a"); const url=URL.createObjectURL(blob);
-  a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function clamp(v,min,max,fallback) {
-  const n=Number(v); return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback;
-}
-
-async function startCamera() {
-  stopCamera();
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:cameraFacing}});
-    $("video").srcObject = cameraStream; $("cameraNote").textContent="";
-  } catch {
-    $("cameraNote").textContent="เปิดกล้องไม่ได้ โปรดอนุญาตการใช้กล้องและเข้าเว็บผ่าน HTTPS หรือ localhost";
   }
-}
-function stopCamera() {
-  if (cameraStream) cameraStream.getTracks().forEach(t=>t.stop());
-  cameraStream = null; $("video").srcObject = null;
-}
-$("cameraBtn").addEventListener("click", async () => { $("camera").classList.add("open"); await startCamera(); });
-$("switchCamera").addEventListener("click", async () => {
-  cameraFacing = cameraFacing === "environment" ? "user" : "environment";
-  if ($("camera").classList.contains("open")) await startCamera();
-});
-$("closeCamera").addEventListener("click", () => { stopCamera(); $("camera").classList.remove("open"); });
-$("capture").addEventListener("click", () => {
-  const v=$("video"); if (!v.videoWidth) return;
-  const c=document.createElement("canvas"); c.width=v.videoWidth; c.height=v.videoHeight;
-  c.getContext("2d").drawImage(v,0,0);
-  placePhoto(c.toDataURL("image/jpeg",.92));
-  stopCamera(); $("camera").classList.remove("open");
-});
-render();
+
+  function addMeta(container, label, value) {
+    const item = document.createElement("div");
+    item.className = "meta-item";
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
+    item.append(strong, document.createTextNode(value || "—"));
+    container.append(item);
+  }
+
+  function makeSection(title, selected) {
+    const box = document.createElement("div");
+    box.className = "section-box";
+
+    const heading = document.createElement("strong");
+    heading.textContent = title + ": ";
+    box.append(heading);
+
+    if (!selected.length) {
+      box.append(document.createTextNode("ไม่ได้เลือก"));
+      return box;
+    }
+
+    const list = document.createElement("span");
+    list.className = "task-list";
+    selected.forEach(task => {
+      const item = document.createElement("span");
+      item.className = "task-result";
+      item.textContent = "☑ " + task;
+      list.append(item);
+    });
+    box.append(list);
+    return box;
+  }
+
+  function renderPages() {
+    const root = $("pages");
+    root.replaceChildren();
+
+    job.pages.forEach((page, pageIndex) => {
+      const count = allowedLayouts.includes(Number(page.layout))
+        ? Number(page.layout)
+        : 4;
+
+      const caption = document.createElement("div");
+      caption.className = "page-caption";
+      caption.textContent =
+        `หน้า ${pageIndex + 1} · ${count} รูป · ` +
+        (page.orientation === "landscape" ? "แนวนอน" : "แนวตั้ง");
+      root.append(caption);
+
+      const paper = document.createElement("article");
+      paper.className = `paper ${page.orientation}`;
+      const [cols, rows] = getGridSize(page);
+      paper.style.setProperty("--cols", cols);
+      paper.style.setProperty("--rows", rows);
+      paper.style.setProperty("--frame", `${page.frame}in`);
+
+      const reportHead = document.createElement("div");
+      reportHead.className = "report-head";
+
+      const mark = document.createElement("span");
+      mark.className = "report-mark";
+      mark.textContent = "MAINTENANCE";
+
+      const title = document.createElement("h2");
+      title.className = "report-title";
+      title.textContent = "รายงานงานซ่อมบำรุง";
+
+      const pageNo = document.createElement("span");
+      pageNo.className = "report-page-no";
+      pageNo.textContent = `หน้า ${pageIndex + 1}`;
+
+      reportHead.append(mark, title, pageNo);
+      paper.append(reportHead);
+
+      const meta = document.createElement("div");
+      meta.className = "meta-grid";
+      addMeta(meta, "รหัสเครื่องจักร", job.info.machine);
+      addMeta(meta, "ทีมที่เข้าทำ", job.info.team);
+      addMeta(meta, "วันที่เข้าทำ", job.info.date);
+      addMeta(meta, "หัวหน้างาน", job.info.supervisor);
+      addMeta(meta, "เจ้าหน้าที่ความปลอดภัย", job.info.safety);
+      paper.append(meta);
+
+      paper.append(
+        makeSection("ก่อนทำ", page.before || []),
+        makeSection("หลังทำ", page.after || [])
+      );
+
+      const measureGrid = document.createElement("div");
+      measureGrid.className = "measure-grid";
+
+      const temperature = document.createElement("div");
+      temperature.className = "measure";
+      const tempLabel = document.createElement("strong");
+      tempLabel.textContent = "Temperature: ";
+      temperature.append(tempLabel, document.createTextNode(page.temperature || "—"));
+
+      const vibration = document.createElement("div");
+      vibration.className = "measure";
+      const vibrationLabel = document.createElement("strong");
+      vibrationLabel.textContent = "Vibration (mm/s): ";
+      vibration.append(vibrationLabel, document.createTextNode(page.vibration || "—"));
+
+      measureGrid.append(temperature, vibration);
+      paper.append(measureGrid);
+
+      const comment = document.createElement("div");
+      comment.className = "section-box";
+      const commentTitle = document.createElement("strong");
+      commentTitle.textContent = "ข้อเสนอแนะ Comment / Alarm Code: ";
+      comment.append(commentTitle, document.createTextNode(page.comment || "—"));
+
+      const notes = document.createElement("div");
+      notes.className = "section-box";
+      const notesTitle = document.createElement("strong");
+      notesTitle.textContent = "หมายเหตุ: ";
+      notes.append(notesTitle, document.createTextNode(page.notes || "—"));
+
+      paper.append(comment, notes);
+
+      const grid = document.createElement("div");
+      grid.className = "photo-grid";
+
+      // สร้างช่องตามจำนวนที่เลือกของหน้านี้เสมอ
+      for (let slotIndex = 0; slotIndex < count; slotIndex++) {
+        const photo = page.photos?.[slotIndex] || null;
+        const cell = document.createElement("div");
+        cell.className = "photo-cell";
+
+        if (photo) {
+          const frame = document.createElement("div");
+          frame.className = "photo-frame";
+
+          const img = document.createElement("img");
+          img.src = photo;
+          img.alt = `รูปที่ ${slotIndex + 1}`;
+          frame.append(img);
+          cell.append(frame);
+        } else {
+          const empty = document.createElement("span");
+          empty.className = "empty-slot";
+          empty.textContent = `ช่องรูป ${slotIndex + 1}`;
+          cell.append(empty);
+        }
+
+        const tools = document.createElement("div");
+        tools.className = "photo-tools";
+
+        const addButton = document.createElement("button");
+        addButton.textContent = photo ? "เปลี่ยนรูป" : "เพิ่มรูป";
+        addButton.addEventListener("click", () => {
+          selectedSlot = { pageIndex, slotIndex };
+          $("singlePhoto").click();
+        });
+        tools.append(addButton);
+
+        if (photo) {
+          const removeButton = document.createElement("button");
+          removeButton.textContent = "ลบ";
+          removeButton.addEventListener("click", () => {
+            job.pages[pageIndex].photos[slotIndex] = null;
+            renderAll();
+          });
+          tools.append(removeButton);
+        }
+
+        cell.append(tools);
+        grid.append(cell);
+      }
+
+      paper.append(grid);
+
+      const signatures = document.createElement("div");
+      signatures.className = "signature-grid";
+
+      const supervisorSign = document.createElement("div");
+      supervisorSign.className = "signature";
+      supervisorSign.textContent =
+        `หัวหน้างาน: ${job.info.supervisor || "________________"}`;
+
+      const safetySign = document.createElement("div");
+      safetySign.className = "signature";
+      safetySign.textContent =
+        `เจ้าหน้าที่ความปลอดภัย: ${job.info.safety || "________________"}`;
+
+      signatures.append(supervisorSign, safetySign);
+      paper.append(signatures);
+      root.append(paper);
+    });
+  }
+
+  function syncControls() {
+    job.current = Math.max(0, Math.min(job.current, job.pages.length - 1));
+    const page = job.pages[job.current];
+
+    $("pageSelect").replaceChildren();
+    job.pages.forEach((_, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = `หน้า ${index + 1}`;
+      $("pageSelect").append(option);
+    });
+    $("pageSelect").value = String(job.current);
+    $("pageCount").textContent = `${job.pages.length} หน้า`;
+    $("deletePage").disabled = job.pages.length <= 1;
+
+    $("orientation").value = page.orientation;
+    $("layout").value = String(page.layout);
+    $("frame").value = String(page.frame);
+    $("temperature").value = page.temperature || "";
+    $("vibration").value = page.vibration || "";
+    $("comment").value = page.comment || "";
+    $("notes").value = page.notes || "";
+
+    [
+      ["beforeChecks", "before"],
+      ["afterChecks", "after"]
+    ].forEach(([id, key]) => {
+      $(id).querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = (page[key] || []).includes(checkbox.dataset.task);
+      });
+    });
+  }
+
+  function renderAll() {
+    syncControls();
+    renderPages();
+  }
+
+  function firstEmptySlot() {
+    for (let pageIndex = job.current; pageIndex < job.pages.length; pageIndex++) {
+      const page = job.pages[pageIndex];
+      const limit = Number(page.layout);
+      const slotIndex = Array.from({ length: limit }, (_, i) => i)
+        .find(index => !page.photos[index]);
+
+      if (slotIndex !== undefined) return { pageIndex, slotIndex };
+    }
+
+    const source = job.pages[job.current];
+    const next = createPage();
+    next.orientation = source.orientation;
+    next.layout = source.layout;
+    next.frame = source.frame;
+    job.pages.push(next);
+
+    return { pageIndex: job.pages.length - 1, slotIndex: 0 };
+  }
+
+  function placePhoto(data, target = null) {
+    const destination = target || firstEmptySlot();
+    const page = job.pages[destination.pageIndex];
+
+    // รองรับกรณีจำนวนช่องเพิ่มขึ้นในหน้าที่มีอยู่แล้ว
+    while (page.photos.length < Number(page.layout)) page.photos.push(null);
+
+    page.photos[destination.slotIndex] = data;
+    job.current = destination.pageIndex;
+    renderAll();
+  }
+
+  function readImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  $("photos").addEventListener("change", async event => {
+    const files = [...event.target.files].filter(file => file.type.startsWith("image/"));
+    for (const file of files) {
+      placePhoto(await readImage(file));
+    }
+    event.target.value = "";
+  });
+
+  const singlePhoto = document.createElement("input");
+  singlePhoto.id = "singlePhoto";
+  singlePhoto.type = "file";
+  singlePhoto.accept = "image/*";
+  singlePhoto.hidden = true;
+  document.body.append(singlePhoto);
+
+  singlePhoto.addEventListener("change", async event => {
+    const file = event.target.files[0];
+    if (file && selectedSlot) {
+      placePhoto(await readImage(file), selectedSlot);
+    }
+    selectedSlot = null;
+    event.target.value = "";
+  });
+
+  $("pageSelect").addEventListener("change", event => {
+    job.current = Number(event.target.value);
+    renderAll();
+  });
+
+  $("orientation").addEventListener("change", event => {
+    job.pages[job.current].orientation = event.target.value;
+    renderAll();
+  });
+
+  $("layout").addEventListener("change", event => {
+    const page = job.pages[job.current];
+    const newCount = Number(event.target.value);
+
+    // เก็บรูปเดิมไว้ เผื่อเปลี่ยนกลับไปใช้จำนวนช่องมากขึ้น
+    page.layout = newCount;
+    while (page.photos.length < newCount) page.photos.push(null);
+
+    renderAll();
+  });
+
+  $("frame").addEventListener("change", event => {
+    job.pages[job.current].frame = Number(event.target.value);
+    renderPages();
+  });
+
+  $("addPage").addEventListener("click", () => {
+    const source = job.pages[job.current];
+    const page = createPage();
+    page.orientation = source.orientation;
+    page.layout = source.layout;
+    page.frame = source.frame;
+    job.pages.push(page);
+    job.current = job.pages.length - 1;
+    renderAll();
+  });
+
+  $("deletePage").addEventListener("click", () => {
+    if (job.pages.length <= 1) return;
+    job.pages.splice(job.current, 1);
+    job.current = Math.min(job.current, job.pages.length - 1);
+    renderAll();
+  });
+
+  const infoFields = ["machine", "team", "date", "supervisor", "safety"];
+  infoFields.forEach(key => {
+    $(key).addEventListener("input", event => {
+      job.info[key] = event.target.value;
+      renderPages();
+    });
+  });
+
+  ["temperature", "vibration", "comment", "notes"].forEach(key => {
+    $(key).addEventListener("input", event => {
+      job.pages[job.current][key] = event.target.value;
+      renderPages();
+    });
+  });
+
+  $("saveJob").addEventListener("click", () => {
+    download(
+      new Blob([JSON.stringify(job)], { type: "application/json" }),
+      "maintenance-report.json"
+    );
+  });
+
+  $("openJob").addEventListener("click", () => $("openFile").click());
+
+  $("openFile").addEventListener("change", async event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const loaded = JSON.parse(await file.text());
+      if (!loaded.info || !Array.isArray(loaded.pages) || !loaded.pages.length) {
+        throw new Error("Invalid report");
+      }
+
+      job = loaded;
+      job.info = {
+        machine: job.info.machine || "",
+        team: job.info.team || "",
+        date: job.info.date || "",
+        supervisor: job.info.supervisor || "",
+        safety: job.info.safety || ""
+      };
+      job.current = Number(job.current) || 0;
+
+      job.pages.forEach(page => {
+        page.layout = allowedLayouts.includes(Number(page.layout))
+          ? Number(page.layout)
+          : 4;
+        page.orientation = page.orientation === "landscape" ? "landscape" : "portrait";
+        page.frame = [4, 5, 6, 7, 8, 9].includes(Number(page.frame))
+          ? Number(page.frame)
+          : 5;
+        page.photos = Array.isArray(page.photos) ? page.photos : [];
+        while (page.photos.length < page.layout) page.photos.push(null);
+        page.before = Array.isArray(page.before) ? page.before : [];
+        page.after = Array.isArray(page.after) ? page.after : [];
+        page.temperature = page.temperature || "";
+        page.vibration = page.vibration || "";
+        page.comment = page.comment || "";
+        page.notes = page.notes || "";
+      });
+
+      infoFields.forEach(key => { $(key).value = job.info[key]; });
+      renderAll();
+    } catch {
+      alert("เปิดงานไม่สำเร็จ กรุณาเลือกไฟล์ JSON ที่บันทึกจากแอปนี้");
+    }
+    event.target.value = "";
+  });
+
+  $("closeJob").addEventListener("click", () => {
+    if (!confirm("เริ่มงานใหม่หรือไม่? หากต้องการเก็บข้อมูล กรุณาบันทึกงานก่อน")) return;
+
+    job = {
+      info: { machine: "", team: "", date: "", supervisor: "", safety: "" },
+      pages: [createPage()],
+      current: 0
+    };
+    infoFields.forEach(key => { $(key).value = ""; });
+    renderAll();
+  });
+
+  $("pdfButton").addEventListener("click", () => window.print());
+
+  $("wordButton").addEventListener("click", () => {
+    const reportPages = job.pages.map((page, index) => makeWordPage(page, index)).join("");
+    const documentHtml = `<!doctype html>
+      <html><head><meta charset="utf-8">
+      <style>
+        body{font-family:Arial,sans-serif;color:#172235}
+        .page{page-break-after:always;padding:8mm}
+        h2{text-align:center}
+        table{width:100%;border-collapse:collapse;margin:6px 0;font-size:10pt}
+        td{border:1px solid #9aa5b4;padding:5px}
+        .photos{table-layout:fixed}
+        .photos td{height:115px;text-align:center;vertical-align:middle}
+        .photos img{max-width:100%;max-height:110px;object-fit:contain}
+        .sign{text-align:center;padding-top:22px}
+      </style></head><body>${reportPages}</body></html>`;
+
+    download(
+      new Blob(["\ufeff", documentHtml], { type: "application/msword" }),
+      "maintenance-report.doc"
+    );
+  });
+
+  function makeWordPage(page, index) {
+    const [cols, rows] = getGridSize(page);
+    let photoRows = "";
+
+    for (let row = 0; row < rows; row++) {
+      photoRows += "<tr>";
+      for (let col = 0; col < cols; col++) {
+        const photo = page.photos[row * cols + col];
+        photoRows += `<td>${photo ? `<img src="${photo}" alt="รูปหน้างาน">` : ""}</td>`;
+      }
+      photoRows += "</tr>";
+    }
+
+    const taskText = list => list.length
+      ? list.map(task => "☑ " + escapeHtml(task)).join("　")
+      : "ไม่ได้เลือก";
+
+    return `<section class="page">
+      <h2>รายงานงานซ่อมบำรุง</h2>
+      <table>
+        <tr><td><b>รหัสเครื่องจักร:</b> ${escapeHtml(job.info.machine || "—")}</td>
+            <td><b>ทีมที่เข้าทำ:</b> ${escapeHtml(job.info.team || "—")}</td></tr>
+        <tr><td><b>วันที่เข้าทำ:</b> ${escapeHtml(job.info.date || "—")}</td>
+            <td><b>หัวหน้างาน:</b> ${escapeHtml(job.info.supervisor || "—")}</td></tr>
+        <tr><td colspan="2"><b>เจ้าหน้าที่ความปลอดภัย:</b> ${escapeHtml(job.info.safety || "—")}</td></tr>
+        <tr><td colspan="2"><b>ก่อนทำ:</b> ${taskText(page.before || [])}</td></tr>
+        <tr><td colspan="2"><b>หลังทำ:</b> ${taskText(page.after || [])}</td></tr>
+        <tr><td><b>Temperature:</b> ${escapeHtml(page.temperature || "—")}</td>
+            <td><b>Vibration (mm/s):</b> ${escapeHtml(page.vibration || "—")}</td></tr>
+        <tr><td colspan="2"><b>ข้อเสนอแนะ Comment / Alarm Code:</b> ${escapeHtml(page.comment || "—")}</td></tr>
+        <tr><td colspan="2"><b>หมายเหตุ:</b> ${escapeHtml(page.notes || "—")}</td></tr>
+      </table>
+      <table class="photos">${photoRows}</table>
+      <table>
+        <tr>
+          <td class="sign">หัวหน้างาน<br><br>${escapeHtml(job.info.supervisor || "________________")}</td>
+          <td class="sign">เจ้าหน้าที่ความปลอดภัย<br><br>${escapeHtml(job.info.safety || "________________")}</td>
+        </tr>
+      </table>
+      <p style="text-align:right">หน้า ${index + 1}</p>
+    </section>`;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[character]));
+  }
+
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function openCamera() {
+    stopCamera();
+
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: cameraFacing } },
+        audio: false
+      });
+      $("video").srcObject = cameraStream;
+      $("cameraMessage").textContent = "";
+    } catch {
+      $("cameraMessage").textContent =
+        "เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้องและเปิดเว็บผ่าน HTTPS หรือ localhost";
+    }
+
+    $("cameraModal").classList.add("open");
+  }
+
+  function stopCamera() {
+    if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    $("video").srcObject = null;
+  }
+
+  $("cameraButton").addEventListener("click", openCamera);
+
+  $("switchCamera").addEventListener("click", () => {
+    cameraFacing = cameraFacing === "environment" ? "user" : "environment";
+    openCamera();
+  });
+
+  $("closeCamera").addEventListener("click", () => {
+    stopCamera();
+    $("cameraModal").classList.remove("open");
+  });
+
+  $("takePhoto").addEventListener("click", () => {
+    const video = $("video");
+    if (!video.videoWidth) {
+      $("cameraMessage").textContent = "กำลังรอกล้องพร้อมใช้งาน";
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+
+    placePhoto(canvas.toDataURL("image/jpeg", 0.92));
+    stopCamera();
+    $("cameraModal").classList.remove("open");
+  });
+
+  buildChecklists();
+  renderAll();
+})();
 </script>
 </body>
 </html>
