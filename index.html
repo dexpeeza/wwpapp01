@@ -2,22 +2,22 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>รายงานงานซ่อมบำรุง A4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายงานซ่อมบำรุง A4</title>
 <style>
 :root{--navy:#17304d;--blue:#2563eb;--bg:#f3f6fa;--line:#dfe5ed;--ink:#202b3a;--muted:#718096}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,Arial,sans-serif}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 18px;background:var(--navy);color:#fff}
-header h1{margin:0;font-size:16px}
-header small{color:#c4d1e0}
+.topbar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 18px;background:var(--navy);color:#fff}
+.topbar h1{margin:0;font-size:16px}
+.topbar small{color:#c4d1e0}
 .actions,.row{display:flex;flex-wrap:wrap;gap:7px}
 button{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-size:12px}
 button.primary{border-color:var(--blue);background:var(--blue);color:#fff}
 button.danger{background:#fff7f7;color:#a43642}
-button:disabled{opacity:.5;cursor:not-allowed}
+button:disabled{opacity:.45;cursor:not-allowed}
 .app{max-width:1650px;margin:auto;padding:16px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
 .sidebar{display:grid;gap:12px}
 .card{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fff}
@@ -26,20 +26,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .field:last-child{margin-bottom:0}
 label{font-size:12px;font-weight:700;color:#46546a}
 input[type=text],input[type=date],select,textarea{width:100%;min-height:36px;padding:8px;border:1px solid #d4dce7;border-radius:8px;background:#fff}
-textarea{min-height:58px;resize:vertical}
+textarea{min-height:54px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .check{display:flex;gap:6px;align-items:flex-start;padding:7px;border:1px solid #e8ecf2;border-radius:8px;font-size:11px}
 .check input{margin:1px 0 0;accent-color:var(--blue)}
 .hint{color:var(--muted);font-size:11px;line-height:1.45}
-.measurements{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.measure-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-.measure-list input{min-width:0;padding:7px;font-size:11px}
 .work{min-width:0}
 .work h2{margin:2px 0 5px;font-size:18px}
-.work-intro{margin:0 0 12px;color:var(--muted);font-size:12px}
+.intro{margin:0 0 12px;color:var(--muted);font-size:12px}
 .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:9px;margin-bottom:12px;border:1px solid var(--line);border-radius:10px;background:#fff}
-.toolbar select{width:auto;min-width:150px}
+.toolbar select{width:auto;min-width:180px}
 .count{margin-left:auto;color:var(--muted);font-size:12px}
 .pages{display:grid;justify-items:center;gap:17px}
 .caption{width:min(100%,850px);margin-bottom:-12px;color:var(--muted);font-size:11px}
@@ -48,49 +45,52 @@ textarea{min-height:58px;resize:vertical}
 .paper-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:7px}
 .paper-head strong{text-align:center;font-size:13px}
 .paper-head span:last-child{text-align:right}
-.meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px 8px;padding:5px 7px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px;overflow-wrap:anywhere}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;padding:5px 7px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px}
 .section{padding:4px 6px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px;line-height:1.35;overflow-wrap:anywhere}
-.task-out{display:inline-flex;flex-wrap:wrap;gap:2px 8px;margin-left:4px}
-.measurement-output{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.measure-output{padding:4px 6px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px;overflow-wrap:anywhere}
+.task-result{display:inline-flex;flex-wrap:wrap;gap:2px 8px;margin-left:4px}
+.measurements{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.measurement{padding:4px 6px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px;overflow-wrap:anywhere}
 .photo-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:2.5mm}
-.photo-slot{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:1px solid #cbd4e0;border-radius:4px;background:#fbfcfe}
-.photo-frame{width:min(var(--frame),100%);max-height:calc(100% - 18px);aspect-ratio:1;display:grid;place-items:center;overflow:hidden;background:#fff}
+.photo-slot{position:relative;min-width:0;min-height:0;display:grid;place-items:center;overflow:hidden;border:1px solid #cbd4e0;border-radius:4px;background:#fbfcfe}
+.photo-frame{width:min(var(--frame),100%);max-height:100%;aspect-ratio:1;display:grid;place-items:center;overflow:hidden;background:#fff}
 .photo-frame img{width:100%;height:100%;object-fit:contain}
 .empty{color:#9aa5b4;font-size:8px}
-.photo-note{width:100%;max-height:25%;overflow:auto;padding:2px 4px;text-align:center;font-size:7px;overflow-wrap:anywhere}
 .slot-tools{position:absolute;inset:auto 2px 2px;display:flex;justify-content:center;gap:3px}
 .slot-tools button{padding:3px 5px;font-size:8px}
-.note-after-photos{padding:4px 6px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px;min-height:13px;overflow-wrap:anywhere}
+.notes-area{display:grid;gap:3px;padding:4px 6px;border:1px solid #cfd7e2;border-radius:4px;font-size:7px}
+.note-row{display:grid;grid-template-columns:auto 1fr;gap:4px;align-items:start}
+.note-row strong{white-space:nowrap}
 .signatures{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .signature{padding-top:7px;border-top:1px solid #758094;text-align:center;font-size:7px}
+.measure-list{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.measure-list input{min-width:0}
 .modal{position:fixed;inset:0;z-index:10;display:none;place-items:center;padding:15px;background:#071426aa}
 .modal.open{display:grid}
-.modal-box{width:min(600px,100%);padding:15px;border-radius:13px;background:#fff}
+.modal-box{width:min(620px,100%);padding:15px;border-radius:13px;background:#fff}
 .modal-box video{width:100%;max-height:60vh;background:#111;border-radius:9px}
-.hidden{display:none!important}
 @media(max-width:900px){.app{grid-template-columns:1fr}}
-@media(max-width:600px){header{align-items:flex-start;padding:9px 11px}.actions{justify-content:flex-end}.actions button{padding:7px;font-size:11px}.app{padding:10px}.count{width:100%;margin-left:0}}
+@media(max-width:600px){.topbar{align-items:flex-start;padding:9px 11px}.actions{justify-content:flex-end}.actions button{padding:7px;font-size:11px}.app{padding:10px}.count{width:100%;margin-left:0}}
 @media print{
- body{background:#fff}
- header,.sidebar,.work>h2,.work-intro,.toolbar,.caption,.slot-tools{display:none!important}
- .app{display:block;padding:0}
- .paper{width:210mm!important;height:297mm!important;aspect-ratio:auto!important;padding:7mm;border:0;box-shadow:none;break-after:page;page-break-after:always}
- .paper.landscape{width:297mm!important;height:210mm!important}
- .paper:last-child{break-after:auto}
- @page portrait{size:A4 portrait;margin:0}
- @page landscape{size:A4 landscape;margin:0}
- .paper.portrait{page:portrait}.paper.landscape{page:landscape}
+  body{background:#fff}
+  .topbar,.sidebar,.work>h2,.intro,.toolbar,.caption,.slot-tools{display:none!important}
+  .app{display:block;padding:0}
+  .paper{width:210mm!important;height:297mm!important;aspect-ratio:auto!important;padding:7mm;border:0;box-shadow:none;break-after:page;page-break-after:always}
+  .paper.landscape{width:297mm!important;height:210mm!important}
+  .paper:last-child{break-after:auto}
+  @page portrait{size:A4 portrait;margin:0}
+  @page landscape{size:A4 landscape;margin:0}
+  .paper.portrait{page:portrait}.paper.landscape{page:landscape}
 }
 </style>
 </head>
 <body>
-<header>
-  <div><h1>รายงานงานซ่อมบำรุง</h1><small>แบบฟอร์มมาตรฐานโรงงาน · A4</small></div>
+<header class="topbar">
+  <div><h1>รายงานงานซ่อมบำรุง</h1><small>แบบฟอร์มโรงงาน · กระดาษ A4</small></div>
   <div class="actions">
     <button id="saveLocal">บันทึกในเครื่อง</button>
+    <button id="saveFolder">บันทึกไปโฟลเดอร์</button>
     <button id="exportJson">ส่งออกงาน</button>
-    <button id="openJson">เปิดงาน</button>
+    <button id="openJson">เปิดไฟล์งาน</button>
     <button id="exportWord">Word</button>
     <button id="exportPdf" class="primary">พิมพ์ / PDF</button>
     <button id="newJob" class="danger">ปิดงาน / งานใหม่</button>
@@ -119,7 +119,7 @@ textarea{min-height:58px;resize:vertical}
         <select id="layout"><option value="4">4 รูป</option><option value="6">6 รูป</option><option value="8">8 รูป</option><option value="12">12 รูป</option></select>
       </div>
     </div>
-    <div class="field"><label for="frameSize">ขนาดกรอบภาพ</label>
+    <div class="field"><label for="frameSize">ขนาดกรอบรูป</label>
       <select id="frameSize">
         <option value="4">4 × 4 ซม.</option><option value="5">5 × 5 ซม.</option>
         <option value="6">6 × 6 ซม.</option><option value="7">7 × 7 ซม.</option>
@@ -127,51 +127,45 @@ textarea{min-height:58px;resize:vertical}
       </select>
     </div>
     <div class="field"><label for="images">เพิ่มรูปหลายรูปพร้อมกัน</label><input id="images" type="file" accept="image/*" multiple></div>
-    <div class="row"><button id="cameraOpen">ถ่ายรูป</button></div>
-    <p class="hint">รูปจะอยู่กึ่งกลางช่องและรักษาสัดส่วนเดิม หากหน้าเต็ม ระบบเพิ่มหน้าให้อัตโนมัติ</p>
+    <div class="row"><button id="cameraOpen">ถ่ายรูป</button><button id="cameraSwitch">สลับกล้อง</button></div>
+    <p class="hint">รูปจัดอยู่กึ่งกลางช่องและรักษาสัดส่วนเดิม รูปเกินจำนวนช่องจะไปหน้าถัดไป</p>
   </section>
 
   <section class="card">
-    <h2>ก่อนทำ / หลังทำ</h2>
+    <h2>รายการก่อนทำ / หลังทำ</h2>
     <div id="taskChecks"></div>
   </section>
 
-  <section class="card" id="measurementCard">
-    <h2>หน้าวัดค่า · 3 รูป / 3 ค่า</h2>
-    <div class="measurements">
-      <div>
-        <label>Temperature (°C)</label>
-        <div id="temperatureInputs" class="measure-list"></div>
-      </div>
-      <div>
-        <label>Vibration (mm/s)</label>
-        <div id="vibrationInputs" class="measure-list"></div>
-      </div>
-    </div>
-    <p class="hint">เพิ่มรูปวัดค่าได้ 3 รูป แล้วกด “อ่านค่า OCR” บนช่องรูปนั้น ระบบจะใส่ค่าลงช่องลำดับเดียวกัน</p>
+  <section class="card" id="measureCard">
+    <h2>หน้า 6 · ค่าตรวจวัด</h2>
+    <div class="field"><label>Temperature (°C) — 3 ค่า</label><div id="temperatureInputs" class="measure-list"></div></div>
+    <div class="field"><label>Vibration (mm/s) — 3 ค่า</label><div id="vibrationInputs" class="measure-list"></div></div>
+    <p class="hint">กรอกค่าที่อ่านจากเครื่องมือวัด ระบบนี้ไม่ได้อ่านค่าจากรูปโดยอัตโนมัติ</p>
   </section>
 
-  <section class="card">
-    <h2>ข้อเสนอแนะ</h2>
+  <section class="card" id="commentCard">
+    <h2>หน้า 7 · ข้อเสนอแนะ</h2>
     <div class="field"><label for="comment">Comment / Alarm Code</label><textarea id="comment"></textarea></div>
   </section>
 
   <section class="card">
-    <h2>หมายเหตุหน้าปัจจุบัน</h2>
-    <div class="field"><label for="pageNote">หมายเหตุ (แสดงใต้รูปภาพ)</label><textarea id="pageNote"></textarea></div>
-    <p class="hint">สามารถใส่หมายเหตุแยกใต้รูปแต่ละรูปได้จากช่องรูปในตัวอย่างรายงาน</p>
+    <h2>หมายเหตุใต้รูปภาพ</h2>
+    <p class="hint">เพิ่มหมายเหตุได้หลายรายการในหน้าปัจจุบัน</p>
+    <div id="noteInputs"></div>
+    <button id="addNote">＋ เพิ่มหมายเหตุ</button>
   </section>
 
   <section class="card">
     <h2>รายงานที่บันทึกในเครื่อง</h2>
     <div class="field"><select id="savedList"></select></div>
     <div class="row"><button id="loadLocal">เปิดรายงาน</button><button id="deleteLocal" class="danger">ลบรายงาน</button></div>
+    <p class="hint">ข้อมูลเก็บในเบราว์เซอร์เครื่องนี้ ไม่ซิงก์ไปอุปกรณ์อื่น</p>
   </section>
 </aside>
 
 <section class="work">
   <h2>ตัวอย่างรายงาน A4</h2>
-  <p class="work-intro">เลือกหน้า ตรวจสอบรูป และแก้ไขหมายเหตุใต้ภาพได้</p>
+  <p class="intro">หน้า 1–7 สร้างไว้ให้แล้ว สามารถเพิ่มหน้าเพิ่มเติมได้</p>
   <div class="toolbar">
     <select id="pageSelect" aria-label="เลือกหน้ารายงาน"></select>
     <button id="addPage" class="primary">＋ เพิ่มหน้า</button>
@@ -186,7 +180,6 @@ textarea{min-height:58px;resize:vertical}
   <div class="modal-box">
     <h2>ถ่ายรูป</h2><video id="video" autoplay playsinline></video>
     <div class="row" style="margin-top:8px">
-      <button id="switchCamera">สลับกล้อง</button>
       <button id="takePhoto" class="primary">ถ่ายภาพ</button>
       <button id="closeCamera" class="danger">ปิดกล้อง</button>
     </div>
@@ -196,411 +189,683 @@ textarea{min-height:58px;resize:vertical}
 <input id="slotFile" type="file" accept="image/*" hidden>
 <input id="importFile" type="file" accept=".json,application/json" hidden>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 (() => {
 "use strict";
 const $ = id => document.getElementById(id);
-const DB_NAME="factory-maintenance-a4-v2";
-const STORE="reports";
-const TYPES=[
-  {id:"motor",title:"OVERHAUL MOTOR",tasks:["OVERHAUL MOTOR"]},
-  {id:"blower",title:"OVERHAUL BLOWER",tasks:["OVERHAUL BLOWER"]},
-  {id:"belt",title:"เปลี่ยนสายพาน และ ตั้ง Alignment Laser",tasks:["เปลี่ยนสายพาน","ตั้ง Alignment Laser"]},
-  {id:"cleaning",title:"CLEANING",tasks:["CLEANING"]},
-  {id:"pm",title:"PM",tasks:["PM"]},
-  {id:"measure",title:"วัด Temperature และ Vibration",tasks:[]}
+const DB_NAME = "factory-a4-work-reports";
+const STORE_NAME = "reports";
+const LAYOUTS = [4, 6, 8, 12];
+const TYPES = [
+  {id:"motor", title:"OVERHAUL MOTOR", tasks:["OVERHAUL MOTOR"]},
+  {id:"blower", title:"OVERHAUL BLOWER", tasks:["OVERHAUL BLOWER"]},
+  {id:"belt", title:"เปลี่ยนสายพาน และ ตั้ง Alignment Laser", tasks:["เปลี่ยนสายพาน","ตั้ง Alignment Laser"]},
+  {id:"cleaning", title:"CLEANING", tasks:["CLEANING"]},
+  {id:"pm", title:"PM", tasks:["PM"]},
+  {id:"measure", title:"วัด Temperature และ Vibration", tasks:[]},
+  {id:"comment", title:"ข้อเสนอแนะ Comment / Alarm Code", tasks:[]}
 ];
-const LAYOUTS=[4,6,8,12];
-let job=createJob(),currentId=null,chosenSlot=null,db=null,stream=null,facing="environment";
+let job = createJob();
+let currentId = null;
+let targetSlot = null;
+let cameraStream = null;
+let facing = "environment";
+let db = null;
 
-function makePage(typeIndex=0){
-  return {typeId:TYPES[Math.min(typeIndex,TYPES.length-1)].id,orientation:"portrait",layout:4,frame:5,
-    checks:{},temperature:["","",""],vibration:["","",""],comment:"",notes:"",photos:Array(4).fill(null)};
+function makePage(typeIndex) {
+  return {
+    typeId: TYPES[typeIndex]?.id || TYPES[0].id,
+    orientation:"portrait", layout:4, frame:5,
+    checks:{}, temperature:["","",""], vibration:["","",""],
+    comment:"", notes:[], photos:Array(4).fill(null)
+  };
 }
-function createJob(){return{info:{machine:"",date:"",team:""},pages:TYPES.map((_,i)=>makePage(i)),current:0}}
-function typeOf(p){return TYPES.find(t=>t.id===p.typeId)||TYPES[0]}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function gridSize(p){
-  const n=Number(p.layout);
-  if(p.orientation==="landscape")return n===4?[2,2]:n===6?[3,2]:n===8?[4,2]:[4,3];
+function createJob() {
+  return {
+    info:{machine:"",date:"",team:""},
+    pages:TYPES.map((_,i)=>makePage(i)),
+    current:0
+  };
+}
+function pageType(page) {
+  return TYPES.find(t=>t.id===page.typeId) || TYPES[0];
+}
+function gridSize(page) {
+  const n=Number(page.layout);
+  if(page.orientation==="landscape") return n===4?[2,2]:n===6?[3,2]:n===8?[4,2]:[4,3];
   return n===4?[2,2]:n===6?[2,3]:n===8?[2,4]:[3,4];
 }
-function initDB(){
+function esc(value) {
+  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function openDatabase() {
   return new Promise((resolve,reject)=>{
     const request=indexedDB.open(DB_NAME,1);
-    request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(STORE))request.result.createObjectStore(STORE,{keyPath:"id"})};
+    request.onupgradeneeded=()=>{
+      if(!request.result.objectStoreNames.contains(STORE_NAME))
+        request.result.createObjectStore(STORE_NAME,{keyPath:"id"});
+    };
     request.onsuccess=()=>resolve(request.result);
     request.onerror=()=>reject(request.error);
   });
 }
-function dbAction(mode,method,value){
+function dbAction(mode,action,value) {
   return new Promise((resolve,reject)=>{
-    const store=db.transaction(STORE,mode).objectStore(STORE);
-    const req=method==="all"?store.getAll():method==="get"?store.get(value):method==="delete"?store.delete(value):store.put(value);
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
+    if(!db) return reject(new Error("Database unavailable"));
+    const tx=db.transaction(STORE_NAME,mode);
+    const store=tx.objectStore(STORE_NAME);
+    const request=action==="all"?store.getAll():
+      action==="get"?store.get(value):
+      action==="delete"?store.delete(value):store.put(value);
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
   });
 }
-function setupTypeSelect(){
+function renderTypeSelect() {
   const select=$("pageType");
-  TYPES.forEach(t=>{const option=document.createElement("option");option.value=t.id;option.textContent=t.title;select.append(option)});
+  select.replaceChildren();
+  TYPES.forEach(type=>{
+    const option=document.createElement("option");
+    option.value=type.id;
+    option.textContent=type.title;
+    select.append(option);
+  });
 }
-function renderChecks(p){
-  const root=$("taskChecks");root.replaceChildren();
-  const tasks=typeOf(p).tasks;
-  if(!tasks.length){const note=document.createElement("p");note.className="hint";note.textContent="หน้านี้ใช้กรอกค่าตรวจวัด";root.append(note);return}
+function renderChecks(page) {
+  const root=$("taskChecks");
+  root.replaceChildren();
+  const tasks=pageType(page).tasks;
+  if(!tasks.length) {
+    const p=document.createElement("p");
+    p.className="hint";
+    p.textContent="หน้านี้ไม่มีรายการติ๊กงาน";
+    root.append(p);
+    return;
+  }
   ["ก่อนทำ","หลังทำ"].forEach(phase=>{
-    const heading=document.createElement("p");heading.className="hint";heading.textContent=phase;root.append(heading);
-    const grid=document.createElement("div");grid.className="checks";
+    const title=document.createElement("p");
+    title.className="hint";
+    title.textContent=phase;
+    root.append(title);
+    const grid=document.createElement("div");
+    grid.className="checks";
     tasks.forEach(task=>{
-      const key=phase+":"+task,label=document.createElement("label");label.className="check";
-      const input=document.createElement("input");input.type="checkbox";input.checked=!!p.checks[key];
-      input.onchange=()=>{p.checks[key]=input.checked;renderPages()};
-      const text=document.createElement("span");text.textContent=task;label.append(input,text);grid.append(label);
+      const label=document.createElement("label");
+      label.className="check";
+      const checkbox=document.createElement("input");
+      checkbox.type="checkbox";
+      const key=phase+":"+task;
+      checkbox.checked=!!page.checks[key];
+      checkbox.onchange=()=>{
+        page.checks[key]=checkbox.checked;
+        renderPages();
+      };
+      const text=document.createElement("span");
+      text.textContent=task;
+      label.append(checkbox,text);
+      grid.append(label);
     });
     root.append(grid);
   });
 }
-function renderMeasureInputs(p){
-  [["temperature","temperatureInputs"],["vibration","vibrationInputs"]].forEach(([key,id])=>{
-    const root=$(id);root.replaceChildren();
-    for(let i=0;i<3;i++){
-      const input=document.createElement("input");input.type="text";input.inputMode="decimal";
-      input.placeholder=`ค่า ${i+1}`;input.value=p[key][i]||"";
-      input.oninput=()=>{p[key][i]=input.value;renderPages()};
-      root.append(input);
-    }
+function renderMeasureInputs(page,key,containerId) {
+  const root=$(containerId);
+  root.replaceChildren();
+  for(let i=0;i<3;i++) {
+    const input=document.createElement("input");
+    input.type="text";
+    input.inputMode="decimal";
+    input.placeholder=`ค่า ${i+1}`;
+    input.value=page[key][i]||"";
+    input.oninput=()=>{
+      page[key][i]=input.value;
+      renderPages();
+    };
+    root.append(input);
+  }
+}
+function renderNotesEditor(page) {
+  const root=$("noteInputs");
+  root.replaceChildren();
+  if(!page.notes.length) {
+    const hint=document.createElement("p");
+    hint.className="hint";
+    hint.textContent="ยังไม่มีหมายเหตุ";
+    root.append(hint);
+  }
+  page.notes.forEach((note,index)=>{
+    const row=document.createElement("div");
+    row.className="field";
+    const textarea=document.createElement("textarea");
+    textarea.placeholder=`หมายเหตุ ${index+1}`;
+    textarea.value=note;
+    textarea.oninput=()=>{page.notes[index]=textarea.value;renderPages()};
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.textContent="ลบหมายเหตุนี้";
+    remove.className="danger";
+    remove.onclick=()=>{page.notes.splice(index,1);renderAll()};
+    row.append(textarea,remove);
+    root.append(row);
   });
 }
-function section(title,list){
-  const box=document.createElement("div");box.className="section";
-  const strong=document.createElement("strong");strong.textContent=title+": ";box.append(strong);
-  if(!list.length){box.append("ไม่ได้เลือก");return box}
-  const out=document.createElement("span");out.className="task-out";
-  list.forEach(task=>{const item=document.createElement("span");item.textContent="☑ "+task;out.append(item)});
-  box.append(out);return box;
+function renderPaperMeta(root,label,value) {
+  const item=document.createElement("div");
+  item.textContent=`${label}: ${value||"—"}`;
+  root.append(item);
 }
-function renderPages(){
-  const root=$("pages");root.replaceChildren();
-  job.pages.forEach((p,pi)=>{
-    const type=typeOf(p),count=LAYOUTS.includes(Number(p.layout))?Number(p.layout):4;
-    const caption=document.createElement("div");caption.className="caption";
-    caption.textContent=`หน้า ${pi+1} · ${type.title} · ${count} รูป · ${p.orientation==="landscape"?"แนวนอน":"แนวตั้ง"}`;
+function renderTaskSection(page,phase) {
+  const box=document.createElement("div");
+  box.className="section";
+  const title=document.createElement("strong");
+  title.textContent=phase+": ";
+  box.append(title);
+  const output=document.createElement("span");
+  output.className="task-result";
+  pageType(page).tasks.forEach(task=>{
+    const checked=!!page.checks[phase+":"+task];
+    const item=document.createElement("span");
+    item.textContent=(checked?"☑ ":"☐ ")+task;
+    output.append(item);
+  });
+  box.append(output);
+  return box;
+}
+function renderPages() {
+  const root=$("pages");
+  root.replaceChildren();
+
+  job.pages.forEach((page,pageIndex)=>{
+    const type=pageType(page);
+    const count=LAYOUTS.includes(Number(page.layout))?Number(page.layout):4;
+
+    const caption=document.createElement("div");
+    caption.className="caption";
+    caption.textContent=`หน้า ${pageIndex+1} · ${type.title} · ${count} รูป · ${page.orientation==="landscape"?"แนวนอน":"แนวตั้ง"}`;
     root.append(caption);
 
-    const paper=document.createElement("article");paper.className=`paper ${p.orientation}`;
-    const [cols,rows]=gridSize(p);
-    paper.style.setProperty("--cols",cols);paper.style.setProperty("--rows",rows);paper.style.setProperty("--frame",`${p.frame}cm`);
+    const paper=document.createElement("article");
+    paper.className=`paper ${page.orientation}`;
+    const [cols,rows]=gridSize(page);
+    paper.style.setProperty("--cols",cols);
+    paper.style.setProperty("--rows",rows);
+    paper.style.setProperty("--frame",`${page.frame}cm`);
 
-    const head=document.createElement("div");head.className="paper-head";
-    head.innerHTML=`<span>MAINTENANCE REPORT</span><strong>${esc(type.title)}</strong><span>หน้า ${pi+1}</span>`;
+    const head=document.createElement("div");
+    head.className="paper-head";
+    const left=document.createElement("span");
+    left.textContent="MAINTENANCE REPORT";
+    const title=document.createElement("strong");
+    title.textContent=type.title;
+    const number=document.createElement("span");
+    number.textContent=`หน้า ${pageIndex+1}`;
+    head.append(left,title,number);
     paper.append(head);
 
-    const meta=document.createElement("div");meta.className="meta";
-    [["รหัสเครื่องจักร",job.info.machine],["วันที่เข้าทำ",job.info.date],["ทีมที่เข้าทำ",job.info.team]]
-      .forEach(([label,value])=>{const cell=document.createElement("div");cell.textContent=`${label}: ${value||"—"}`;meta.append(cell)});
+    const meta=document.createElement("div");
+    meta.className="meta";
+    renderPaperMeta(meta,"รหัสเครื่องจักร",job.info.machine);
+    renderPaperMeta(meta,"วันที่เข้าทำ",job.info.date);
+    renderPaperMeta(meta,"ทีมที่เข้าทำ",job.info.team);
     paper.append(meta);
 
-    if(type.tasks.length){
-      paper.append(section("ก่อนทำ",type.tasks.filter(t=>p.checks["ก่อนทำ:"+t])),
-                   section("หลังทำ",type.tasks.filter(t=>p.checks["หลังทำ:"+t])));
-    }
-    if(p.typeId==="measure"){
-      const outputs=document.createElement("div");outputs.className="measurement-output";
-      [["Temperature (°C)",p.temperature],["Vibration (mm/s)",p.vibration]].forEach(([label,values])=>{
-        const box=document.createElement("div");box.className="measure-output";
-        const strong=document.createElement("strong");strong.textContent=label+": ";box.append(strong);
-        box.append((values||[]).map((v,i)=>`${i+1}) ${v||"—"}`).join("　"));outputs.append(box);
-      });
-      paper.append(outputs);
-    }
-    if(p.comment){
-      const comment=document.createElement("div");comment.className="section";
-      const label=document.createElement("strong");label.textContent="ข้อเสนอแนะ Comment / Alarm Code: ";
-      comment.append(label,document.createTextNode(p.comment));paper.append(comment);
+    if(type.tasks.length) {
+      paper.append(renderTaskSection(page,"ก่อนทำ"));
+      paper.append(renderTaskSection(page,"หลังทำ"));
     }
 
-    const grid=document.createElement("div");grid.className="photo-grid";
-    for(let si=0;si<count;si++){
-      const photo=p.photos[si]||null,slot=document.createElement("div");slot.className="photo-slot";
-      if(photo){
-        const frame=document.createElement("div");frame.className="photo-frame";
-        const img=document.createElement("img");img.src=photo.src;img.alt=`รูป ${si+1}`;frame.append(img);slot.append(frame);
-        if(photo.note){const note=document.createElement("div");note.className="photo-note";note.textContent=photo.note;slot.append(note)}
-      }else{
-        const empty=document.createElement("span");empty.className="empty";empty.textContent=`ช่องรูป ${si+1}`;slot.append(empty);
+    if(page.typeId==="measure") {
+      const measurements=document.createElement("div");
+      measurements.className="measurements";
+      [["Temperature (°C)",page.temperature],["Vibration (mm/s)",page.vibration]].forEach(([label,values])=>{
+        const box=document.createElement("div");
+        box.className="measurement";
+        const strong=document.createElement("strong");
+        strong.textContent=label+": ";
+        box.append(strong,document.createTextNode((values||["","",""]).map((v,i)=>`${i+1}) ${v||"—"}`).join("   ")));
+        measurements.append(box);
+      });
+      paper.append(measurements);
+    }
+
+    if(page.typeId==="comment") {
+      const comment=document.createElement("div");
+      comment.className="section";
+      const label=document.createElement("strong");
+      label.textContent="ข้อเสนอแนะ Comment / Alarm Code: ";
+      comment.append(label,document.createTextNode(page.comment||"—"));
+      paper.append(comment);
+    }
+
+    const grid=document.createElement("div");
+    grid.className="photo-grid";
+    for(let slotIndex=0;slotIndex<count;slotIndex++) {
+      const imageData=page.photos[slotIndex]||null;
+      const slot=document.createElement("div");
+      slot.className="photo-slot";
+
+      if(imageData) {
+        const frame=document.createElement("div");
+        frame.className="photo-frame";
+        const image=document.createElement("img");
+        image.src=imageData;
+        image.alt=`รูปที่ ${slotIndex+1}`;
+        frame.append(image);
+        slot.append(frame);
+      } else {
+        const empty=document.createElement("span");
+        empty.className="empty";
+        empty.textContent=`ช่องรูป ${slotIndex+1}`;
+        slot.append(empty);
       }
-      const tools=document.createElement("div");tools.className="slot-tools";
-      const add=document.createElement("button");add.textContent=photo?"เปลี่ยนรูป":"เพิ่มรูป";
-      add.onclick=()=>{chosenSlot={pageIndex:pi,slotIndex:si};$("slotFile").click()};tools.append(add);
-      if(photo){
-        const noteButton=document.createElement("button");noteButton.textContent="หมายเหตุ";
-        noteButton.onclick=()=>{const value=prompt("หมายเหตุใต้รูป",photo.note||"");if(value!==null){photo.note=value;renderPages()}};
-        tools.append(noteButton);
-        if(p.typeId==="measure"&&si<3){
-          const ocr=document.createElement("button");ocr.textContent="อ่านค่า OCR";
-          ocr.onclick=()=>readImageValues(pi,si,ocr);tools.append(ocr);
-        }
-        const del=document.createElement("button");del.textContent="ลบ";
-        del.onclick=()=>{p.photos[si]=null;renderAll()};tools.append(del);
+
+      const tools=document.createElement("div");
+      tools.className="slot-tools";
+      const add=document.createElement("button");
+      add.textContent=imageData?"เปลี่ยนรูป":"เพิ่มรูป";
+      add.onclick=()=>{
+        targetSlot={pageIndex,slotIndex};
+        $("slotFile").click();
+      };
+      tools.append(add);
+
+      if(imageData) {
+        const remove=document.createElement("button");
+        remove.textContent="ลบ";
+        remove.onclick=()=>{
+          job.pages[pageIndex].photos[slotIndex]=null;
+          renderAll();
+        };
+        tools.append(remove);
       }
-      slot.append(tools);grid.append(slot);
+      slot.append(tools);
+      grid.append(slot);
     }
     paper.append(grid);
 
-    const note=document.createElement("div");note.className="note-after-photos";
-    const noteTitle=document.createElement("strong");noteTitle.textContent="หมายเหตุหน้ากระดาษ: ";
-    note.append(noteTitle,document.createTextNode(p.notes||"—"));paper.append(note);
-    if(p.notes){
-      const edit=document.createElement("div");edit.className="section";
-      edit.textContent="หมายเหตุ: "+p.notes;
-      paper.append(edit);
+    // หมายเหตุอยู่ใต้รูปภาพ และแสดงหลายรายการได้
+    const notes=document.createElement("div");
+    notes.className="notes-area";
+    const label=document.createElement("strong");
+    label.textContent="หมายเหตุ:";
+    notes.append(label);
+    if(page.notes.length) {
+      page.notes.forEach((text,index)=>{
+        const row=document.createElement("div");
+        row.className="note-row";
+        const number=document.createElement("strong");
+        number.textContent=`${index+1}.`;
+        const content=document.createElement("span");
+        content.textContent=text||"—";
+        row.append(number,content);
+        notes.append(row);
+      });
+    } else {
+      const empty=document.createElement("span");
+      empty.textContent="—";
+      notes.append(empty);
     }
-    const signs=document.createElement("div");signs.className="signatures";
-    ["ผู้ปฏิบัติงาน","ผู้ตรวจสอบ"].forEach(title=>{const s=document.createElement("div");s.className="signature";s.textContent=title+" ____________________";signs.append(s)});
-    paper.append(signs);root.append(paper);
+    paper.append(notes);
+
+    const signatures=document.createElement("div");
+    signatures.className="signatures";
+    ["ผู้ปฏิบัติงาน","ผู้ตรวจสอบ"].forEach(text=>{
+      const sign=document.createElement("div");
+      sign.className="signature";
+      sign.textContent=`${text} ____________________`;
+      signatures.append(sign);
+    });
+    paper.append(signatures);
+    root.append(paper);
   });
 }
-function sync(){
+function syncControls() {
   job.current=Math.max(0,Math.min(job.current,job.pages.length-1));
-  const p=job.pages[job.current];
-  const select=$("pageSelect");select.replaceChildren();
-  job.pages.forEach((page,i)=>{const option=document.createElement("option");option.value=i;option.textContent=`หน้า ${i+1} · ${typeOf(page).title}`;select.append(option)});
-  select.value=String(job.current);$("pageCount").textContent=`${job.pages.length} หน้า`;
+  const page=job.pages[job.current];
+  const selector=$("pageSelect");
+  selector.replaceChildren();
+  job.pages.forEach((p,index)=>{
+    const option=document.createElement("option");
+    option.value=String(index);
+    option.textContent=`หน้า ${index+1} · ${pageType(p).title}`;
+    selector.append(option);
+  });
+  selector.value=String(job.current);
+  $("pageCount").textContent=`${job.pages.length} หน้า`;
   $("deletePage").disabled=job.pages.length<=1;
-  $("pageType").value=p.typeId;$("orientation").value=p.orientation;$("layout").value=String(p.layout);$("frameSize").value=String(p.frame);
-  $("machine").value=job.info.machine||"";$("date").value=job.info.date||"";$("team").value=job.info.team||"";
-  $("comment").value=p.comment||"";$("pageNote").value=p.notes||"";
-  $("measurementCard").classList.toggle("hidden",p.typeId!=="measure");
-  renderChecks(p);renderMeasureInputs(p);
+  $("pageType").value=page.typeId;
+  $("orientation").value=page.orientation;
+  $("layout").value=String(page.layout);
+  $("frameSize").value=String(page.frame);
+  $("machine").value=job.info.machine||"";
+  $("date").value=job.info.date||"";
+  $("team").value=job.info.team||"";
+  $("comment").value=page.comment||"";
+  $("measureCard").classList.toggle("hidden",page.typeId!=="measure");
+  $("commentCard").classList.toggle("hidden",page.typeId!=="comment");
+  renderChecks(page);
+  renderMeasureInputs(page,"temperature","temperatureInputs");
+  renderMeasureInputs(page,"vibration","vibrationInputs");
+  renderNotesEditor(page);
 }
-function renderAll(){sync();renderPages()}
-function addPage(){
+function renderAll(){syncControls();renderPages()}
+
+function findEmptySlot() {
+  for(let pageIndex=job.current;pageIndex<job.pages.length;pageIndex++) {
+    const page=job.pages[pageIndex];
+    while(page.photos.length<page.layout) page.photos.push(null);
+    const slotIndex=page.photos.slice(0,page.layout).findIndex(value=>!value);
+    if(slotIndex!==-1) return {pageIndex,slotIndex};
+  }
   const source=job.pages[job.current];
-  const p=makePage(Math.min(job.pages.length,TYPES.length-1));
-  p.typeId=source.typeId;p.orientation=source.orientation;p.layout=source.layout;p.frame=source.frame;
-  job.pages.splice(job.current+1,0,p);job.current++;
+  const added=makePage(TYPES.findIndex(t=>t.id===source.typeId));
+  added.orientation=source.orientation;
+  added.layout=source.layout;
+  added.frame=source.frame;
+  job.pages.push(added);
+  return {pageIndex:job.pages.length-1,slotIndex:0};
+}
+function placePhoto(data,target=null) {
+  const destination=target||findEmptySlot();
+  const page=job.pages[destination.pageIndex];
+  while(page.photos.length<page.layout) page.photos.push(null);
+  if(destination.slotIndex>=page.layout) return;
+  page.photos[destination.slotIndex]=data;
+  job.current=destination.pageIndex;
   renderAll();
 }
-function firstEmpty(){
-  for(let pi=job.current;pi<job.pages.length;pi++){
-    const p=job.pages[pi];while(p.photos.length<p.layout)p.photos.push(null);
-    const index=p.photos.slice(0,p.layout).findIndex(x=>!x);
-    if(index>=0)return{pageIndex:pi,slotIndex:index};
-  }
-  const source=job.pages[job.current],p=makePage(job.current);
-  p.typeId=source.typeId;p.orientation=source.orientation;p.layout=source.layout;p.frame=source.frame;
-  job.pages.push(p);return{pageIndex:job.pages.length-1,slotIndex:0};
-}
-function putPhoto(src,target=null){
-  const dest=target||firstEmpty(),p=job.pages[dest.pageIndex];
-  while(p.photos.length<p.layout)p.photos.push(null);
-  if(dest.slotIndex>=p.layout)return;
-  p.photos[dest.slotIndex]={src,note:""};
-  job.current=dest.pageIndex;renderAll();
-}
-function readImage(file){
+function readImage(file) {
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
     reader.onload=()=>{
       const image=new Image();
       image.onload=()=>{
-        const scale=Math.min(1,1800/Math.max(image.width,image.height));
+        const maxSide=1800;
+        const scale=Math.min(1,maxSide/Math.max(image.width,image.height));
         const canvas=document.createElement("canvas");
-        canvas.width=Math.round(image.width*scale);canvas.height=Math.round(image.height*scale);
+        canvas.width=Math.round(image.width*scale);
+        canvas.height=Math.round(image.height*scale);
         canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height);
-        resolve(canvas.toDataURL("image/jpeg",.86));
+        resolve(canvas.toDataURL("image/jpeg",.85));
       };
-      image.onerror=reject;image.src=reader.result;
+      image.onerror=reject;
+      image.src=reader.result;
     };
-    reader.onerror=reject;reader.readAsDataURL(file);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
   });
 }
+
 $("images").onchange=async event=>{
-  for(const file of [...event.target.files])if(file.type.startsWith("image/"))putPhoto(await readImage(file));
+  for(const file of [...event.target.files]) {
+    if(file.type.startsWith("image/")) placePhoto(await readImage(file));
+  }
   event.target.value="";
 };
 $("slotFile").onchange=async event=>{
-  const file=event.target.files[0];if(file&&chosenSlot)putPhoto(await readImage(file),chosenSlot);
-  chosenSlot=null;event.target.value="";
+  const file=event.target.files[0];
+  if(file&&targetSlot) placePhoto(await readImage(file),targetSlot);
+  targetSlot=null;
+  event.target.value="";
 };
 $("pageSelect").onchange=event=>{job.current=Number(event.target.value);renderAll()};
 $("pageType").onchange=event=>{job.pages[job.current].typeId=event.target.value;renderAll()};
 $("orientation").onchange=event=>{job.pages[job.current].orientation=event.target.value;renderAll()};
 $("layout").onchange=event=>{
-  const p=job.pages[job.current],n=Number(event.target.value);
-  p.layout=n;while(p.photos.length<n)p.photos.push(null);renderAll();
+  const page=job.pages[job.current];
+  const newCount=Number(event.target.value);
+  page.layout=newCount;
+  while(page.photos.length<newCount) page.photos.push(null);
+  renderAll();
 };
 $("frameSize").onchange=event=>{job.pages[job.current].frame=Number(event.target.value);renderPages()};
-$("machine").oninput=event=>{job.info.machine=event.target.value;renderPages()};
-$("date").oninput=event=>{job.info.date=event.target.value;renderPages()};
-$("team").oninput=event=>{job.info.team=event.target.value;renderPages()};
-$("comment").oninput=event=>{job.pages[job.current].comment=event.target.value;renderPages()};
-$("pageNote").oninput=event=>{job.pages[job.current].notes=event.target.value;renderPages()};
-$("addPage").onclick=addPage;
+
+["machine","date","team"].forEach(id=>{
+  $(id).oninput=event=>{
+    job.info[id]=event.target.value;
+    renderPages();
+  };
+});
+$("comment").oninput=event=>{
+  job.pages[job.current].comment=event.target.value;
+  renderPages();
+};
+$("addNote").onclick=()=>{
+  job.pages[job.current].notes.push("");
+  renderAll();
+};
+$("addPage").onclick=()=>{
+  const source=job.pages[job.current];
+  const typeIndex=TYPES.findIndex(t=>t.id===source.typeId);
+  const page=makePage(typeIndex);
+  page.orientation=source.orientation;
+  page.layout=source.layout;
+  page.frame=source.frame;
+  job.pages.splice(job.current+1,0,page);
+  job.current++;
+  renderAll();
+};
 $("deletePage").onclick=()=>{
-  if(job.pages.length<=1)return;
-  job.pages.splice(job.current,1);job.current=Math.min(job.current,job.pages.length-1);renderAll();
+  if(job.pages.length<=1) return;
+  job.pages.splice(job.current,1);
+  job.current=Math.min(job.current,job.pages.length-1);
+  renderAll();
 };
 $("newJob").onclick=()=>{
-  if(!confirm("ปิดงานปัจจุบันและเริ่มรายงานใหม่หรือไม่?"))return;
-  job=createJob();currentId=null;renderAll();
+  if(!confirm("ปิดงานปัจจุบันและเริ่มรายงานใหม่หรือไม่?")) return;
+  job=createJob();
+  currentId=null;
+  renderAll();
 };
 $("exportPdf").onclick=()=>window.print();
 
-function download(blob,name){
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+function download(blob,name) {
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download=name;
+  link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
-$("exportJson").onclick=()=>download(new Blob([JSON.stringify(job)],{type:"application/json"}),"maintenance-report.json");
+$("exportJson").onclick=()=>{
+  download(new Blob([JSON.stringify(job)],{type:"application/json"}),"งานซ่อมบำรุง.json");
+};
 $("openJson").onclick=()=>$("importFile").click();
 $("importFile").onchange=async event=>{
-  try{
-    const data=JSON.parse(await event.target.files[0].text());
-    if(!data.info||!Array.isArray(data.pages)||!data.pages.length)throw new Error();
-    job=data;currentId=null;normalize();renderAll();
-  }catch{alert("เปิดไฟล์ไม่ได้ กรุณาเลือกไฟล์รายงาน JSON จากแอปนี้")}
+  try {
+    const imported=JSON.parse(await event.target.files[0].text());
+    if(!imported.info||!Array.isArray(imported.pages)||!imported.pages.length) throw new Error();
+    job=imported;
+    currentId=null;
+    normalizeJob();
+    renderAll();
+  } catch {
+    alert("เปิดไฟล์ไม่ได้ กรุณาเลือกไฟล์ JSON ที่ส่งออกจากแอปนี้");
+  }
   event.target.value="";
 };
-function normalize(){
-  job.current=Number(job.current)||0;
+function normalizeJob() {
   job.info={machine:job.info.machine||"",date:job.info.date||"",team:job.info.team||""};
-  job.pages.forEach(p=>{
-    if(!TYPES.some(t=>t.id===p.typeId))p.typeId=TYPES[0].id;
-    p.orientation=p.orientation==="landscape"?"landscape":"portrait";
-    p.layout=LAYOUTS.includes(Number(p.layout))?Number(p.layout):4;
-    p.frame=[4,5,6,7,8,9].includes(Number(p.frame))?Number(p.frame):5;
-    p.photos=Array.isArray(p.photos)?p.photos:[];
-    p.photos=p.photos.map(x=>typeof x==="string"?{src:x,note:""}:x);
-    while(p.photos.length<p.layout)p.photos.push(null);
-    p.checks=p.checks||{};
-    p.temperature=Array.isArray(p.temperature)?p.temperature:["","",""];
-    p.vibration=Array.isArray(p.vibration)?p.vibration:["","",""];
-    p.comment=p.comment||"";p.notes=p.notes||"";
+  job.current=Math.max(0,Math.min(Number(job.current)||0,job.pages.length-1));
+  job.pages.forEach(page=>{
+    if(!TYPES.some(type=>type.id===page.typeId)) page.typeId=TYPES[0].id;
+    page.orientation=page.orientation==="landscape"?"landscape":"portrait";
+    page.layout=LAYOUTS.includes(Number(page.layout))?Number(page.layout):4;
+    page.frame=[4,5,6,7,8,9].includes(Number(page.frame))?Number(page.frame):5;
+    page.photos=Array.isArray(page.photos)?page.photos:[];
+    while(page.photos.length<page.layout) page.photos.push(null);
+    page.checks=page.checks||{};
+    page.temperature=Array.isArray(page.temperature)?page.temperature:["","",""];
+    page.vibration=Array.isArray(page.vibration)?page.vibration:["","",""];
+    page.comment=page.comment||"";
+    page.notes=Array.isArray(page.notes)?page.notes:[];
   });
 }
+
 $("saveLocal").onclick=async()=>{
-  if(!db)return alert("ระบบจัดเก็บในเบราว์เซอร์ยังไม่พร้อม");
-  try{
-    currentId ||= (crypto.randomUUID?crypto.randomUUID():String(Date.now()));
-    await dbAction("readwrite","put",{id:currentId,title:`${job.info.machine||"ไม่มีรหัส"} · ${new Date().toLocaleString()}`,updated:Date.now(),data:job});
-    await refreshSaved();alert("บันทึกงานในเครื่องนี้แล้ว");
-  }catch{alert("บันทึกไม่สำเร็จ พื้นที่จัดเก็บอาจเต็ม ลองส่งออกงานเป็น JSON")}
+  if(!db) return alert("ระบบบันทึกในเครื่องไม่พร้อม กรุณาลองใหม่หรือส่งออกไฟล์งาน");
+  try {
+    if(!currentId) currentId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
+    const title=`${job.info.machine||"ไม่มีรหัส"} · ${new Date().toLocaleString()}`;
+    await dbAction("readwrite","put",{id:currentId,title,updated:Date.now(),data:job});
+    await refreshSaved();
+    alert("บันทึกรายงานในเบราว์เซอร์เครื่องนี้แล้ว");
+  } catch {
+    alert("บันทึกไม่สำเร็จ พื้นที่จัดเก็บอาจเต็ม โปรดส่งออกไฟล์ JSON สำรอง");
+  }
 };
-async function refreshSaved(){
-  if(!db)return;
-  const list=(await dbAction("readonly","all")).sort((a,b)=>b.updated-a.updated),select=$("savedList");
+async function refreshSaved() {
+  if(!db) return;
+  const records=(await dbAction("readonly","all")).sort((a,b)=>b.updated-a.updated);
+  const select=$("savedList");
   select.replaceChildren();
-  if(!list.length){const o=document.createElement("option");o.value="";o.textContent="ยังไม่มีรายงาน";select.append(o);return}
-  list.forEach(item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.title;select.append(o)});
+  if(!records.length) {
+    const option=document.createElement("option");
+    option.value="";
+    option.textContent="ยังไม่มีรายงาน";
+    select.append(option);
+    return;
+  }
+  records.forEach(record=>{
+    const option=document.createElement("option");
+    option.value=record.id;
+    option.textContent=record.title;
+    select.append(option);
+  });
 }
 $("loadLocal").onclick=async()=>{
-  const item=await dbAction("readonly","get",$("savedList").value);if(!item)return;
-  job=item.data;currentId=item.id;normalize();renderAll();
+  if(!db) return;
+  const record=await dbAction("readonly","get",$("savedList").value);
+  if(!record) return;
+  job=record.data;
+  currentId=record.id;
+  normalizeJob();
+  renderAll();
 };
 $("deleteLocal").onclick=async()=>{
-  const id=$("savedList").value;if(!id)return;
-  if(!confirm("ลบรายงานนี้ออกจากเครื่องหรือไม่?"))return;
+  const id=$("savedList").value;
+  if(!id||!db) return;
+  if(!confirm("ลบรายงานนี้ออกจากเครื่องหรือไม่?")) return;
   await dbAction("readwrite","delete",id);
-  if(currentId===id){currentId=null;job=createJob();renderAll()}
+  if(currentId===id) {currentId=null;job=createJob();renderAll()}
   await refreshSaved();
 };
 
+async function saveToChosenFolder() {
+  const filename="งานซ่อมบำรุง.json";
+  const content=JSON.stringify(job,null,2);
+
+  if(window.showDirectoryPicker) {
+    try {
+      const directory=await window.showDirectoryPicker({mode:"readwrite"});
+      const workFolder=await directory.getDirectoryHandle("งาน",{create:true});
+      const fileHandle=await workFolder.getFileHandle(filename,{create:true});
+      const writable=await fileHandle.createWritable();
+      await writable.write(new Blob([content],{type:"application/json"}));
+      await writable.close();
+      alert("บันทึกแล้วในโฟลเดอร์ งาน ภายในโฟลเดอร์ที่เลือก");
+      return;
+    } catch(error) {
+      if(error.name==="AbortError") return;
+    }
+  }
+  download(new Blob([content],{type:"application/json"}),filename);
+  alert("เบราว์เซอร์นี้ไม่อนุญาตให้เว็บเลือก Documents/งาน โดยตรง ไฟล์ถูกดาวน์โหลดแล้ว กรุณาย้ายไฟล์ไป Documents/งาน");
+}
+$("saveFolder").onclick=saveToChosenFolder;
+
 $("exportWord").onclick=()=>{
-  const body=job.pages.map((p,i)=>wordPage(p,i)).join("");
+  const pages=job.pages.map((page,index)=>makeWordPage(page,index)).join("");
   const html=`<!doctype html><html><head><meta charset="utf-8"><style>
   body{font-family:Arial,sans-serif;color:#172235}.page{page-break-after:always;padding:8mm}
   h2{text-align:center}table{border-collapse:collapse;width:100%;margin:6px 0;font-size:10pt}
   td{border:1px solid #888;padding:5px}.photos{table-layout:fixed}
-  .photos td{height:110px;text-align:center;vertical-align:middle}.photos img{max-width:100%;max-height:100px;object-fit:contain}
-  </style></head><body>${body}</body></html>`;
-  download(new Blob(["\ufeff",html],{type:"application/msword"}),"maintenance-report.doc");
+  .photos td{height:100px;text-align:center;vertical-align:middle}
+  .photos img{max-width:100%;max-height:95px;object-fit:contain}
+  </style></head><body>${pages}</body></html>`;
+  download(new Blob(["\ufeff",html],{type:"application/msword"}),"รายงานซ่อมบำรุง.doc");
 };
-function wordPage(p,index){
-  const type=typeOf(p),[cols,rows]=gridSize(p);let rowsHtml="";
-  for(let r=0;r<rows;r++){
-    rowsHtml+="<tr>";
-    for(let c=0;c<cols;c++){
-      const item=p.photos[r*cols+c];
-      rowsHtml+=`<td>${item?.src?`<img src="${item.src}" alt="รูป"><br>${esc(item.note||"")}`:""}</td>`;
+function makeWordPage(page,index) {
+  const type=pageType(page);
+  const [cols,rows]=gridSize(page);
+  let photoRows="";
+  for(let row=0;row<rows;row++) {
+    photoRows+="<tr>";
+    for(let col=0;col<cols;col++) {
+      const image=page.photos[row*cols+col];
+      photoRows+=`<td>${image?`<img src="${image}" alt="รูปประกอบ">`:""}</td>`;
     }
-    rowsHtml+="</tr>";
+    photoRows+="</tr>";
   }
-  const checkRows=type.tasks.map(task=>
-    `<tr><td colspan="2">${p.checks["ก่อนทำ:"+task]?"☑":"☐"} ก่อนทำ ${esc(task)}　 ${p.checks["หลังทำ:"+task]?"☑":"☐"} หลังทำ ${esc(task)}</td></tr>`
-  ).join("");
-  const reading=p.typeId==="measure"
-    ? `<tr><td>Temperature °C: ${(p.temperature||[]).map((v,i)=>`${i+1}) ${esc(v||"—")}`).join("　")}</td><td>Vibration mm/s: ${(p.vibration||[]).map((v,i)=>`${i+1}) ${esc(v||"—")}`).join("　")}</td></tr>`
+  let taskRows="";
+  type.tasks.forEach(task=>{
+    ["ก่อนทำ","หลังทำ"].forEach(phase=>{
+      const marked=page.checks[phase+":"+task]?"☑":"☐";
+      taskRows+=`<tr><td>${phase}: ${marked} ${escapeHTML(task)}</td></tr>`;
+    });
+  });
+  const measurements=page.typeId==="measure"
+    ? `<tr><td>Temperature (°C): ${(page.temperature||[]).map((x,i)=>`${i+1}) ${escapeHTML(x||"—")}`).join("　")}</td>
+       <td>Vibration (mm/s): ${(page.vibration||[]).map((x,i)=>`${i+1}) ${escapeHTML(x||"—")}`).join("　")}</td></tr>`
     : "";
-  return `<section class="page"><h2>${esc(type.title)}</h2><table>
-  <tr><td>รหัสเครื่องจักร: ${esc(job.info.machine)}</td><td>วันที่เข้าทำ: ${esc(job.info.date)}</td></tr>
-  <tr><td colspan="2">ทีมที่เข้าทำ: ${esc(job.info.team)}</td></tr>${checkRows}${reading}
-  <tr><td colspan="2">ข้อเสนอแนะ Comment / Alarm Code: ${esc(p.comment||"—")}</td></tr></table>
-  <table class="photos">${rowsHtml}</table><p><b>หมายเหตุ:</b> ${esc(p.notes||"—")}</p><p style="text-align:right">หน้า ${index+1}</p></section>`;
+  const comment=page.typeId==="comment"
+    ? `<tr><td colspan="2">Comment / Alarm Code: ${escapeHTML(page.comment||"—")}</td></tr>`
+    : "";
+  const notes=(page.notes||[]).map((note,i)=>`<div>${i+1}. ${escapeHTML(note||"—")}</div>`).join("")||"—";
+
+  return `<section class="page"><h2>${escapeHTML(type.title)}</h2>
+  <table><tr><td>รหัสเครื่องจักร: ${escapeHTML(job.info.machine||"—")}</td><td>วันที่เข้าทำ: ${escapeHTML(job.info.date||"—")}</td></tr>
+  <tr><td colspan="2">ทีมที่เข้าทำ: ${escapeHTML(job.info.team||"—")}</td></tr>${taskRows}${measurements}${comment}</table>
+  <table class="photos">${photoRows}</table>
+  <p><b>หมายเหตุใต้รูปภาพ:</b><br>${notes}</p>
+  <p style="text-align:right">หน้า ${index+1}</p></section>`;
 }
 
-function extractReading(text,unit){
-  const normalized=text.replace(/[，,]/g,".").replace(/\s+/g," ");
-  const patterns=unit==="temperature"
-    ? /(-?\d{1,3}(?:\.\d+)?)\s*(?:°\s*)?(?:C|°C)\b/ig
-    : /(-?\d{1,3}(?:\.\d+)?)\s*(?:mm\s*\/\s*s|mm\/s)\b/ig;
-  const values=[];let match;
-  while((match=patterns.exec(normalized))!==null)values.push(match[1]);
-  return values[0]||"";
-}
-async function readImageValues(pageIndex,slotIndex,button){
-  const p=job.pages[pageIndex],photo=p.photos[slotIndex];
-  if(!window.Tesseract){alert("OCR โหลดไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");return}
-  const original=button.textContent;button.disabled=true;button.textContent="กำลังอ่าน…";
-  try{
-    const result=await Tesseract.recognize(photo.src,"eng");
-    const text=result.data.text||"";
-    const temp=extractReading(text,"temperature");
-    const vib=extractReading(text,"vibration");
-    if(temp)p.temperature[slotIndex]=temp;
-    if(vib)p.vibration[slotIndex]=vib;
-    if(!temp&&!vib){
-      const rough=(text.match(/-?\d{1,3}(?:[.,]\d+)?/g)||[]).map(x=>x.replace(",","."));
-      if(rough.length){
-        const choose=prompt("ไม่พบหน่วย °C หรือ mm/s ชัดเจน พบตัวเลขเหล่านี้: "+rough.join(", ")+"\nกรอกค่าที่ต้องการใช้ (ตรวจภาพก่อนยืนยัน):",rough[0]);
-        if(choose!==null){
-          const clean=choose.replace(/[^0-9.-]/g,"");
-          const kind=prompt("ใส่ค่านี้เป็น Temperature หรือ Vibration? พิมพ์ T หรือ V","T");
-          if(kind&&kind.toUpperCase().startsWith("V"))p.vibration[slotIndex]=clean;
-          else p.temperature[slotIndex]=clean;
-        }
-      }else alert("ไม่พบตัวเลขในภาพชัดเจน กรุณากรอกเอง");
-    }else{
-      alert(`อ่านได้${temp?` Temperature ${temp} °C`:""}${vib?` Vibration ${vib} mm/s`:""} กรุณาตรวจทานกับภาพ`);
-    }
-    renderAll();
-  }catch{alert("อ่านภาพไม่สำเร็จ กรุณาลองภาพที่คมชัดขึ้น หรือกรอกค่าเอง")}
-  finally{button.disabled=false;button.textContent=original}
-}
-
-async function openCamera(){
+async function openCamera() {
   stopCamera();
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:false});
-    $("video").srcObject=stream;$("cameraStatus").textContent="";
-  }catch{$("cameraStatus").textContent="อนุญาตกล้องและเปิดผ่าน HTTPS หรือ localhost"}
+  try {
+    cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:false});
+    $("video").srcObject=cameraStream;
+    $("cameraStatus").textContent="";
+  } catch {
+    $("cameraStatus").textContent="เปิดกล้องไม่ได้ กรุณาอนุญาตกล้องและใช้ HTTPS หรือ localhost";
+  }
   $("cameraModal").classList.add("open");
 }
-function stopCamera(){if(stream)stream.getTracks().forEach(track=>track.stop());stream=null;$("video").srcObject=null}
+function stopCamera() {
+  if(cameraStream) cameraStream.getTracks().forEach(track=>track.stop());
+  cameraStream=null;
+  $("video").srcObject=null;
+}
 $("cameraOpen").onclick=openCamera;
-$("switchCamera").onclick=()=>{facing=facing==="environment"?"user":"environment";openCamera()};
-$("closeCamera").onclick=()=>{stopCamera();$("cameraModal").classList.remove("open")};
+$("cameraSwitch").onclick=()=>{
+  facing=facing==="environment"?"user":"environment";
+  openCamera();
+};
+$("closeCamera").onclick=()=>{
+  stopCamera();
+  $("cameraModal").classList.remove("open");
+};
 $("takePhoto").onclick=()=>{
-  const video=$("video");if(!video.videoWidth)return;
-  const canvas=document.createElement("canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  canvas.getContext("2d").drawImage(video,0,0);putPhoto(canvas.toDataURL("image/jpeg",.86));
-  stopCamera();$("cameraModal").classList.remove("open");
+  const video=$("video");
+  if(!video.videoWidth) return;
+  const canvas=document.createElement("canvas");
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0);
+  placePhoto(canvas.toDataURL("image/jpeg",.85));
+  stopCamera();
+  $("cameraModal").classList.remove("open");
 };
 
-async function init(){
-  setupTypeSelect();
-  try{db=await initDB();await refreshSaved()}catch{alert("เปิดฐานข้อมูลในเครื่องไม่ได้ ลองใช้ Chrome หรือ Edge")}
+async function init() {
+  renderTypeSelect();
+  try {
+    db=await openDatabase();
+    await refreshSaved();
+  } catch {
+    alert("เปิดพื้นที่บันทึกในเครื่องไม่ได้ กรุณาใช้ Chrome หรือ Edge รุ่นใหม่");
+  }
   renderAll();
 }
 init();
