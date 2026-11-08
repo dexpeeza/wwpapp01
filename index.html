@@ -3,1323 +3,1019 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ระบบรายงานซ่อมบำรุง A4 (PM & Overhaul Report Builder)</title>
+  <title>ระบบรายงานการซ่อมบำรุงเครื่องจักร (A4 Report App)</title>
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- ไลบรารีสำหรับสร้าง PDF และไอคอน -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary: #1e40af;
-      --primary-light: #3b82f6;
+      --primary: #1e3a8a;
+      --secondary: #2563eb;
       --success: #16a34a;
       --danger: #dc2626;
       --warning: #d97706;
-      --dark: #1e293b;
       --bg: #f1f5f9;
-      --card: #ffffff;
+    }
+    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+    body { margin: 0; padding: 0; background: var(--bg); color: #1e293b; padding-bottom: 60px; }
+
+    /* แถบเครื่องมือด้านบน */
+    .navbar {
+      background: var(--primary); color: #fff; padding: 10px 15px;
+      position: sticky; top: 0; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .navbar-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .app-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+      padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn {
+      border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
+      transition: 0.2s; color: #fff; background: var(--secondary);
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-success { background: var(--success); }
+    .btn-danger { background: var(--danger); }
+    .btn-warning { background: var(--warning); }
+    .btn-dark { background: #334155; }
+    .select-ctrl {
+      padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600;
+      background: #fff; color: #0f172a;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Sarabun', sans-serif;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg);
-      color: var(--dark);
-    }
-
-    /* ===== แถบควบคุมด้านบน (ซ่อนเวลาพิมพ์) ===== */
-    .app-header {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: white;
-      padding: 12px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .app-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      background: var(--warning);
-      color: white;
-    }
-    .status-badge.closed {
-      background: var(--success);
-    }
-
-    .toolbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    button, .btn-label {
-      border: none;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
-
-    button:active { transform: scale(0.97); }
-    .btn-primary { background: var(--primary-light); color: white; }
-    .btn-primary:hover { background: var(--primary); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-warning { background: var(--warning); color: white; }
-    .btn-outline { background: white; color: var(--dark); border: 1px solid #cbd5e1; }
-    .btn-outline:hover { background: #f8fafc; }
-
-    /* ===== แผงตั้งค่า (Control Panel) ===== */
-    .control-panel {
-      max-width: 1200px;
-      margin: 16px auto;
-      background: var(--card);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .panel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .form-group label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #475569;
-    }
-
-    .form-group input, .form-group select, .form-group textarea {
-      padding: 8px 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      width: 100%;
-    }
-
-    .sensor-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-
-    .sensor-title {
-      font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-      color: var(--primary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .sensor-inputs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 8px;
-    }
-
-    /* ===== พื้นที่แสดงกระดาษ A4 ===== */
+    /* พื้นที่แสดงกระดาษ A4 */
     .workspace {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 10px 60px 10px;
-      gap: 25px;
-      overflow-x: auto;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px 10px; gap: 25px; overflow-x: auto;
     }
 
+    /* ตั้งค่าหน้ากระดาษ A4 */
     .a4-page {
-      background: white;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-      page-break-after: always;
-      break-after: page;
+      background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      position: relative; padding: 12mm; display: flex; flex-direction: column;
+      justify-content: space-between; page-break-after: always; overflow: hidden;
     }
+    .a4-page.portrait { width: 210mm; height: 297mm; }
+    .a4-page.landscape { width: 297mm; height: 210mm; }
 
-    /* แนวตั้ง A4: 210mm x 297mm */
-    .a4-page.portrait {
-      width: 210mm;
-      height: 297mm;
-      padding: 10mm 12mm;
-    }
-
-    /* แนวนอน A4: 297mm x 210mm */
-    .a4-page.landscape {
-      width: 297mm;
-      height: 210mm;
-      padding: 8mm 12mm;
-    }
-
-    /* แถบจัดการแต่ละหน้า (ไม่แสดงตอนพิมพ์) */
-    .page-ActionBar {
-      background: #e2e8f0;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px dashed #94a3b8;
-    }
-
-    /* ส่วนหัวกระดาษ A4 */
+    /* ส่วนหัวกระดาษ */
     .page-header {
-      text-align: center;
-      border-bottom: 2px solid #1e293b;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
+      border-bottom: 2px solid var(--primary); padding-bottom: 6px; margin-bottom: 8px;
+      text-align: center; position: relative;
+    }
+    .header-top-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; margin-bottom: 4px;
+    }
+    .machine-code-box {
+      font-size: 18px; font-weight: 700; color: var(--primary);
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .inline-input {
+      border: 1px dashed #94a3b8; padding: 3px 8px; border-radius: 4px;
+      font-size: inherit; font-weight: inherit; color: inherit; text-align: center;
+      background: #f8fafc;
+    }
+    .section-selector-bar {
+      margin-top: 6px; display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .section-title-display {
+      font-size: 16px; font-weight: 700; background: #eff6ff; color: #1e40af;
+      padding: 4px 16px; border-radius: 20px; border: 1px solid #bfdbfe; display: inline-block;
     }
 
-    .page-header h1 {
-      margin: 0;
-      font-size: 16pt;
-      font-weight: 700;
-      color: #0f172a;
-      text-transform: uppercase;
+    /* พื้นที่เนื้อหาในกระดาษ */
+    .page-body {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
     }
 
-    .page-meta-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 18px;
-      font-size: 10.5pt;
-      margin-top: 4px;
-      font-weight: 600;
+    /* ตารางข้อมูลเฉพาะของหัวข้อที่ 6 และ 7 */
+    .special-data-box {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+      padding: 8px; margin-bottom: 8px; font-size: 12px;
+    }
+    .temp-vib-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .measure-table { width: 100%; border-collapse: collapse; }
+    .measure-table th, .measure-table td {
+      border: 1px solid #cbd5e1; padding: 4px 6px; text-align: center; font-size: 12px;
+    }
+    .measure-table th { background: #e2e8f0; }
+    .measure-input { width: 70px; text-align: center; border: 1px solid #94a3b8; border-radius: 3px; padding: 2px; }
+    .comment-area {
+      width: 100%; height: 55px; border: 1px solid #94a3b8; border-radius: 4px;
+      padding: 5px; font-size: 12px; resize: none;
     }
 
-    /* ป้ายข้อความคั่นกลางหน้ากระดาษ */
-    .center-banner {
-      text-align: center;
-      background: #f1f5f9;
-      border: 1px solid #94a3b8;
-      border-radius: 4px;
-      padding: 4px 10px;
-      margin: 4px 0;
-      font-weight: 700;
-      font-size: 11pt;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .center-banner input {
-      border: none;
-      background: transparent;
-      text-align: center;
-      font-weight: 700;
-      font-size: 11pt;
-      width: 85%;
-      color: #0f172a;
-    }
-
-    .center-banner input:focus {
-      outline: 1px dashed #3b82f6;
-      background: white;
-    }
-
-    .del-banner-btn {
-      position: absolute;
-      right: 6px;
-      background: #ef4444;
-      color: white;
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 10px;
-    }
-
-    /* ตารางรูปภาพในหน้า A4 */
+    /* ตารางรูปภาพให้อยู่กึ่งกลางสวยงาม */
     .photo-grid {
-      display: grid;
-      gap: 6mm 4mm;
-      justify-content: center;
-      align-content: start;
-      flex-grow: 1;
-      margin: 4px 0;
+      flex: 1; display: grid; place-items: center; align-content: center;
+      gap: 8px; width: 100%; height: 100%; overflow: hidden;
+    }
+    /* รูปแบบช่องตาราง 4, 6, 8, 12 รูป */
+    .a4-page.portrait .photo-grid.grid-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .a4-page.portrait .photo-grid.grid-6 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+    .a4-page.portrait .photo-grid.grid-8 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+    .a4-page.portrait .photo-grid.grid-12 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); }
+
+    .a4-page.landscape .photo-grid.grid-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .a4-page.landscape .photo-grid.grid-6 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .a4-page.landscape .photo-grid.grid-8 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); }
+    .a4-page.landscape .photo-grid.grid-12 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); }
+
+    .photo-cell {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%; padding: 4px; border: 1px dashed #cbd5e1; border-radius: 6px;
+      background: #fafafa; position: relative; overflow: hidden;
+    }
+    .status-badge-select {
+      font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+      border: 1px solid #cbd5e1; margin-bottom: 4px; background: #fff; cursor: pointer;
+    }
+    .photo-frame {
+      border: 2px solid #94a3b8; border-radius: 4px; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; cursor: pointer; flex-shrink: 0;
+      max-width: 100%; max-height: calc(100% - 48px);
+    }
+    .photo-frame img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .photo-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #64748b; font-size: 11px; text-align: center; padding: 6px; gap: 4px;
+    }
+    .cell-actions {
+      position: absolute; top: 4px; right: 4px; display: flex; gap: 3px; z-index: 5;
+    }
+    .cell-btn {
+      background: rgba(0,0,0,0.65); color: #fff; border: none; border-radius: 4px;
+      width: 24px; height: 24px; font-size: 11px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
     }
 
-    /* การจัดคอลัมน์ตามจำนวนรูปและแนวกระดาษ */
-    .portrait .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .portrait .grid-6 { grid-template-columns: repeat(2, 1fr); }
-    .portrait .grid-8 { grid-template-columns: repeat(2, 1fr); }
-    .portrait .grid-12 { grid-template-columns: repeat(3, 1fr); gap: 3mm; }
-
-    .landscape .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .landscape .grid-6 { grid-template-columns: repeat(3, 1fr); }
-    .landscape .grid-8 { grid-template-columns: repeat(4, 1fr); }
-    .landscape .grid-12 { grid-template-columns: repeat(4, 1fr); gap: 3mm; }
-
-    .photo-slot {
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      background: #ffffff;
-      position: relative;
+    /* หมายเหตุใต้รูปภาพ (เพิ่มได้หลายครั้ง) */
+    .caption-list {
+      width: 100%; margin-top: 4px; display: flex; flex-direction: column; gap: 2px;
+      max-height: 45px; overflow-y: auto;
+    }
+    .caption-item {
+      display: flex; align-items: center; gap: 2px; width: 100%;
+    }
+    .caption-input {
+      flex: 1; font-size: 11px; padding: 2px 5px; border: 1px solid #cbd5e1;
+      border-radius: 3px; text-align: center; background: #fff;
+    }
+    .add-cap-btn {
+      font-size: 10px; background: #e2e8f0; border: none; border-radius: 3px;
+      padding: 2px 5px; cursor: pointer; color: #334155; font-weight: 600;
     }
 
-    .slot-topic-bar {
-      width: 100%;
-      margin-bottom: 3px;
-    }
-
-    .slot-topic-select {
-      width: 100%;
-      font-size: 8.5pt;
-      font-weight: 700;
-      text-align: center;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      padding: 2px;
-      background: #f8fafc;
-      color: #1e293b;
-    }
-
-    /* กรอบรูปภาพ (ตั้งศูนย์กลางสวยงาม) */
-    .img-frame {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      overflow: hidden;
-      position: relative;
-      margin: auto;
-      cursor: pointer;
-    }
-
-    .img-frame.has-img {
-      border: 1px solid #64748b;
-      background: #fff;
-    }
-
-    .img-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* ขนาดกรอบรูปตามที่เลือก (ซม.) */
-    .size-auto .img-frame { width: 100%; height: 42mm; }
-    .portrait .grid-4.size-auto .img-frame { height: 68mm; }
-    .portrait .grid-6.size-auto .img-frame { height: 48mm; }
-    .portrait .grid-8.size-auto .img-frame { height: 35mm; }
-    .portrait .grid-12.size-auto .img-frame { height: 32mm; }
-
-    .landscape .grid-4.size-auto .img-frame { height: 52mm; }
-    .landscape .grid-6.size-auto .img-frame { height: 50mm; }
-    .landscape .grid-8.size-auto .img-frame { height: 48mm; }
-    .landscape .grid-12.size-auto .img-frame { height: 30mm; }
-
-    .size-4cm .img-frame { width: 4cm; height: 4cm; }
-    .size-5cm .img-frame { width: 5cm; height: 5cm; }
-    .size-6cm .img-frame { width: 6cm; height: 6cm; }
-    .size-7cm .img-frame { width: 7cm; height: 7cm; }
-    .size-8cm .img-frame { width: 8cm; height: 8cm; }
-    .size-9cm .img-frame { width: 9cm; height: 9cm; }
-
-    .slot-placeholder {
-      text-align: center;
-      color: #64748b;
-      font-size: 8.5pt;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .slot-actions-overlay {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      display: flex;
-      gap: 4px;
-      z-index: 10;
-    }
-
-    .mini-btn {
-      padding: 3px 6px;
-      font-size: 11px;
-      border-radius: 4px;
-      background: rgba(15, 23, 42, 0.75);
-      color: white;
-    }
-
-    .slot-caption {
-      width: 100%;
-      margin-top: 3px;
-      border: none;
-      border-top: 1px dotted #cbd5e1;
-      text-align: center;
-      font-size: 9pt;
-      padding: 2px 4px;
-      color: #0f172a;
-    }
-    .slot-caption:focus {
-      outline: 1px solid var(--primary-light);
-      background: #f0f9ff;
-    }
-
-    /* ตารางแสดงค่า Temperature / Vibration / Comment ท้ายกระดาษ */
-    .tech-data-section {
-      border-top: 1.5px solid #1e293b;
-      padding-top: 4px;
-      margin-top: 4px;
-      font-size: 8.5pt;
-    }
-
-    .tech-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 4px;
-    }
-
-    .tech-table th, .tech-table td {
-      border: 1px solid #64748b;
-      padding: 2px 6px;
-      text-align: center;
-    }
-
-    .tech-table th {
-      background: #f1f5f9;
-      font-weight: 700;
-    }
-
+    /* ส่วนท้ายกระดาษ A4 */
     .page-footer {
-      display: flex;
-      justify-content: space-between;
-      font-size: 8pt;
-      color: #475569;
-      border-top: 1px solid #cbd5e1;
-      padding-top: 3px;
+      border-top: 1px solid #cbd5e1; padding-top: 5px; margin-top: 6px;
+      display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #475569;
+    }
+    .page-notes-area {
+      display: flex; flex-direction: column; gap: 3px; flex: 1; margin-right: 15px;
+    }
+    .page-note-row { display: flex; gap: 4px; align-items: center; }
+    .page-note-input {
+      flex: 1; border: 1px dashed #cbd5e1; padding: 2px 6px; font-size: 11px; border-radius: 3px;
     }
 
-    /* ===== โมดอลกล้องถ่ายรูป (Camera Modal) ===== */
-    .camera-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 2000;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
+    /* แถบควบคุมแต่ละหน้า */
+    .page-ctrl-bar {
+      background: #e2e8f0; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px;
     }
 
-    .camera-modal.active {
-      display: flex;
+    /* Modal กล้องถ่ายรูป */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
+      display: none; align-items: center; justify-content: center; padding: 15px;
     }
-
     .camera-box {
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 12px;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-      color: white;
+      background: #1e293b; color: #fff; border-radius: 12px; max-width: 500px; width: 100%;
+      overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 15px; gap: 12px;
+    }
+    video#cameraStream {
+      width: 100%; max-height: 60vh; background: #000; border-radius: 8px; object-fit: cover;
+    }
+    .camera-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+
+    /* ย่อขนาดกระดาษเวลาดูบนจอมือถือ แต่เวลาพิมพ์ออกจะได้ขนาด A4 จริง */
+    @media (max-width: 850px) {
+      .a4-page.portrait { transform: scale(0.45); transform-origin: top center; margin-bottom: -155mm; }
+      .a4-page.landscape { transform: scale(0.32); transform-origin: top center; margin-bottom: -135mm; }
     }
 
-    #cameraVideo {
-      width: 100%;
-      max-height: 60vh;
-      border-radius: 8px;
-      background: black;
-      object-fit: cover;
-    }
-
-    .camera-controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* ย่อขนาดหน้ากระดาษให้พอดีจอมือถือเวลาดูตัวอย่าง */
-    @media screen and (max-width: 820px) {
-      .a4-page.portrait {
-        zoom: 0.45;
-      }
-      .a4-page.landscape {
-        zoom: 0.34;
-      }
-    }
-
-    /* ===== ตั้งค่าสำหรับการพิมพ์ / บันทึก PDF ไม่ให้ล้นหน้ากระดาษ ===== */
+    /* ซ่อนปุ่มควบคุมเมื่อสั่งพิมพ์หรือสร้าง PDF */
+    .export-mode .no-print,
     @media print {
-      body {
-        background: white;
-        margin: 0;
-        padding: 0;
+      .no-print, .navbar, .page-ctrl-bar, .cell-actions, .add-cap-btn { display: none !important; }
+      body { background: #fff; padding: 0; }
+      .workspace { padding: 0; gap: 0; }
+      .a4-page { box-shadow: none; margin: 0 !important; transform: none !important; }
+      .inline-input, .caption-input, .page-note-input, .measure-input, .comment-area, .status-badge-select {
+        border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none;
       }
-      .no-print, .app-header, .control-panel, .page-ActionBar, .slot-actions-overlay, .del-banner-btn {
-        display: none !important;
-      }
-      .workspace {
-        padding: 0;
-        margin: 0;
-        gap: 0;
-        display: block;
-      }
-      .a4-page {
-        box-shadow: none;
-        margin: 0;
-        border: none;
-        zoom: 1 !important;
-        page-break-after: always;
-        break-after: page;
-      }
-      .a4-page:last-child {
-        page-break-after: auto;
-        break-after: auto;
-      }
-      .img-frame {
-        border: 1px solid #94a3b8 !important;
-      }
-      .slot-placeholder {
-        visibility: hidden;
-      }
-      .slot-topic-select {
-        appearance: none;
-        -webkit-appearance: none;
-        border: none;
-        background: transparent;
-      }
+      .photo-cell { border: 1px solid #e2e8f0; }
     }
-  </style>
-  <style id="dynamicPageStyle">
-    @page { size: A4 portrait; margin: 0; }
   </style>
 </head>
 <body>
 
   <!-- แถบเมนูหลักด้านบน -->
-  <header class="app-header no-print">
-    <div class="app-title">
-      <span>🛠️ ระบบรายงานซ่อมบำรุง A4</span>
-      <span id="jobStatusBadge" class="status-badge">สถานะ: เปิดงาน (กำลังทำ)</span>
+  <nav class="navbar no-print">
+    <div class="navbar-top">
+      <div class="app-title">
+        <i class="fa-solid fa-Screwdriver-wrench"></i> รายงานซ่อมบำรุงเครื่องจักร A4
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-warning" id="installPwaBtn" style="display:none;" onclick="installPWA()">
+          <i class="fa-solid fa-mobile-screen-button"></i> ติดตั้งแอปในมือถือ
+        </button>
+        <button class="btn btn-success" onclick="openJobFile()">
+          <i class="fa-solid fa-folder-open"></i> เปิดงาน
+        </button>
+        <button class="btn" onclick="saveJobToLocal()">
+          <i class="fa-solid fa-floppy-disk"></i> บันทึกงาน
+        </button>
+        <button class="btn btn-dark" onclick="saveToFolder()">
+          <i class="fa-solid fa-folder-plus"></i> บันทึกเข้าโฟลเดอร์
+        </button>
+        <button class="btn btn-danger" onclick="closeAndFinishJob()">
+          <i class="fa-solid fa-flag-checkered"></i> ปิดงาน (PDF/Word)
+        </button>
+      </div>
     </div>
-    <div class="toolbar-actions">
-      <button class="btn-warning" onclick="toggleJobStatus()" id="btnToggleStatus">✅ ปิดงาน</button>
-      <button class="btn-primary" onclick="addNewPage()">➕ เพิ่มหน้า A4</button>
-      <button class="btn-outline" onclick="saveProjectJSON()">💾 บันทึกไฟล์งาน (ลงโฟลเดอร์)</button>
-      <label class="btn-outline btn-label">
-        📂 เปิดไฟล์งานเดิม
-        <input type="file" accept=".json" style="display:none" onchange="loadProjectJSON(event)">
+
+    <div class="toolbar">
+      <button class="btn btn-success" onclick="addNewPage()">
+        <i class="fa-solid fa-file-circle-plus"></i> เพิ่มหน้ากระดาษ A4
+      </button>
+
+      <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
+        แนวกระดาษ:
+        <select id="globalOrientation" class="select-ctrl" onchange="updateGlobalSettings()">
+          <option value="portrait">แนวตั้ง (Portrait)</option>
+          <option value="landscape">แนวนอน (Landscape)</option>
+        </select>
       </label>
-      <button class="btn-danger" onclick="exportPDF()">📄 บันทึก PDF / พิมพ์</button>
-      <button class="btn-success" onclick="exportWord()">📘 บันทึก WORD (.doc)</button>
-    </div>
-  </header>
 
-  <!-- แผงควบคุมและกรอกข้อมูลหลัก -->
-  <section class="control-panel no-print">
-    <div class="panel-grid">
-      <div class="form-group">
-        <label>หัวข้อหลักกลางหน้ากระดาษ</label>
-        <input type="text" id="docMainTitle" value="รายงานการซ่อมบำรุงเครื่องจักร (PM & OVERHAUL REPORT)" oninput="syncGlobalInputs()">
-      </div>
-      <div class="form-group">
-        <label>รหัสเครื่องจักร (Machine Code)</label>
-        <input type="text" id="machineCode" placeholder="เช่น MC-BLOWER-01" value="MC-001" oninput="syncGlobalInputs()">
-      </div>
-      <div class="form-group">
-        <label>วันที่เข้าทำ (Date)</label>
-        <input type="date" id="workDate" oninput="syncGlobalInputs()">
-      </div>
-      <div class="form-group">
-        <label>หัวข้อประจำหน้าเริ่มต้น</label>
-        <select id="defaultTopic" onchange="syncGlobalInputs()">
-          <option value="1. OVERHAUL MOTOR (ก่อนทำ / หลังทำ)">1. OVERHAUL MOTOR (ก่อนทำ / หลังทำ)</option>
-          <option value="2. OVERHAUL BLOWER (ก่อนทำ / หลังทำ)">2. OVERHAUL BLOWER (ก่อนทำ / หลังทำ)</option>
-          <option value="3. เปลี่ยนสายพาน และ ตั้ง Alignment Laser">3. เปลี่ยนสายพาน และ ตั้ง Alignment Laser</option>
-          <option value="4. CLEANING (ก่อนทำ / หลังทำ)">4. CLEANING (ก่อนทำ / หลังทำ)</option>
-          <option value="5. PM (Preventive Maintenance)">5. PM (Preventive Maintenance)</option>
-          <option value="6. วัดค่าความร้อน Temperature & Vibration">6. วัดค่าความร้อน Temperature & Vibration</option>
-          <option value="7. ข้อเสนอแนะ Comment / Alarm Code">7. ข้อเสนอแนะ Comment / Alarm Code</option>
+      <label style="font-size:12px; display:flex; align-items:center; gap:4px;">
+        กรอบรูป:
+        <select id="globalFrameSize" class="select-ctrl" onchange="updateGlobalSettings()">
+          <option value="4">4x4 ซม.</option>
+          <option value="5">5x5 ซม.</option>
+          <option value="6" selected>6x6 ซม.</option>
+          <option value="7">7x7 ซม.</option>
+          <option value="8">8x8 ซม.</option>
+          <option value="9">9x9 ซม.</option>
         </select>
-      </div>
-    </div>
+      </label>
 
-    <div class="panel-grid">
-      <div class="form-group">
-        <label>แนวกระดาษ A4 (Orientation)</label>
-        <select id="pageOrientation" onchange="updateLayoutSettings()">
-          <option value="portrait">แนวตั้ง (Portrait A4)</option>
-          <option value="landscape">แนวนอน (Landscape A4)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>จำนวนช่องตารางรูปต่อหน้า</label>
-        <select id="slotsPerPage" onchange="changeSlotsPerPage()">
-          <option value="4">4 รูป / หน้า</option>
-          <option value="6" selected>6 รูป / หน้า</option>
-          <option value="8">8 รูป / หน้า</option>
-          <option value="12">12 รูป / หน้า</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>ปรับขนาดกรอบภาพ (ซม.)</label>
-        <select id="frameSize" onchange="updateLayoutSettings()">
-          <option value="size-auto" selected>ปรับอัตโนมัติให้พอดีหน้า A4 (แนะนำ)</option>
-          <option value="size-4cm">4 x 4 ซม.</option>
-          <option value="size-5cm">5 x 5 ซม.</option>
-          <option value="size-6cm">6 x 6 ซม.</option>
-          <option value="size-7cm">7 x 7 ซม.</option>
-          <option value="size-8cm">8 x 8 ซม.</option>
-          <option value="size-9cm">9 x 9 ซม.</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>อัปโหลดหลายรูปพร้อมกัน (ใส่ช่องว่างอัตโนมัติ)</label>
-        <label class="btn-primary btn-label" style="justify-content:center;">
-          🖼️ เลือกหลายรูปพร้อมกัน
-          <input type="file" accept="image/*" multiple style="display:none" onchange="handleBulkImageUpload(event)">
-        </label>
-      </div>
+      <button class="btn" style="background:#dc2626;" onclick="exportToPDF()">
+        <i class="fa-solid fa-file-pdf"></i> ส่งออก PDF
+      </button>
+      <button class="btn" style="background:#1d4ed8;" onclick="exportToWord()">
+        <i class="fa-solid fa-file-word"></i> ส่งออก WORD (.doc)
+      </button>
     </div>
-
-    <!-- ส่วนที่ 6 และ 7: วัดค่า Temperature 3 ค่า, Vibration 3 ค่า และ Comment / Alarm Code -->
-    <div class="sensor-box">
-      <div class="sensor-title">
-        <span>🌡️ หัวข้อ 6 & 7: บันทึกค่าความร้อน Temperature (°C) 3 จุด | ความสั่นสะเทือน Vibration (mm/s) 3 จุด | Comment / Alarm Code</span>
-        <label style="font-size:0.85rem; color:#1e293b; display:flex; align-items:center; gap:5px;">
-          <input type="checkbox" id="showTechTable" checked onchange="renderAllPages()"> แสดงตารางวัดค่าในหน้ากระดาษ
-        </label>
-      </div>
-      <div class="sensor-inputs">
-        <div class="form-group">
-          <label>Temp 1 (°C)</label>
-          <input type="text" id="temp1" placeholder="เช่น 45.2" oninput="syncGlobalInputs()">
-        </div>
-        <div class="form-group">
-          <label>Temp 2 (°C)</label>
-          <input type="text" id="temp2" placeholder="เช่น 46.0" oninput="syncGlobalInputs()">
-        </div>
-        <div class="form-group">
-          <label>Temp 3 (°C)</label>
-          <input type="text" id="temp3" placeholder="เช่น 44.8" oninput="syncGlobalInputs()">
-        </div>
-        <div class="form-group">
-          <label>Vibration 1 (mm/s)</label>
-          <input type="text" id="vib1" placeholder="เช่น 1.8" oninput="syncGlobalInputs()">
-        </div>
-        <div class="form-group">
-          <label>Vibration 2 (mm/s)</label>
-          <input type="text" id="vib2" placeholder="เช่น 2.1" oninput="syncGlobalInputs()">
-        </div>
-        <div class="form-group">
-          <label>Vibration 3 (mm/s)</label>
-          <input type="text" id="vib3" placeholder="เช่น 1.5" oninput="syncGlobalInputs()">
-        </div>
-      </div>
-      <div class="form-group" style="margin-top:8px;">
-        <label>7. ข้อเสนอแนะ Comment / Alarm Code / หมายเหตุรวม</label>
-        <input type="text" id="commentAlarm" placeholder="ระบุข้อเสนอแนะ หรือรหัส Alarm Code (ถ้ามี)" oninput="syncGlobalInputs()">
-      </div>
-    </div>
-  </section>
+  </nav>
 
   <!-- พื้นที่แสดงหน้ากระดาษ A4 ทั้งหมด -->
-  <main class="workspace" id="workspace"></main>
+  <div class="workspace" id="pagesContainer"></div>
 
-  <!-- กล้องถ่ายรูปในเว็บแอป (สลับกล้องหน้า-หลังได้) -->
-  <div class="camera-modal no-print" id="cameraModal">
+  <!-- อินพุตไฟล์ซ่อนสำหรับอัปโหลดหลายรูปและเปิดไฟล์งาน -->
+  <input type="file" id="multiImageInput" accept="image/*" multiple style="display:none;" onchange="handleMultiImageSelect(event)">
+  <input type="file" id="singleImageInput" accept="image/*" style="display:none;" onchange="handleSingleImageSelect(event)">
+  <input type="file" id="openJobInput" accept=".json" style="display:none;" onchange="handleOpenJobFile(event)">
+
+  <!-- หน้าต่างกล้องถ่ายรูปพร้อมปุ่มสลับกล้องหน้า-หลัง -->
+  <div class="modal-overlay" id="cameraModal">
     <div class="camera-box">
-      <h3 style="margin:0 0 8px 0;">📷 ถ่ายรูปเข้าช่องตาราง</h3>
-      <video id="cameraVideo" autoplay playsinline></video>
-      <canvas id="cameraCanvas" style="display:none;"></canvas>
+      <div style="font-weight:700; font-size:16px;"><i class="fa-solid fa-camera"></i> ถ่ายรูปหน้างาน</div>
+      <video id="cameraStream" autoplay playsinline></video>
       <div class="camera-controls">
-        <button class="btn-primary" onclick="switchCamera()">🔄 สลับกล้อง (หน้า/หลัง)</button>
-        <button class="btn-success" onclick="capturePhoto()">📸 กดถ่ายรูป</button>
-        <button class="btn-danger" onclick="closeCamera()">✖ ปิดกล้อง</button>
+        <button class="btn btn-warning" onclick="switchCamera()">
+          <i class="fa-solid fa-camera-rotate"></i> สลับกล้อง (หน้า/หลัง)
+        </button>
+        <button class="btn btn-success" onclick="takeSnapshot()">
+          <i class="fa-solid fa-circle-dot"></i> กดถ่ายรูป
+        </button>
+        <button class="btn btn-danger" onclick="closeCameraModal()">
+          <i class="fa-solid fa-xmark"></i> ปิดกล้อง
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Input ซ่อนสำหรับเลือกรูปเดี่ยว -->
-  <input type="file" id="singleImageInput" accept="image/*" style="display:none" onchange="handleSingleSlotFile(event)">
-
   <script>
-    // ตัวเลือกหัวข้อมาตรฐานตามโจทย์
-    const TOPIC_OPTIONS = [
-      "1. OVERHAUL MOTOR - ก่อนทำ",
-      "1. OVERHAUL MOTOR - หลังทำ",
-      "2. OVERHAUL BLOWER - ก่อนทำ",
-      "2. OVERHAUL BLOWER - หลังทำ",
-      "3. เปลี่ยนสายพาน & Alignment Laser - ก่อนทำ",
-      "3. เปลี่ยนสายพาน & Alignment Laser - หลังทำ",
-      "4. CLEANING - ก่อนทำ",
-      "4. CLEANING - หลังทำ",
-      "5. PM (Preventive Maintenance) - ก่อนทำ",
-      "5. PM (Preventive Maintenance) - หลังทำ",
-      "6. วัดค่าความร้อน Temperature (°C) / Vibration (mm/s)",
-      "7. ข้อเสนอแนะ Comment / Alarm Code",
-      "อื่นๆ / หมายเหตุเพิ่มเติม"
+    // รายการหัวข้อที่ 1 - 7 แยกสัดส่วนไม่ปนกัน
+    const SECTIONS = [
+      { id: 1, title: "1. OVERHAUL MOTOR (ก่อนทำ - หลังทำ)", hasBeforeAfter: true },
+      { id: 2, title: "2. OVERHAUL BLOWER (ก่อนทำ - หลังทำ)", hasBeforeAfter: true },
+      { id: 3, title: "3. เปลี่ยนสายพาน และ ตั้ง Alignment Laser (ก่อนทำ - หลังทำ)", hasBeforeAfter: true },
+      { id: 4, title: "4. CLEANING (ก่อนทำ - หลังทำ)", hasBeforeAfter: true },
+      { id: 5, title: "5. PM (Preventive Maintenance)", hasBeforeAfter: false },
+      { id: 6, title: "6. วัดค่าความร้อน Temperature (°C) & ค่าความสั่นสะเทือน Vibration (mm/s)", hasBeforeAfter: false, isMeasurement: true },
+      { id: 7, title: "7. ข้อเสนอแนะ Comment / Alarm Code", hasBeforeAfter: false, isComment: true }
     ];
 
-    // สถานะข้อมูลทั้งหมดของแอป
     let appState = {
-      isClosed: false,
-      docMainTitle: "รายงานการซ่อมบำรุงเครื่องจักร (PM & OVERHAUL REPORT)",
       machineCode: "MC-001",
       workDate: new Date().toISOString().split('T')[0],
-      defaultTopic: "1. OVERHAUL MOTOR (ก่อนทำ / หลังทำ)",
       orientation: "portrait",
-      slotsPerPage: 6,
-      frameSize: "size-auto",
-      temp: ["", "", ""],
-      vib: ["", "", ""],
-      commentAlarm: "",
+      frameSizeCm: 6,
       pages: []
     };
 
-    let activeSlotTarget = { pageIndex: 0, slotIndex: 0 };
-    let cameraStream = null;
-    let currentFacingMode = "environment"; // เริ่มที่กล้องหลังสำหรับมือถือ
+    let activePageIndex = 0;
+    let activeCellIndex = 0;
+    let currentFacingMode = "environment"; // เริ่มต้นที่กล้องหลัง
+    let mediaStream = null;
 
-    // เริ่มต้นระบบเมื่อเปิดหน้าเว็บ
+    // เริ่มต้นสร้างหน้าแรก
     window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('workDate').value = appState.workDate;
-      addNewPage();
+      const saved = localStorage.getItem('A4_MAINTENANCE_JOB');
+      if (saved) {
+        try {
+          appState = JSON.parse(saved);
+          document.getElementById('globalOrientation').value = appState.orientation || 'portrait';
+          document.getElementById('globalFrameSize').value = appState.frameSizeCm || 6;
+        } catch(e) {}
+      }
+      if (appState.pages.length === 0) {
+        addNewPage(1);
+      } else {
+        renderAllPages();
+      }
+      setupPWA();
     });
 
-    // สร้างข้อมูลช่องรูปเริ่มต้น
-    function createEmptySlots(count) {
+    function createEmptySlots(count, defaultBeforeAfter) {
       const slots = [];
       for (let i = 0; i < count; i++) {
-        const defaultTag = (i % 2 === 0) ? TOPIC_OPTIONS[0] : TOPIC_OPTIONS[1];
         slots.push({
-          topic: defaultTag,
           image: null,
-          caption: ""
+          tag: defaultBeforeAfter ? (i % 2 === 0 ? "ก่อนทำ (Before)" : "หลังทำ (After)") : "รูปปฏิบัติงาน",
+          captions: ["หมายเหตุ: "]
         });
       }
       return slots;
     }
 
-    // เพิ่มหน้ากระดาษ A4 ใหม่
-    function addNewPage() {
-      appState.pages.push({
-        banners: [
-          { text: appState.defaultTopic }
-        ],
-        slots: createEmptySlots(appState.slotsPerPage)
-      });
+    function addNewPage(sectionId = 1) {
+      const sec = SECTIONS.find(s => s.id === Number(sectionId)) || SECTIONS[0];
+      const newPage = {
+        id: Date.now() + Math.random(),
+        sectionId: sec.id,
+        customSubHeader: "",
+        gridCount: 4, // ค่าเริ่มต้น 4 รูปต่อหน้า
+        frameSizeCm: Number(document.getElementById('globalFrameSize').value) || 6,
+        slots: createEmptySlots(4, sec.hasBeforeAfter),
+        measurements: {
+          temp: ["", "", ""],
+          vib: ["", "", ""]
+        },
+        commentText: "",
+        alarmCode: "",
+        pageNotes: ["หมายเหตุหน้ากระดาษ: "]
+      };
+      appState.pages.push(newPage);
       renderAllPages();
     }
 
-    // ลบหน้ากระดาษ A4
     function removePage(pageIdx) {
       if (appState.pages.length <= 1) {
         alert("ต้องมีหน้ากระดาษอย่างน้อย 1 หน้าครับ");
         return;
       }
-      if (confirm(`ต้องการลบหน้าที่ ${pageIdx + 1} ใช่หรือไม่?`)) {
+      if (confirm("ต้องการลบหน้ากระดาษนี้ใช่หรือไม่?")) {
         appState.pages.splice(pageIdx, 1);
         renderAllPages();
       }
     }
 
-    // แทรกข้อความหัวข้อตรงกลางหน้ากระดาษ (เพิ่มได้หลายครั้งต่อหน้า)
-    function addBannerToPage(pageIdx) {
-      appState.pages[pageIdx].banners.push({
-        text: "หัวข้อย่อย / หมายเหตุกลางหน้ากระดาษ (คลิกเพื่อแก้ไข)"
-      });
-      renderAllPages();
-    }
-
-    function removeBannerFromPage(pageIdx, bannerIdx) {
-      appState.pages[pageIdx].banners.splice(bannerIdx, 1);
-      renderAllPages();
-    }
-
-    // เปลี่ยนจำนวนช่องตารางรูป (4, 6, 8, 12) โดยรักษาข้อมูลรูปเดิมไว้
-    function changeSlotsPerPage() {
-      const newCount = parseInt(document.getElementById('slotsPerPage').value, 10);
-      appState.slotsPerPage = newCount;
-
-      appState.pages.forEach(page => {
-        const currentLen = page.slots.length;
-        if (newCount > currentLen) {
-          for (let i = currentLen; i < newCount; i++) {
-            page.slots.push({
-              topic: (i % 2 === 0) ? TOPIC_OPTIONS[0] : TOPIC_OPTIONS[1],
-              image: null,
-              caption: ""
-            });
-          }
-        } else if (newCount < currentLen) {
-          page.slots = page.slots.slice(0, newCount);
+    function changePageSection(pageIdx, newSecId) {
+      const page = appState.pages[pageIdx];
+      page.sectionId = Number(newSecId);
+      const sec = SECTIONS.find(s => s.id === page.sectionId);
+      page.slots.forEach((slot, idx) => {
+        if (sec.hasBeforeAfter) {
+          slot.tag = idx % 2 === 0 ? "ก่อนทำ (Before)" : "หลังทำ (After)";
+        } else {
+          slot.tag = `จุดที่ ${idx + 1}`;
         }
       });
       renderAllPages();
     }
 
-    // อัปเดตการตั้งค่าแนวกระดาษและขนาดกรอบภาพ
-    function updateLayoutSettings() {
-      appState.orientation = document.getElementById('pageOrientation').value;
-      appState.frameSize = document.getElementById('frameSize').value;
-
-      // อัปเดต CSS @page สำหรับเวลาสั่งพิมพ์
-      const styleEl = document.getElementById('dynamicPageStyle');
-      styleEl.innerHTML = `@page { size: A4 ${appState.orientation}; margin: 0; }`;
-
+    function changePageGrid(pageIdx, newCount) {
+      const page = appState.pages[pageIdx];
+      const count = Number(newCount);
+      const sec = SECTIONS.find(s => s.id === page.sectionId);
+      const currentLen = page.slots.length;
+      if (count > currentLen) {
+        for (let i = currentLen; i < count; i++) {
+          page.slots.push({
+            image: null,
+            tag: sec.hasBeforeAfter ? (i % 2 === 0 ? "ก่อนทำ (Before)" : "หลังทำ (After)") : `จุดที่ ${i + 1}`,
+            captions: ["หมายเหตุ: "]
+          });
+        }
+      } else if (count < currentLen) {
+        page.slots = page.slots.slice(0, count);
+      }
+      page.gridCount = count;
       renderAllPages();
     }
 
-    // ซิงค์ข้อมูลจากฟอร์มด้านบนลงในหน้ากระดาษทุกหน้า
-    function syncGlobalInputs() {
-      appState.docMainTitle = document.getElementById('docMainTitle').value;
-      appState.machineCode = document.getElementById('machineCode').value;
-      appState.workDate = document.getElementById('workDate').value;
-      appState.defaultTopic = document.getElementById('defaultTopic').value;
-      appState.temp = [
-        document.getElementById('temp1').value,
-        document.getElementById('temp2').value,
-        document.getElementById('temp3').value
-      ];
-      appState.vib = [
-        document.getElementById('vib1').value,
-        document.getElementById('vib2').value,
-        document.getElementById('vib3').value
-      ];
-      appState.commentAlarm = document.getElementById('commentAlarm').value;
+    function changePageFrameSize(pageIdx, newSizeCm) {
+      appState.pages[pageIdx].frameSizeCm = Number(newSizeCm);
       renderAllPages();
     }
 
-    // วาดหน้ากระดาษ A4 ทั้งหมด
+    function updateGlobalSettings() {
+      appState.orientation = document.getElementById('globalOrientation').value;
+      appState.frameSizeCm = Number(document.getElementById('globalFrameSize').value);
+      appState.pages.forEach(p => p.frameSizeCm = appState.frameSizeCm);
+      renderAllPages();
+    }
+
+    // คำนวณขนาดกรอบรูปไม่ให้ล้นหน้ากระดาษ A4
+    function getSafeFrameSizeCm(page) {
+      const requested = page.frameSizeCm || 6;
+      const isPortrait = appState.orientation === 'portrait';
+      const grid = page.gridCount;
+      const hasExtraBox = (page.sectionId === 6 || page.sectionId === 7);
+
+      let maxAllowed = 9;
+      if (isPortrait) {
+        if (grid === 4) maxAllowed = hasExtraBox ? 7 : 8.5;
+        if (grid === 6) maxAllowed = hasExtraBox ? 5.2 : 6.2;
+        if (grid === 8) maxAllowed = hasExtraBox ? 4.0 : 4.6;
+        if (grid === 12) maxAllowed = hasExtraBox ? 3.8 : 4.3;
+      } else {
+        if (grid === 4) maxAllowed = hasExtraBox ? 5.5 : 6.5;
+        if (grid === 6) maxAllowed = hasExtraBox ? 5.5 : 6.5;
+        if (grid === 8) maxAllowed = hasExtraBox ? 5.0 : 6.0;
+        if (grid === 12) maxAllowed = hasExtraBox ? 3.8 : 4.2;
+      }
+      return Math.min(requested, maxAllowed);
+    }
+
     function renderAllPages() {
-      const workspace = document.getElementById('workspace');
-      workspace.innerHTML = "";
-      const showTech = document.getElementById('showTechTable').checked;
+      const container = document.getElementById('pagesContainer');
+      container.innerHTML = '';
 
       appState.pages.forEach((page, pIdx) => {
-        // แถบปุ่มควบคุมของแต่ละหน้า
+        const sec = SECTIONS.find(s => s.id === page.sectionId) || SECTIONS[0];
+        const safeCm = getSafeFrameSizeCm(page);
+
         const wrapper = document.createElement('div');
-        wrapper.style.display = "flex";
-        wrapper.style.flexDirection = "column";
-        wrapper.style.alignItems = "center";
-
-        const actionBar = document.createElement('div');
-        actionBar.className = "page-ActionBar no-print";
-        actionBar.style.width = "100%";
-        actionBar.innerHTML = `
-          <div style="font-weight:700;">📄 หน้าที่ ${pIdx + 1} / ${appState.pages.length}</div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="btn-primary" onclick="addBannerToPage(${pIdx})">➕ แทรกข้อความ/หัวข้อกลางหน้ากระดาษ</button>
-            <label class="btn-success btn-label">
-              🖼️ เพิ่มหลายรูปลงหน้านี้
-              <input type="file" accept="image/*" multiple style="display:none" onchange="handleBulkImageUploadForPage(event, ${pIdx})">
-            </label>
-            <button class="btn-danger" onclick="removePage(${pIdx})">🗑️ ลบหน้านี้</button>
-          </div>
-        `;
-        wrapper.appendChild(actionBar);
-
-        // ตัวกระดาษ A4
-        const pageEl = document.createElement('div');
-        pageEl.className = `a4-page ${appState.orientation}`;
-
-        // 1. ส่วนบนของกระดาษ (Header + Banners)
-        const topContainer = document.createElement('div');
-
-        const headerHTML = `
-          <div class="page-header">
-            <h1>${escapeHtml(appState.docMainTitle)}</h1>
-            <div class="page-meta-row">
-              <span>รหัสเครื่องจักร (Machine Code): <u>${escapeHtml(appState.machineCode || "-")}</u></span>
-              <span>วันที่เข้าทำ (Date): <u>${escapeHtml(appState.workDate || "-")}</u></span>
-              <span>สถานะงาน: <u>${appState.isClosed ? "ปิดงานเรียบร้อย (CLOSED)" : "กำลังดำเนินการ (OPEN)"}</u></span>
+        wrapper.innerHTML = `
+          <!-- แถบตั้งค่าเฉพาะของหน้านี้ -->
+          <div class="page-ctrl-bar no-print">
+            <div style="font-weight:700; color:#1e3a8a;">
+              หน้าที่ ${pIdx + 1} / ${appState.pages.length} (แยกสัดส่วนเฉพาะหัวข้อ ${page.sectionId})
             </div>
-          </div>
-        `;
-        topContainer.innerHTML = headerHTML;
-
-        // แสดงป้ายข้อความตรงกลางหน้ากระดาษ (เพิ่มได้หลายอัน)
-        page.banners.forEach((bObj, bIdx) => {
-          const bannerDiv = document.createElement('div');
-          bannerDiv.className = "center-banner";
-          bannerDiv.innerHTML = `
-            <input type="text" value="${escapeHtml(bObj.text)}" 
-              oninput="appState.pages[${pIdx}].banners[${bIdx}].text = this.value"
-              placeholder="พิมพ์หัวข้อตรงกลางหน้ากระดาษ...">
-            <button class="del-banner-btn no-print" onclick="removeBannerFromPage(${pIdx}, ${bIdx})" title="ลบหัวข้อนี้">✕</button>
-          `;
-          topContainer.appendChild(bannerDiv);
-        });
-
-        pageEl.appendChild(topContainer);
-
-        // 2. ตารางรูปภาพ (Grid 4, 6, 8, 12 รูป)
-        const gridEl = document.createElement('div');
-        gridEl.className = `photo-grid grid-${appState.slotsPerPage} ${appState.frameSize}`;
-
-        page.slots.forEach((slot, sIdx) => {
-          const slotEl = document.createElement('div');
-          slotEl.className = "photo-slot";
-
-          // ดรอปดาวน์เลือกหัวข้องานของแต่ละรูป
-          let optionsHTML = TOPIC_OPTIONS.map(opt => 
-            `<option value="${escapeHtml(opt)}" ${slot.topic === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>`
-          ).join('');
-
-          const hasImgClass = slot.image ? "has-img" : "";
-
-          slotEl.innerHTML = `
-            <div class="slot-topic-bar">
-              <select class="slot-topic-select" onchange="appState.pages[${pIdx}].slots[${sIdx}].topic = this.value">
-                ${optionsHTML}
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              <select class="select-ctrl" onchange="changePageSection(${pIdx}, this.value)">
+                ${SECTIONS.map(s => `<option value="${s.id}" ${s.id === page.sectionId ? 'selected' : ''}>หัวข้อ ${s.title}</option>`).join('')}
               </select>
+
+              <select class="select-ctrl" onchange="changePageGrid(${pIdx}, this.value)">
+                <option value="4" ${page.gridCount === 4 ? 'selected' : ''}>ตาราง 4 รูป</option>
+                <option value="6" ${page.gridCount === 6 ? 'selected' : ''}>ตาราง 6 รูป</option>
+                <option value="8" ${page.gridCount === 8 ? 'selected' : ''}>ตาราง 8 รูป</option>
+                <option value="12" ${page.gridCount === 12 ? 'selected' : ''}>ตาราง 12 รูป</option>
+              </select>
+
+              <select class="select-ctrl" onchange="changePageFrameSize(${pIdx}, this.value)">
+                ${[4,5,6,7,8,9].map(cm => `<option value="${cm}" ${page.frameSizeCm === cm ? 'selected' : ''}>กรอบ ${cm}x${cm} ซม.</option>`).join('')}
+              </select>
+
+              <button class="btn btn-success" onclick="triggerMultiUpload(${pIdx})">
+                <i class="fa-solid fa-images"></i> เพิ่มหลายรูปพร้อมกัน
+              </button>
+              <button class="btn btn-danger" onclick="removePage(${pIdx})">
+                <i class="fa-solid fa-trash"></i> ลบหน้านี้
+              </button>
             </div>
-            <div class="img-frame ${hasImgClass}" onclick="triggerSingleSlotUpload(${pIdx}, ${sIdx})">
-              ${slot.image 
-                ? `<img src="${slot.image}" alt="photo-${sIdx}">`
-                : `<div class="slot-placeholder no-print">
-                     <span>➕ แตะเพื่อเลือกรูป</span>
-                     <span style="font-size:7.5pt; color:#94a3b8;">(จัดกึ่งกลางอัตโนมัติ)</span>
-                   </div>`
-              }
-              <div class="slot-actions-overlay no-print" onclick="event.stopPropagation()">
-                <button class="mini-btn" onclick="openCameraForSlot(${pIdx}, ${sIdx})" title="ถ่ายรูปจากกล้อง">📷</button>
-                <button class="mini-btn" onclick="triggerSingleSlotUpload(${pIdx}, ${sIdx})" title="เลือกรูปจากเครื่อง">📁</button>
-                ${slot.image ? `<button class="mini-btn" style="background:#dc2626;" onclick="clearSlotImage(${pIdx}, ${sIdx})" title="ลบรูป">🗑️</button>` : ''}
+          </div>
+
+          <!-- ตัวกระดาษ A4 -->
+          <div class="a4-page ${appState.orientation}">
+            <div class="page-header">
+              <div class="header-top-row">
+                <div>
+                  <strong>วันที่เข้าทำ:</strong>
+                  <input type="date" class="inline-input" value="${appState.workDate}" onchange="updateWorkDate(this.value)">
+                </div>
+                <div><strong>เอกสารรายงานการซ่อมบำรุง (A4 Report)</strong></div>
+                <div><strong>หน้า ${pIdx + 1} / ${appState.pages.length}</strong></div>
+              </div>
+
+              <div class="machine-code-box">
+                <span>รหัสเครื่องจักร (Machine Code):</span>
+                <input type="text" class="inline-input" style="width:180px;" value="${appState.machineCode}" placeholder="ระบุรหัสเครื่องจักร" oninput="updateMachineCode(this.value)">
+              </div>
+
+              <div class="section-selector-bar">
+                <div class="section-title-display">${sec.title}</div>
+              </div>
+              <div style="margin-top:4px;">
+                <input type="text" class="inline-input" style="width:75%; font-size:12px;" placeholder="+ เพิ่มหัวข้อย่อย / รายละเอียดจุดปฏิบัติงานตรงกลางหน้ากระดาษ" value="${page.customSubHeader || ''}" oninput="appState.pages[${pIdx}].customSubHeader = this.value">
               </div>
             </div>
-            <input type="text" class="slot-caption" 
-              placeholder="พิมพ์หมายเหตุใต้ภาพ..." 
-              value="${escapeHtml(slot.caption)}"
-              oninput="appState.pages[${pIdx}].slots[${sIdx}].caption = this.value">
-          `;
-          gridEl.appendChild(slotEl);
-        });
 
-        pageEl.appendChild(gridEl);
+            <div class="page-body">
+              ${renderSpecialSectionBox(page, pIdx)}
 
-        // 3. ส่วนล่างของกระดาษ (ตารางวัดค่า Temperature / Vibration + Comment + เลขหน้า)
-        const bottomContainer = document.createElement('div');
-        let techHTML = "";
-        if (showTech) {
-          techHTML = `
-            <div class="tech-data-section">
-              <table class="tech-table">
+              <div class="photo-grid grid-${page.gridCount}">
+                ${page.slots.map((slot, sIdx) => `
+                  <div class="photo-cell">
+                    <select class="status-badge-select" onchange="appState.pages[${pIdx}].slots[${sIdx}].tag = this.value">
+                      <option value="ก่อนทำ (Before)" ${slot.tag === 'ก่อนทำ (Before)' ? 'selected' : ''}>ก่อนทำ (Before)</option>
+                      <option value="หลังทำ (After)" ${slot.tag === 'หลังทำ (After)' ? 'selected' : ''}>หลังทำ (After)</option>
+                      <option value="ระหว่างทำ (In Progress)" ${slot.tag === 'ระหว่างทำ (In Progress)' ? 'selected' : ''}>ระหว่างทำ (In Progress)</option>
+                      <option value="รูปปฏิบัติงาน" ${slot.tag === 'รูปปฏิบัติงาน' ? 'selected' : ''}>รูปปฏิบัติงาน</option>
+                    </select>
+
+                    <div class="photo-frame" style="width:${safeCm}cm; height:${safeCm}cm;" onclick="triggerSingleUpload(${pIdx}, ${sIdx})">
+                      ${slot.image ? `<img src="${slot.image}" alt="photo">` : `
+                        <div class="photo-placeholder">
+                          <i class="fa-solid fa-camera" style="font-size:18px;"></i>
+                          <span>แตะเพื่อเลือกรูป<br>(${page.frameSizeCm}x${page.frameSizeCm} ซม.)</span>
+                        </div>
+                      `}
+                      <div class="cell-actions no-print" onclick="event.stopPropagation();">
+                        <button class="cell-btn" title="ถ่ายรูปจากกล้อง" onclick="openCameraModal(${pIdx}, ${sIdx})">
+                          <i class="fa-solid fa-camera"></i>
+                        </button>
+                        ${slot.image ? `
+                          <button class="cell-btn" style="background:#dc2626;" title="ลบรูป" onclick="removePhoto(${pIdx}, ${sIdx})">
+                            <i class="fa-solid fa-xmark"></i>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+
+                    <div class="caption-list">
+                      ${slot.captions.map((cap, cIdx) => `
+                        <div class="caption-item">
+                          <input type="text" class="caption-input" value="${cap}" placeholder="หมายเหตุใต้รูป..." oninput="appState.pages[${pIdx}].slots[${sIdx}].captions[${cIdx}] = this.value">
+                          ${slot.captions.length > 1 ? `<button class="add-cap-btn no-print" onclick="removeSlotCaption(${pIdx}, ${sIdx}, ${cIdx})">-</button>` : ''}
+                        </div>
+                      `).join('')}
+                    </div>
+                    <button class="add-cap-btn no-print" style="margin-top:2px;" onclick="addSlotCaption(${pIdx}, ${sIdx})">
+                      + เพิ่มหมายเหตุใต้รูป
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="page-footer">
+              <div class="page-notes-area">
+                ${page.pageNotes.map((note, nIdx) => `
+                  <div class="page-note-row">
+                    <input type="text" class="page-note-input" value="${note}" oninput="appState.pages[${pIdx}].pageNotes[${nIdx}] = this.value">
+                    <button class="add-cap-btn no-print" onclick="addPageNote(${pIdx})">+ หมายเหตุหน้า</button>
+                  </div>
+                `).join('')}
+              </div>
+              <div>ผู้บันทึก / ช่างเทคนิค: _______________________</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(wrapper);
+      });
+    }
+
+    // แสดงตารางวัดค่าความร้อน/ความสั่นสะเทือน (หัวข้อ 6) และ Comment/Alarm Code (หัวข้อ 7)
+    function renderSpecialSectionBox(page, pIdx) {
+      if (page.sectionId === 6) {
+        return `
+          <div class="special-data-box">
+            <div class="temp-vib-grid">
+              <table class="measure-table">
                 <thead>
-                  <tr>
-                    <th colspan="3">6. วัดค่าความร้อน Temperature (°C)</th>
-                    <th colspan="3">6. วัดค่าความสั่นสะเทือน Vibration (mm/s)</th>
-                  </tr>
-                  <tr>
-                    <th>จุดที่ 1 (°C)</th>
-                    <th>จุดที่ 2 (°C)</th>
-                    <th>จุดที่ 3 (°C)</th>
-                    <th>จุดที่ 1 (mm/s)</th>
-                    <th>จุดที่ 2 (mm/s)</th>
-                    <th>จุดที่ 3 (mm/s)</th>
-                  </tr>
+                  <tr><th colspan="3">วัดค่าความร้อน Temperature (°C) - 3 ค่า</th></tr>
+                  <tr><th>จุดที่ 1 (°C)</th><th>จุดที่ 2 (°C)</th><th>จุดที่ 3 (°C)</th></tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>${escapeHtml(appState.temp[0] || "-")}</td>
-                    <td>${escapeHtml(appState.temp[1] || "-")}</td>
-                    <td>${escapeHtml(appState.temp[2] || "-")}</td>
-                    <td>${escapeHtml(appState.vib[0] || "-")}</td>
-                    <td>${escapeHtml(appState.vib[1] || "-")}</td>
-                    <td>${escapeHtml(appState.vib[2] || "-")}</td>
+                    <td><input type="number" step="0.1" class="measure-input" value="${page.measurements.temp[0]}" placeholder="0.0 °C" oninput="appState.pages[${pIdx}].measurements.temp[0]=this.value"> °C</td>
+                    <td><input type="number" step="0.1" class="measure-input" value="${page.measurements.temp[1]}" placeholder="0.0 °C" oninput="appState.pages[${pIdx}].measurements.temp[1]=this.value"> °C</td>
+                    <td><input type="number" step="0.1" class="measure-input" value="${page.measurements.temp[2]}" placeholder="0.0 °C" oninput="appState.pages[${pIdx}].measurements.temp[2]=this.value"> °C</td>
                   </tr>
                 </tbody>
               </table>
-              <div style="margin-bottom:3px;">
-                <strong>7. ข้อเสนอแนะ Comment / Alarm Code:</strong> ${escapeHtml(appState.commentAlarm || "-")}
-              </div>
+              <table class="measure-table">
+                <thead>
+                  <tr><th colspan="3">ค่าความสั่นสะเทือน Vibration (mm/s) - 3 ค่า</th></tr>
+                  <tr><th>แกน H / จุด 1</th><th>แกน V / จุด 2</th><th>แกน A / จุด 3</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="number" step="0.01" class="measure-input" value="${page.measurements.vib[0]}" placeholder="0.00" oninput="appState.pages[${pIdx}].measurements.vib[0]=this.value"> mm/s</td>
+                    <td><input type="number" step="0.01" class="measure-input" value="${page.measurements.vib[1]}" placeholder="0.00" oninput="appState.pages[${pIdx}].measurements.vib[1]=this.value"> mm/s</td>
+                    <td><input type="number" step="0.01" class="measure-input" value="${page.measurements.vib[2]}" placeholder="0.00" oninput="appState.pages[${pIdx}].measurements.vib[2]=this.value"> mm/s</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          `;
-        }
-
-        bottomContainer.innerHTML = `
-          ${techHTML}
-          <div class="page-footer">
-            <span>รหัสเครื่องจักร: ${escapeHtml(appState.machineCode || "-")} | วันที่: ${escapeHtml(appState.workDate || "-")}</span>
-            <span>หน้า ${pIdx + 1} / ${appState.pages.length}</span>
           </div>
         `;
-        pageEl.appendChild(bottomContainer);
+      }
+      if (page.sectionId === 7) {
+        return `
+          <div class="special-data-box">
+            <div style="display:flex; gap:10px; margin-bottom:5px; align-items:center;">
+              <strong>Alarm Code (รหัสแจ้งเตือน):</strong>
+              <input type="text" class="inline-input" style="width:220px; text-align:left;" placeholder="ระบุ Alarm Code (ถ้ามี)" value="${page.alarmCode || ''}" oninput="appState.pages[${pIdx}].alarmCode=this.value">
+            </div>
+            <div>
+              <strong>ข้อเสนอแนะ (Comment / แนวทางแก้ไข):</strong>
+              <textarea class="comment-area" placeholder="พิมพ์ข้อเสนอแนะ อาการผิดปกติ หรือรายการอะไหล่ที่ต้องเปลี่ยน..." oninput="appState.pages[${pIdx}].commentText=this.value">${page.commentText || ''}</textarea>
+            </div>
+          </div>
+        `;
+      }
+      return '';
+    }
 
-        wrapper.appendChild(pageEl);
-        workspace.appendChild(wrapper);
+    function updateMachineCode(val) {
+      appState.machineCode = val;
+      document.querySelectorAll('.machine-code-box input').forEach(inp => {
+        if (inp !== document.activeElement) inp.value = val;
       });
     }
 
-    // ===== ระบบจัดการรูปภาพ (เดี่ยว & หลายรูปพร้อมกัน) =====
-    function triggerSingleSlotUpload(pageIdx, slotIdx) {
-      activeSlotTarget = { pageIndex: pageIdx, slotIndex: slotIdx };
-      const input = document.getElementById('singleImageInput');
-      input.value = "";
-      input.click();
+    function updateWorkDate(val) {
+      appState.workDate = val;
+      renderAllPages();
     }
 
-    async function handleSingleSlotFile(event) {
-      const file = event.target.files[0];
+    function addSlotCaption(pIdx, sIdx) {
+      appState.pages[pIdx].slots[sIdx].captions.push("หมายเหตุ: ");
+      renderAllPages();
+    }
+
+    function removeSlotCaption(pIdx, sIdx, cIdx) {
+      appState.pages[pIdx].slots[sIdx].captions.splice(cIdx, 1);
+      renderAllPages();
+    }
+
+    function addPageNote(pIdx) {
+      appState.pages[pIdx].pageNotes.push("หมายเหตุเพิ่มเติม: ");
+      renderAllPages();
+    }
+
+    function removePhoto(pIdx, sIdx) {
+      appState.pages[pIdx].slots[sIdx].image = null;
+      renderAllPages();
+    }
+
+    // อัปโหลดรูปเดี่ยว
+    function triggerSingleUpload(pIdx, sIdx) {
+      activePageIndex = pIdx;
+      activeCellIndex = sIdx;
+      document.getElementById('singleImageInput').value = '';
+      document.getElementById('singleImageInput').click();
+    }
+
+    async function handleSingleImageSelect(e) {
+      const file = e.target.files[0];
       if (!file) return;
-      const dataUrl = await compressAndReadImage(file);
-      const { pageIndex, slotIndex } = activeSlotTarget;
-      appState.pages[pageIndex].slots[slotIndex].image = dataUrl;
+      const dataUrl = await compressImage(file);
+      appState.pages[activePageIndex].slots[activeCellIndex].image = dataUrl;
       renderAllPages();
     }
 
-    function clearSlotImage(pageIdx, slotIdx) {
-      appState.pages[pageIdx].slots[slotIdx].image = null;
-      renderAllPages();
+    // อัปโหลดหลายรูปพร้อมกัน (หากเกินจำนวนช่องในหน้าปัจจุบัน จะสร้างหน้าใหม่ในหัวข้อเดิมให้อัตโนมัติ)
+    function triggerMultiUpload(pIdx) {
+      activePageIndex = pIdx;
+      document.getElementById('multiImageInput').value = '';
+      document.getElementById('multiImageInput').click();
     }
 
-    // อัปโหลดหลายรูปพร้อมกัน (ใส่ช่องว่างไปเรื่อยๆ ถ้าหน้าเต็มสร้างหน้าใหม่ให้อัตโนมัติ)
-    async function handleBulkImageUpload(event) {
-      const files = Array.from(event.target.files);
+    async function handleMultiImageSelect(e) {
+      const files = Array.from(e.target.files);
       if (!files.length) return;
+
+      let pIdx = activePageIndex;
+      const targetSectionId = appState.pages[pIdx].sectionId;
+      const targetGridCount = appState.pages[pIdx].gridCount;
 
       for (const file of files) {
-        const dataUrl = await compressAndReadImage(file);
+        const dataUrl = await compressImage(file);
         let placed = false;
 
-        for (let p = 0; p < appState.pages.length; p++) {
-          for (let s = 0; s < appState.pages[p].slots.length; s++) {
-            if (!appState.pages[p].slots[s].image) {
-              appState.pages[p].slots[s].image = dataUrl;
-              placed = true;
-              break;
-            }
+        while (!placed) {
+          const page = appState.pages[pIdx];
+          const emptySlot = page.slots.find(s => !s.image);
+          if (emptySlot) {
+            emptySlot.image = dataUrl;
+            placed = true;
+          } else {
+            // ถ้าหน้าปัจจุบันเต็ม ให้สร้างหน้าใหม่ในหัวข้อเดียวกันทันที
+            addNewPage(targetSectionId);
+            pIdx = appState.pages.length - 1;
+            changePageGrid(pIdx, targetGridCount);
           }
-          if (placed) break;
-        }
-
-        // ถ้าทุกช่องเต็มหมดแล้ว ให้สร้างหน้าใหม่แล้วใส่รูปลงช่องแรกทันที
-        if (!placed) {
-          const newSlots = createEmptySlots(appState.slotsPerPage);
-          newSlots[0].image = dataUrl;
-          appState.pages.push({
-            banners: [{ text: appState.defaultTopic }],
-            slots: newSlots
-          });
         }
       }
-      event.target.value = "";
       renderAllPages();
     }
 
-    // อัปโหลดหลายรูปเฉพาะหน้านั้นๆ
-    async function handleBulkImageUploadForPage(event, pageIdx) {
-      const files = Array.from(event.target.files);
-      if (!files.length) return;
-
-      let fileIdx = 0;
-      for (let s = 0; s < appState.pages[pageIdx].slots.length && fileIdx < files.length; s++) {
-        if (!appState.pages[pageIdx].slots[s].image) {
-          appState.pages[pageIdx].slots[s].image = await compressAndReadImage(files[fileIdx]);
-          fileIdx++;
-        }
-      }
-      event.target.value = "";
-      renderAllPages();
-    }
-
-    // ย่อขนาดรูปภาพให้คมชัดแต่ไฟล์ไม่หนักเครื่อง
-    function compressAndReadImage(file) {
+    // ย่อขนาดไฟล์ภาพเพื่อให้จัดเก็บและสร้าง PDF/Word ได้รวดเร็ว
+    function compressImage(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (event) => {
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const maxDim = 1200;
-            let w = img.width;
-            let h = img.height;
-            if (w > maxDim || h > maxDim) {
-              if (w > h) {
-                h = Math.round((h * maxDim) / w);
-                w = maxDim;
-              } else {
-                w = Math.round((w * maxDim) / h);
-                h = maxDim;
-              }
-            }
-            canvas.width = w;
-            canvas.height = h;
+            const maxDim = 900;
+            let w = img.width, h = img.height;
+            if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
+            else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+            canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             resolve(canvas.toDataURL('image/jpeg', 0.85));
           };
-          img.src = e.target.result;
+          img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       });
     }
 
-    // ===== ระบบกล้องถ่ายรูป & สลับกล้องหน้า-หลัง =====
-    async function openCameraForSlot(pageIdx, slotIdx) {
-      activeSlotTarget = { pageIndex: pageIdx, slotIndex: slotIdx };
-      const modal = document.getElementById('cameraModal');
-      modal.classList.add('active');
+    // ระบบกล้องถ่ายรูป + สลับกล้องหน้า/หลัง
+    async function openCameraModal(pIdx, sIdx) {
+      activePageIndex = pIdx;
+      activeCellIndex = sIdx;
+      document.getElementById('cameraModal').style.display = 'flex';
       await startCameraStream();
     }
 
     async function startCameraStream() {
-      stopCameraStream();
-      const video = document.getElementById('cameraVideo');
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+      }
       try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
+        mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: currentFacingMode },
           audio: false
         });
-        video.srcObject = cameraStream;
+        document.getElementById('cameraStream').srcObject = mediaStream;
       } catch (err) {
-        alert("ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการเข้าถึงกล้อง หรือใช้ปุ่มเลือกรูปภาพแทนครับ");
-        closeCamera();
+        alert("ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การใช้กล้อง หรือเลือกไฟล์รูปจากเครื่องแทน");
+        closeCameraModal();
       }
     }
 
     async function switchCamera() {
-      currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+      currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
       await startCameraStream();
     }
 
-    function capturePhoto() {
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('cameraCanvas');
+    function takeSnapshot() {
+      const video = document.getElementById('cameraStream');
       if (!video.videoWidth) return;
-
+      const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+      canvas.getContext('2d').drawImage(video, 0, 0);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      const { pageIndex, slotIndex } = activeSlotTarget;
-      appState.pages[pageIndex].slots[slotIndex].image = dataUrl;
-
-      closeCamera();
+      appState.pages[activePageIndex].slots[activeCellIndex].image = dataUrl;
+      closeCameraModal();
       renderAllPages();
     }
 
-    function stopCameraStream() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
+    function closeCameraModal() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
       }
+      document.getElementById('cameraModal').style.display = 'none';
     }
 
-    function closeCamera() {
-      stopCameraStream();
-      document.getElementById('cameraModal').classList.remove('active');
-    }
-
-    // ===== ระบบ เปิดงาน / ปิดงาน =====
-    function toggleJobStatus() {
-      appState.isClosed = !appState.isClosed;
-      const badge = document.getElementById('jobStatusBadge');
-      const btn = document.getElementById('btnToggleStatus');
-
-      if (appState.isClosed) {
-        badge.textContent = "สถานะ: ปิดงานแล้ว (CLOSED)";
-        badge.classList.add('closed');
-        btn.textContent = "🔓 เปิดงานแก้ไข";
-      } else {
-        badge.textContent = "สถานะ: เปิดงาน (กำลังทำ)";
-        badge.classList.remove('closed');
-        btn.textContent = "✅ ปิดงาน";
-      }
-      renderAllPages();
-    }
-
-    // ===== บันทึกไฟล์งานลงโฟลเดอร์ (JSON) และเปิดไฟล์งาน =====
-    function saveProjectJSON() {
-      const dataStr = JSON.stringify(appState, null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+    // ระบบบันทึกงาน / เปิดงาน / บันทึกเข้าโฟลเดอร์
+    function saveJobToLocal() {
+      localStorage.setItem('A4_MAINTENANCE_JOB', JSON.stringify(appState));
+      const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `PM_Report_${appState.machineCode || 'Machine'}_${appState.workDate}.json`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `Job_${appState.machineCode}_${appState.workDate}.json`;
       a.click();
-      URL.revokeObjectURL(url);
+      alert("บันทึกงานเรียบร้อยแล้ว (บันทึกทั้งในเครื่องและดาวน์โหลดไฟล์สำรอง)");
     }
 
-    function loadProjectJSON(event) {
-      const file = event.target.files[0];
+    function openJobFile() {
+      document.getElementById('openJobInput').value = '';
+      document.getElementById('openJobInput').click();
+    }
+
+    function handleOpenJobFile(e) {
+      const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (ev) => {
         try {
-          const loaded = JSON.parse(e.target.result);
-          appState = loaded;
-          document.getElementById('docMainTitle').value = appState.docMainTitle || "";
-          document.getElementById('machineCode').value = appState.machineCode || "";
-          document.getElementById('workDate').value = appState.workDate || "";
-          document.getElementById('pageOrientation').value = appState.orientation || "portrait";
-          document.getElementById('slotsPerPage').value = appState.slotsPerPage || 6;
-          document.getElementById('frameSize').value = appState.frameSize || "size-auto";
-          document.getElementById('temp1').value = (appState.temp && appState.temp[0]) || "";
-          document.getElementById('temp2').value = (appState.temp && appState.temp[1]) || "";
-          document.getElementById('temp3').value = (appState.temp && appState.temp[2]) || "";
-          document.getElementById('vib1').value = (appState.vib && appState.vib[0]) || "";
-          document.getElementById('vib2').value = (appState.vib && appState.vib[1]) || "";
-          document.getElementById('vib3').value = (appState.vib && appState.vib[2]) || "";
-          document.getElementById('commentAlarm').value = appState.commentAlarm || "";
-          updateLayoutSettings();
+          appState = JSON.parse(ev.target.result);
+          document.getElementById('globalOrientation').value = appState.orientation || 'portrait';
+          document.getElementById('globalFrameSize').value = appState.frameSizeCm || 6;
+          renderAllPages();
+          alert("เปิดข้อมูลงานสำเร็จ!");
         } catch (err) {
-          alert("รูปแบบไฟล์ไม่ถูกต้อง");
+          alert("ไฟล์งานไม่ถูกต้อง");
         }
       };
       reader.readAsText(file);
     }
 
-    // ===== ส่งออก PDF (Print to A4 PDF) =====
-    function exportPDF() {
-      window.print();
+    // บันทึกไฟล์เข้าโฟลเดอร์โดยตรง (รองรับ File System Access API)
+    async function saveToFolder() {
+      if ('showDirectoryPicker' in window) {
+        try {
+          const dirHandle = await window.showDirectoryPicker();
+          const fileName = `Report_${appState.machineCode}_${appState.workDate}.json`;
+          const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(JSON.stringify(appState, null, 2));
+          await writable.close();
+          alert(`บันทึกไฟล์ลงในโฟลเดอร์ที่เลือกเรียบร้อยแล้ว (${fileName})`);
+        } catch (e) {
+          if (e.name !== 'AbortError') saveJobToLocal();
+        }
+      } else {
+        saveJobToLocal();
+      }
     }
 
-    // ===== ส่งออกเป็นไฟล์ Microsoft Word (.doc) พร้อมรูปภาพและตาราง =====
-    function exportWord() {
-      const isLandscape = appState.orientation === "landscape";
-      const pageSizeCss = isLandscape ? "29.7cm 21.0cm" : "21.0cm 29.7cm";
-      const cols = (appState.slotsPerPage === 12 || (isLandscape && appState.slotsPerPage >= 6)) ? 3 : 2;
+    // ส่งออกไฟล์ PDF ขนาด A4 พอดีหน้า
+    async function exportToPDF() {
+      document.body.classList.add('export-mode');
+      const element = document.getElementById('pagesContainer');
+      const opt = {
+        margin: 0,
+        filename: `Report_${appState.machineCode}_${appState.workDate}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: appState.orientation }
+      };
+      await html2pdf().set(opt).from(element).save();
+      document.body.classList.remove('export-mode');
+    }
 
-      let wordBody = "";
+    // ส่งออกไฟล์ Word (.doc) พร้อมรูปและตารางแยกหน้า
+    function exportToWord() {
+      const isLandscape = appState.orientation === 'landscape';
+      const pageSizeCss = isLandscape ? '297mm 210mm' : '210mm 297mm';
+
+      let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Report</title>
+        <style>
+          @page Section1 { size: ${pageSizeCss}; margin: 12mm; }
+          div.Section1 { page: Section1; font-family: 'Sarabun', 'TH SarabunPSK', sans-serif; }
+          table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+          td, th { border: 1px solid #94a3b8; padding: 6px; text-align: center; vertical-align: middle; }
+          .page-break { page-break-after: always; }
+        </style>
+        </head><body><div class="Section1">
+      `;
 
       appState.pages.forEach((page, pIdx) => {
-        wordBody += `
-          <div style="page-break-after: ${pIdx < appState.pages.length - 1 ? 'always' : 'auto'}; font-family:'Sarabun', sans-serif;">
-            <h2 style="text-align:center; margin:0 0 6px 0;">${escapeHtml(appState.docMainTitle)}</h2>
-            <p style="text-align:center; margin:0 0 8px 0; font-weight:bold;">
-              รหัสเครื่องจักร: ${escapeHtml(appState.machineCode)} | วันที่เข้าทำ: ${escapeHtml(appState.workDate)} | สถานะ: ${appState.isClosed ? 'ปิดงานแล้ว' : 'กำลังดำเนินการ'}
-            </p>
+        const sec = SECTIONS.find(s => s.id === page.sectionId) || SECTIONS[0];
+        const cols = (page.gridCount === 12) ? (isLandscape ? 4 : 3) : (isLandscape && page.gridCount >= 6 ? 3 : 2);
+        const pxSize = Math.round((page.frameSizeCm || 6) * 37.8);
+
+        htmlContent += `
+          <div style="text-align:center; border-bottom:2px solid #1e3a8a; padding-bottom:6px;">
+            <p style="margin:2px 0; font-size:12pt;"><strong>วันที่เข้าทำ:</strong> ${appState.workDate} | <strong>หน้า:</strong> ${pIdx + 1}/${appState.pages.length}</p>
+            <h2 style="margin:4px 0; color:#1e3a8a;">รหัสเครื่องจักร: ${appState.machineCode}</h2>
+            <h3 style="margin:4px 0; background:#eff6ff; padding:4px;">${sec.title}</h3>
+            ${page.customSubHeader ? `<p style="margin:2px 0;">${page.customSubHeader}</p>` : ''}
+          </div>
         `;
 
-        page.banners.forEach(b => {
-          wordBody += `<div style="text-align:center; background:#f1f5f9; border:1px solid #94a3b8; padding:4px; margin:6px 0; font-weight:bold;">${escapeHtml(b.text)}</div>`;
-        });
+        if (page.sectionId === 6) {
+          htmlContent += `
+            <table>
+              <tr>
+                <th colspan="3">วัดค่าความร้อน Temperature (°C)</th>
+                <th colspan="3">ค่าความสั่นสะเทือน Vibration (mm/s)</th>
+              </tr>
+              <tr>
+                <td>${page.measurements.temp[0] || '-'} °C</td>
+                <td>${page.measurements.temp[1] || '-'} °C</td>
+                <td>${page.measurements.temp[2] || '-'} °C</td>
+                <td>${page.measurements.vib[0] || '-'} mm/s</td>
+                <td>${page.measurements.vib[1] || '-'} mm/s</td>
+                <td>${page.measurements.vib[2] || '-'} mm/s</td>
+              </tr>
+            </table>
+          `;
+        }
 
-        // สร้างตารางรูปภาพใน Word
-        wordBody += `<table style="width:100%; border-collapse:collapse; margin-top:6px;" border="1" cellspacing="0" cellpadding="6"><tr>`;
+        if (page.sectionId === 7) {
+          htmlContent += `
+            <p><strong>Alarm Code:</strong> ${page.alarmCode || '-'}</p>
+            <p><strong>ข้อเสนอแนะ (Comment):</strong> ${page.commentText || '-'}</p>
+          `;
+        }
+
+        htmlContent += `<table><tr>`;
         page.slots.forEach((slot, sIdx) => {
-          if (sIdx > 0 && sIdx % cols === 0) {
-            wordBody += `</tr><tr>`;
-          }
-          const imgHtml = slot.image 
-            ? `<img src="${slot.image}" width="210" height="160" style="display:block; margin:4px auto; object-fit:cover;">`
-            : `<div style="height:140px; color:#94a3b8; text-align:center; line-height:140px;">(ไม่มีรูปภาพ)</div>`;
-
-          wordBody += `
-            <td style="text-align:center; vertical-align:top; width:${Math.floor(100/cols)}%;">
-              <div style="font-weight:bold; font-size:10pt; margin-bottom:4px;">${escapeHtml(slot.topic)}</div>
-              ${imgHtml}
-              <div style="font-size:10pt; margin-top:4px;">หมายเหตุ: ${escapeHtml(slot.caption || "-")}</div>
+          if (sIdx > 0 && sIdx % cols === 0) htmlContent += `</tr><tr>`;
+          htmlContent += `
+            <td>
+              <div><strong>${slot.tag}</strong></div>
+              ${slot.image ? `<img src="${slot.image}" width="${pxSize}" height="${pxSize}" style="object-fit:cover; margin:4px auto;">` : `<div style="height:${pxSize}px;">(ไม่มีรูปภาพ)</div>`}
+              ${slot.captions.map(c => `<div style="font-size:10pt;">${c}</div>`).join('')}
             </td>
           `;
         });
-        wordBody += `</tr></table>`;
+        htmlContent += `</tr></table>`;
+        htmlContent += `<p style="font-size:10pt; margin-top:8px;">${page.pageNotes.join(' | ')}</p>`;
 
-        // ตารางค่าความร้อนและความสั่นสะเทือนใน Word
-        wordBody += `
-          <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:9.5pt;" border="1" cellspacing="0" cellpadding="4">
-            <tr style="background:#f1f5f9; font-weight:bold; text-align:center;">
-              <td colspan="3">6. วัดค่าความร้อน Temperature (°C)</td>
-              <td colspan="3">6. วัดค่าความสั่นสะเทือน Vibration (mm/s)</td>
-            </tr>
-            <tr style="text-align:center;">
-              <td>Temp 1: ${escapeHtml(appState.temp[0] || "-")} °C</td>
-              <td>Temp 2: ${escapeHtml(appState.temp[1] || "-")} °C</td>
-              <td>Temp 3: ${escapeHtml(appState.temp[2] || "-")} °C</td>
-              <td>Vib 1: ${escapeHtml(appState.vib[0] || "-")} mm/s</td>
-              <td>Vib 2: ${escapeHtml(appState.vib[1] || "-")} mm/s</td>
-              <td>Vib 3: ${escapeHtml(appState.vib[2] || "-")} mm/s</td>
-            </tr>
-            <tr>
-              <td colspan="6"><strong>7. ข้อเสนอแนะ Comment / Alarm Code:</strong> ${escapeHtml(appState.commentAlarm || "-")}</td>
-            </tr>
-          </table>
-          <p style="text-align:right; font-size:9pt; margin-top:4px;">หน้า ${pIdx + 1} / ${appState.pages.length}</p>
-        </div>`;
+        if (pIdx < appState.pages.length - 1) {
+          htmlContent += `<br class="page-break" style="page-break-before:always;">`;
+        }
       });
 
-      const fullHtml = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            @page WordSection1 { size: ${pageSizeCss}; margin: 1.0cm; }
-            div.WordSection1 { page: WordSection1; }
-          </style>
-        </head>
-        <body><div class="WordSection1">${wordBody}</div></body>
-        </html>
-      `;
-
-      const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
+      htmlContent += `</div></body></html>`;
+      const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
       const link = document.createElement('a');
-      link.href = url;
-      link.download = `PM_Report_${appState.machineCode || 'Machine'}_${appState.workDate}.doc`;
+      link.href = URL.createObjectURL(blob);
+      link.download = `Report_${appState.machineCode}_${appState.workDate}.doc`;
       link.click();
-      URL.revokeObjectURL(url);
     }
 
-    function escapeHtml(str) {
-      if (!str) return "";
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+    // ปุ่มปิดงาน (บันทึกงาน + เลือกออกรายงาน PDF และ Word ทันที)
+    async function closeAndFinishJob() {
+      localStorage.setItem('A4_MAINTENANCE_JOB', JSON.stringify(appState));
+      if (confirm("ต้องการปิดงานและดาวน์โหลดไฟล์รายงานทั้ง PDF และ WORD เลยหรือไม่?")) {
+        await exportToPDF();
+        exportToWord();
+      }
+    }
+
+    // ตั้งค่าให้ติดตั้งเป็นแอปในโทรศัพท์ได้ (PWA Manifest)
+    let deferredPrompt;
+    function setupPWA() {
+      const manifest = {
+        name: "ระบบรายงานซ่อมบำรุงเครื่องจักร A4",
+        short_name: "A4 Report",
+        start_url: ".",
+        display: "standalone",
+        background_color: "#f1f5f9",
+        theme_color: "#1e3a8a",
+        icons: [{
+          src: "https://cdn-icons-png.flaticon.com/512/1055/1055683.png",
+          sizes: "512x512",
+          type: "image/png"
+        }]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = URL.createObjectURL(blob);
+      document.head.appendChild(link);
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installPwaBtn').style.display = 'inline-flex';
+      });
+    }
+
+    async function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        document.getElementById('installPwaBtn').style.display = 'none';
+      } else {
+        alert("สำหรับ iPhone/iPad: กดปุ่มแชร์ (Share) บน Safari แล้วเลือก 'เพิ่มไปยังหน้าจอโฮม' (Add to Home Screen)");
+      }
     }
   </script>
 </body>
