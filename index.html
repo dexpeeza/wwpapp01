@@ -1,959 +1,2424 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Smart Maintenance A4 Pro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Sarabun', sans-serif; box-sizing: border-box; }
-    body { background: #f1f5f9; color: #0f172a; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MaintReport A4">
+    <title>ระบบจัดทำรายงานซ่อมบำรุงเครื่องจักร A4 มืออาชีพ | Industrial Maintenance Report Pro</title>
 
-    /* A4 Page Styling */
-    .a4-preview-wrapper {
-      width: 100%;
-      overflow-x: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      padding: 16px 8px 60px 8px;
-    }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    .a4-sheet {
-      background: #ffffff;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-      border: 1px solid #cbd5e1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      page-break-after: always;
-      break-after: page;
-      overflow: hidden;
-    }
+    <!-- Google Fonts: Sarabun & Prompt for Official Thai Industrial Standard -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
-    .a4-sheet.portrait {
-      width: 210mm;
-      min-height: 297mm;
-      max-height: 297mm;
-      padding: 10mm 12mm;
-    }
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    .a4-sheet.landscape {
-      width: 297mm;
-      min-height: 210mm;
-      max-height: 210mm;
-      padding: 8mm 10mm;
-    }
+    <!-- html2pdf.js for Direct PDF File Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    /* Responsive Scaling on Mobile Screen */
-    @media screen and (max-width: 820px) {
-      .a4-sheet.portrait {
-        zoom: 0.44;
-      }
-      .a4-sheet.landscape {
-        zoom: 0.32;
-      }
-    }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Sarabun', 'sans-serif'],
+                        report: ['Sarabun', 'sans-serif']
+                    },
+                    colors: {
+                        industrial: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            accent: '#f97316',
+                            blue: '#0284c7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-    /* Exact Photo Frame Dimensions (4x4 to 9x9 cm) */
-    .photo-box {
-      background: #f8fafc;
-      border: 1.5px dashed #94a3b8;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      margin: 0 auto;
-    }
-    .photo-box.has-img {
-      border: 1.5px solid #334155;
-      background: #ffffff;
-    }
-    .photo-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      display: block;
-    }
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-    .size-4x4 { width: 4cm; height: 4cm; }
-    .size-5x5 { width: 5cm; height: 5cm; }
-    .size-6x6 { width: 6cm; height: 6cm; }
-    .size-7x7 { width: 7cm; height: 7cm; }
-    .size-8x8 { width: 8cm; height: 8cm; }
-    .size-9x9 { width: 9cm; height: 9cm; }
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
 
-    /* Grid Presets per A4 Page */
-    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .grid-8 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-    .grid-12 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        /* ==========================================
+           STRICT A4 SHEET ENGINEERING & PRINT ENGINE
+           ========================================== */
+        .a4-workspace {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            padding: 24px 12px 100px 12px;
+            transform-origin: top center;
+            transition: transform 0.2s ease;
+        }
 
-    /* Print Exact Rules */
-    @media print {
-      body { background: #fff !important; }
-      .no-print { display: none !important; }
-      .a4-preview-wrapper { padding: 0 !important; gap: 0 !important; display: block !important; }
-      .a4-sheet {
-        zoom: 1 !important;
-        box-shadow: none !important;
-        border: none !important;
-        margin: 0 !important;
-        page-break-after: always !important;
-      }
-    }
-  </style>
+        .a4-page {
+            background: #ffffff;
+            color: #0f172a;
+            font-family: 'Sarabun', sans-serif;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden; /* Strict guarantee: never overflow A4 boundary */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        /* Exact Millimeter Dimensions for A4 Portrait & Landscape */
+        .a4-page.portrait {
+            width: 210mm;
+            height: 297mm;
+            min-width: 210mm;
+            min-height: 297mm;
+            max-width: 210mm;
+            max-height: 297mm;
+            padding: 10mm 12mm;
+        }
+
+        .a4-page.landscape {
+            width: 297mm;
+            height: 210mm;
+            min-width: 297mm;
+            min-height: 210mm;
+            max-width: 297mm;
+            max-height: 210mm;
+            padding: 8mm 12mm;
+        }
+
+        .a4-page.active-page-ring {
+            outline: 4px solid #f97316;
+            outline-offset: 2px;
+        }
+
+        /* Photo Slot Styling */
+        .photo-slot-card {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
+            overflow: hidden;
+            position: relative;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .photo-slot-card:hover {
+            border-color: #0284c7;
+        }
+
+        .photo-frame-box {
+            position: relative;
+            background-color: #f1f5f9;
+            border: 1px dashed #94a3b8;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            flex-shrink: 0;
+        }
+
+        .photo-frame-box.has-image {
+            border-style: solid;
+            border-color: #64748b;
+            background-color: #ffffff;
+        }
+
+        .photo-frame-box img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            margin: auto;
+        }
+
+        /* Editable Captions & Remarks */
+        .caption-box {
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.25;
+            color: #1e293b;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 3px 5px;
+            margin-top: 3px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow: hidden;
+        }
+
+        /* Print Media Query - Zero Overflow, Clean A4 Output */
+        @media print {
+            @page {
+                margin: 0;
+            }
+            html, body {
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #mainLayout {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #previewContainer {
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+            }
+            .a4-workspace {
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0 !important;
+                transform: none !important;
+                display: block !important;
+            }
+            .a4-page {
+                box-shadow: none !important;
+                outline: none !important;
+                margin: 0 !important;
+                border: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .a4-page:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+            .slot-action-overlay {
+                display: none !important;
+            }
+            .photo-frame-box {
+                border: 1px solid #64748b !important;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col select-none sm:select-auto">
 
-  <!-- TOP APP BAR (MOBILE-FRIENDLY) -->
-  <header class="no-print sticky top-0 z-40 bg-slate-900 text-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-3 py-2.5 flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-lg shadow">M</div>
-        <div>
-          <h1 class="text-sm md:text-base font-bold leading-tight">SMART MAINTENANCE REPORT A4</h1>
-          <p class="text-[11px] text-slate-300">ระบบรายงานซ่อมบำรุงแยกสัดส่วน 1-7 มาตรฐานวิศวกรรม</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <button onclick="openCameraModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1 shadow">
-          📷 ถ่ายรูป/สลับกล้อง
-        </button>
-        <button onclick="openSearchModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1">
-          🔍 ค้นหา/ดึงข้อมูล
-        </button>
-        <button onclick="saveToGoogleSheet()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1 shadow">
-          ☁️ บันทึก Sheet
-        </button>
-        <button onclick="installPWA()" id="pwaBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-2.5 py-2 rounded-lg">
-          📲 ติดตั้งแอป
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- CONTROL PANEL (NO-PRINT) -->
-  <section class="no-print max-w-7xl mx-auto p-3 space-y-3">
-    
-    <!-- STATUS & JOB HEADER BAR -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3.5">
-      <div class="grid grid-cols-2 md:grid-cols-6 gap-2.5 items-end">
-        <div class="col-span-2 md:col-span-1">
-          <label class="block text-xs font-bold text-slate-600 mb-1">สถานะใบงาน</label>
-          <select id="jobStatus" onchange="syncAllPages()" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-bold bg-emerald-50 text-emerald-800">
-            <option value="เปิดงาน (OPEN JOB)">🟢 เปิดงาน (OPEN JOB)</option>
-            <option value="กำลังดำเนินการ (IN PROGRESS)">🟡 กำลังดำเนินการ</option>
-            <option value="ปิดงาน (CLOSED JOB)">🔵 ปิดงาน (CLOSED JOB)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">รหัสเครื่องจักร (Machine ID)</label>
-          <input type="text" id="machineCode" value="MCH-BLW-001" oninput="syncAllPages()" placeholder="เช่น MCH-001" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">วันที่เข้าทำ (Date)</label>
-          <input type="date" id="jobDate" onchange="syncAllPages()" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">แนวกระดาษ A4</label>
-          <select id="pageOrientation" onchange="updateLayoutSettings()" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
-            <option value="portrait">📄 แนวตั้ง (Portrait)</option>
-            <option value="landscape">🖼️ แนวนอน (Landscape)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">ขนาดกรอบรูป (ซม.)</label>
-          <select id="photoSize" onchange="updateLayoutSettings()" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
-            <option value="size-4x4">4 x 4 ซม.</option>
-            <option value="size-5x5" selected>5 x 5 ซม. (แนะนำ)</option>
-            <option value="size-6x6">6 x 6 ซม.</option>
-            <option value="size-7x7">7 x 7 ซม.</option>
-            <option value="size-8x8">8 x 8 ซม.</option>
-            <option value="size-9x9">9 x 9 ซม.</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">จำนวนรูปต่อหน้า A4</label>
-          <select id="gridCount" onchange="updateLayoutSettings()" class="w-full rounded-lg border border-slate-300 px-2.5 py-2 text-xs font-semibold">
-            <option value="4" selected>ตาราง 4 รูป / หน้า</option>
-            <option value="6">ตาราง 6 รูป / หน้า</option>
-            <option value="8">ตาราง 8 รูป / หน้า</option>
-            <option value="12">ตาราง 12 รูป / หน้า</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION TABS (SEPARATED 1 TO 7 CLEARLY) -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3">
-      <div class="flex items-center justify-between flex-wrap gap-2 mb-2.5">
-        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">📌 เลือกหัวข้องาน (แยกสัดส่วน 1 - 7 ไม่ปนกัน)</span>
-        <div class="flex gap-1.5 flex-wrap">
-          <button onclick="addNewPage()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-            ➕ เพิ่มหน้ากระดาษ A4 ใหม่
-          </button>
-          <button onclick="triggerMultiUpload()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-            🖼️ เพิ่มหลายรูปพร้อมกันลงหน้าปัจจุบัน
-          </button>
-          <input type="file" id="multiFileInput" accept="image/*" multiple class="hidden" onchange="handleMultiFiles(event)">
-        </div>
-      </div>
-
-      <!-- 7 STRICTLY SEPARATED CATEGORIES -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" id="sectionSelectorGrid">
-        <!-- Rendered by JS -->
-      </div>
-    </div>
-
-    <!-- SECTION 6 & 7 DEDICATED TECHNICAL FORM -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-      <!-- 6. TEMP & VIBRATION -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3.5">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-xs font-bold text-blue-900 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
-            หัวข้อที่ 6 : วัดค่าความร้อน Temperature (°C) & ความสั่นสะเทือน Vibration (mm/s)
-          </h3>
-        </div>
-        <div class="grid grid-cols-3 gap-2 mb-2">
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Temp จุดที่ 1 (°C)</label>
-            <input type="number" step="0.1" id="temp1" placeholder="เช่น 45.2" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-rose-600">
-          </div>
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Temp จุดที่ 2 (°C)</label>
-            <input type="number" step="0.1" id="temp2" placeholder="เช่น 46.0" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-rose-600">
-          </div>
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Temp จุดที่ 3 (°C)</label>
-            <input type="number" step="0.1" id="temp3" placeholder="เช่น 44.8" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-rose-600">
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Vibration จุดที่ 1 (mm/s)</label>
-            <input type="number" step="0.01" id="vib1" placeholder="เช่น 1.85" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-indigo-700">
-          </div>
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Vibration จุดที่ 2 (mm/s)</label>
-            <input type="number" step="0.01" id="vib2" placeholder="เช่น 2.10" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-indigo-700">
-          </div>
-          <div>
-            <label class="text-[11px] font-semibold text-slate-600">Vibration จุดที่ 3 (mm/s)</label>
-            <input type="number" step="0.01" id="vib3" placeholder="เช่น 1.92" oninput="syncAllPages()" class="w-full border rounded-lg px-2 py-1.5 text-xs font-bold text-indigo-700">
-          </div>
-        </div>
-      </div>
-
-      <!-- 7. COMMENT / ALARM CODE -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-3.5 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xs font-bold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-              หัวข้อที่ 7 : ข้อเสนอแนะ (Comment) / รหัสแจ้งเตือน (Alarm Code)
-            </h3>
-            <button onclick="addCustomSubNote()" class="text-[11px] bg-slate-800 text-white px-2.5 py-1 rounded hover:bg-slate-700">
-              + เพิ่มหัวข้อหมายเหตุย่อย
-            </button>
-          </div>
-          <textarea id="commentAlarm" rows="3" oninput="syncAllPages()" placeholder="ระบุข้อเสนอแนะ / Alarm Code / สิ่งที่ตรวจพบ..." class="w-full border rounded-lg p-2 text-xs"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- EXPORT / PRINT / CLOSE JOB BAR -->
-    <div class="bg-slate-900 text-white rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
-      <div class="text-xs flex items-center gap-2">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-        <span>หน้ากระดาษที่กำลังแก้ไข: <strong id="activePageIndicator">หน้าที่ 1</strong></span>
-      </div>
-      <div class="flex flex-wrap gap-1.5">
-        <button onclick="exportDocument('pdf', false)" class="bg-rose-600 hover:bg-rose-500 text-xs font-bold px-3 py-2 rounded-lg">
-          📄 ดาวน์โหลด .PDF
-        </button>
-        <button onclick="exportDocument('word', false)" class="bg-blue-600 hover:bg-blue-500 text-xs font-bold px-3 py-2 rounded-lg">
-          📝 ดาวน์โหลด .WORD (.doc)
-        </button>
-        <button onclick="exportDocument('pdf', true)" class="bg-teal-600 hover:bg-teal-500 text-xs font-bold px-3 py-2 rounded-lg">
-          📁 บันทึกเข้าโฟลเดอร์ Drive (PDF/Word)
-        </button>
-        <button onclick="closeAndPrintJob()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold px-3.5 py-2 rounded-lg shadow">
-          🖨️ ปริ้นงาน / ปิดงาน (PDF/WORD)
-        </button>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- A4 PAGES CONTAINER -->
-  <main id="a4Container" class="a4-preview-wrapper">
-    <!-- Dynamically Rendered A4 Sheets -->
-  </main>
-
-  <!-- CAMERA MODAL WITH FRONT/BACK SWITCH -->
-  <div id="cameraModal" class="fixed inset-0 bg-slate-950/80 z-50 hidden items-center justify-center p-3 no-print">
-    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
-      <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
-        <h3 class="text-sm font-bold">📷 กล้องถ่ายรูปหน้างาน (จัดกึ่งกลางอัตโนมัติ)</h3>
-        <button onclick="closeCameraModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
-      </div>
-      <div class="p-3 bg-black flex justify-center">
-        <video id="cameraVideo" autoplay playsinline class="w-full max-h-72 object-cover rounded-lg"></video>
-        <canvas id="cameraCanvas" class="hidden"></canvas>
-      </div>
-      <div class="p-3 bg-slate-100 flex flex-wrap items-center justify-between gap-2">
-        <button onclick="switchCameraFacing()" class="bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg">
-          🔄 สลับกล้อง หน้า/หลัง
-        </button>
-        <button onclick="captureCameraPhoto()" class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
-          📸 กดถ่ายรูปใส่ช่องว่างทันที
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SEARCH / LOAD MODAL -->
-  <div id="searchModal" class="fixed inset-0 bg-slate-950/80 z-50 hidden items-center justify-center p-3 no-print">
-    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl">
-      <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
-        <h3 class="text-sm font-bold">🔍 ตรวจสอบและดึงข้อมูลจาก Google Sheet</h3>
-        <button onclick="closeSearchModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
-      </div>
-      <div class="p-4 space-y-3">
-        <div class="flex gap-2">
-          <input type="text" id="searchMachineInput" placeholder="พิมพ์รหัสเครื่องจักรเพื่อค้นหา..." class="flex-1 border rounded-lg px-3 py-2 text-xs">
-          <button onclick="fetchRecordsFromSheet()" class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg">ค้นหา</button>
-        </div>
-        <div id="searchResultsBox" class="max-h-72 overflow-y-auto divide-y border rounded-lg p-2 text-xs text-slate-600">
-          กดปุ่ม "ค้นหา" เพื่อแสดงรายการล่าสุดจาก Google Sheet...
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // 7 Strictly Separated Engineering Categories
-    const MAIN_SECTIONS = [
-      { id: 1, code: 'SEC-1', title: '1. OVERHAUL MOTOR (ก่อนทำ - หลังทำ)', badge: 'MOTOR', hasBeforeAfter: true },
-      { id: 2, code: 'SEC-2', title: '2. OVERHAUL BLOWER (ก่อนทำ - หลังทำ)', badge: 'BLOWER', hasBeforeAfter: true },
-      { id: 3, code: 'SEC-3', title: '3. เปลี่ยนสายพาน และ ตั้ง Alignment Laser (ก่อนทำ - หลังทำ)', badge: 'ALIGNMENT', hasBeforeAfter: true },
-      { id: 4, code: 'SEC-4', title: '4. CLEANING (ก่อนทำ - หลังทำ)', badge: 'CLEANING', hasBeforeAfter: true },
-      { id: 5, code: 'SEC-5', title: '5. PM (Preventive Maintenance)', badge: 'PM CHECK', hasBeforeAfter: false },
-      { id: 6, code: 'SEC-6', title: '6. วัดค่าความร้อน Temperature (°C) 3 ค่า & ความสั่นสะเทือน Vibration (mm/s) 3 ค่า', badge: 'TEMP & VIB', hasBeforeAfter: false },
-      { id: 7, code: 'SEC-7', title: '7. ข้อเสนอแนะ Comment / Alarm Code และหมายเหตุเพิ่มเติม', badge: 'COMMENT / ALARM', hasBeforeAfter: false }
-    ];
-
-    // State Management
-    let appState = {
-      jobId: 'JOB-' + Math.floor(100000 + Math.random() * 900000),
-      machineCode: 'MCH-BLW-001',
-      date: new Date().toISOString().split('T')[0],
-      jobStatus: 'เปิดงาน (OPEN JOB)',
-      orientation: 'portrait',
-      photoSize: 'size-5x5',
-      gridCount: 4,
-      activePageIndex: 0,
-      metrics: { t1: '44.5', t2: '45.1', t3: '44.8', v1: '1.42', v2: '1.58', v3: '1.39' },
-      commentAlarm: 'เครื่องจักรเดินเรียบปกติหลังตั้งศูนย์ Laser Alignment ไม่พบ Alarm Code ค้างในระบบ',
-      extraNotes: ['ตรวจสอบการขันแน่นน็อตฐานมอเตอร์ครบทุกจุด', 'อัดจาระบีลูกปืนตามมาตรฐานผู้ผลิต'],
-      pages: []
-    };
-
-    // Initialize with 2 separated default pages so user sees how clean it looks
-    function initDefaultPages() {
-      document.getElementById('jobDate').value = appState.date;
-      document.getElementById('temp1').value = appState.metrics.t1;
-      document.getElementById('temp2').value = appState.metrics.t2;
-      document.getElementById('temp3').value = appState.metrics.t3;
-      document.getElementById('vib1').value = appState.metrics.v1;
-      document.getElementById('vib2').value = appState.metrics.v2;
-      document.getElementById('vib3').value = appState.metrics.v3;
-      document.getElementById('commentAlarm').value = appState.commentAlarm;
-
-      appState.pages = [
-        createPageObject(1, 4), // Page 1: Section 1 (Overhaul Motor)
-      ];
-      renderSectionButtons();
-      renderAllA4Pages();
-    }
-
-    function createPageObject(sectionId, slotCount) {
-      const sec = MAIN_SECTIONS.find(s => s.id === sectionId) || MAIN_SECTIONS[0];
-      const slots = [];
-      for (let i = 0; i < slotCount; i++) {
-        const tag = sec.hasBeforeAfter ? (i % 2 === 0 ? 'ก่อนทำ (BEFORE)' : 'หลังทำ (AFTER)') : `จุดตรวจสอบที่ ${i + 1}`;
-        slots.push({
-          imgData: '',
-          tagLabel: tag,
-          subHeader: `${sec.badge} - ช่องที่ ${i + 1}`,
-          captions: ['หมายเหตุ 1: สภาพปกติตามมาตรฐาน', 'หมายเหตุ 2: ทำความสะอาดและตรวจสอบแล้ว']
-        });
-      }
-      return {
-        pageId: 'P-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        sectionId: sec.id,
-        sectionTitle: sec.title,
-        pageFooterNote: 'ตรวจสอบความเรียบร้อยโดยวิศวกร / ช่างเทคนิคประจำเครื่อง',
-        slots: slots
-      };
-    }
-
-    function renderSectionButtons() {
-      const container = document.getElementById('sectionSelectorGrid');
-      const currentSecId = appState.pages[appState.activePageIndex]?.sectionId || 1;
-      container.innerHTML = MAIN_SECTIONS.map(sec => {
-        const isSelected = sec.id === currentSecId;
-        return `
-          <button onclick="setPageSection(${sec.id})"
-            class="text-left p-2.5 rounded-lg border transition all text-xs flex flex-col justify-between ${
-              isSelected
-                ? 'bg-blue-950 text-white border-blue-900 shadow-md ring-2 ring-blue-400'
-                : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-300'
-            }">
-            <span class="font-bold leading-snug">${sec.title}</span>
-            <span class="mt-1 inline-block text-[10px] px-2 py-0.5 rounded w-fit ${
-              isSelected ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'
-            }">แยกสัดส่วนเฉพาะหัวข้อ ${sec.id}</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    // Change Current Page's Dedicated Section (1-7 never mixed on the same page)
-    function setPageSection(sectionId) {
-      const page = appState.pages[appState.activePageIndex];
-      if (!page) return;
-      const sec = MAIN_SECTIONS.find(s => s.id === sectionId);
-      page.sectionId = sec.id;
-      page.sectionTitle = sec.title;
-      page.slots.forEach((slot, idx) => {
-        slot.tagLabel = sec.hasBeforeAfter
-          ? (idx % 2 === 0 ? 'ก่อนทำ (BEFORE)' : 'หลังทำ (AFTER)')
-          : `รายการที่ ${idx + 1}`;
-        slot.subHeader = `${sec.badge} - จุดที่ ${idx + 1}`;
-      });
-      renderSectionButtons();
-      renderAllA4Pages();
-    }
-
-    function addNewPage() {
-      const nextSecId = ((appState.pages.length) % 7) + 1;
-      appState.pages.push(createPageObject(nextSecId, parseInt(appState.gridCount, 10)));
-      appState.activePageIndex = appState.pages.length - 1;
-      renderSectionButtons();
-      renderAllA4Pages();
-    }
-
-    function removePage(pageIdx) {
-      if (appState.pages.length <= 1) {
-        alert('ต้องมีหน้ากระดาษอย่างน้อย 1 หน้าครับ');
-        return;
-      }
-      appState.pages.splice(pageIdx, 1);
-      if (appState.activePageIndex >= appState.pages.length) {
-        appState.activePageIndex = appState.pages.length - 1;
-      }
-      renderSectionButtons();
-      renderAllA4Pages();
-    }
-
-    function selectActivePage(idx) {
-      appState.activePageIndex = idx;
-      document.getElementById('activePageIndicator').innerText = `หน้าที่ ${idx + 1} (หัวข้อที่ ${appState.pages[idx].sectionId})`;
-      renderSectionButtons();
-      renderAllA4Pages();
-    }
-
-    function updateLayoutSettings() {
-      appState.orientation = document.getElementById('pageOrientation').value;
-      appState.photoSize = document.getElementById('photoSize').value;
-      const newCount = parseInt(document.getElementById('gridCount').value, 10);
-      appState.gridCount = newCount;
-
-      // Adjust slots on active page without losing existing images
-      const page = appState.pages[appState.activePageIndex];
-      const sec = MAIN_SECTIONS.find(s => s.id === page.sectionId);
-      while (page.slots.length < newCount) {
-        const i = page.slots.length;
-        page.slots.push({
-          imgData: '',
-          tagLabel: sec.hasBeforeAfter ? (i % 2 === 0 ? 'ก่อนทำ (BEFORE)' : 'หลังทำ (AFTER)') : `จุดที่ ${i + 1}`,
-          subHeader: `${sec.badge} - ช่องที่ ${i + 1}`,
-          captions: ['หมายเหตุ: ตรวจสอบเรียบร้อย']
-        });
-      }
-      if (page.slots.length > newCount) {
-        page.slots = page.slots.slice(0, newCount);
-      }
-      renderAllA4Pages();
-    }
-
-    function syncAllPages() {
-      appState.jobStatus = document.getElementById('jobStatus').value;
-      appState.machineCode = document.getElementById('machineCode').value;
-      appState.date = document.getElementById('jobDate').value;
-      appState.metrics = {
-        t1: document.getElementById('temp1').value || '-',
-        t2: document.getElementById('temp2').value || '-',
-        t3: document.getElementById('temp3').value || '-',
-        v1: document.getElementById('vib1').value || '-',
-        v2: document.getElementById('vib2').value || '-',
-        v3: document.getElementById('vib3').value || '-'
-      };
-      appState.commentAlarm = document.getElementById('commentAlarm').value;
-      renderAllA4Pages();
-    }
-
-    function addCaptionLine(pageIdx, slotIdx) {
-      appState.pages[pageIdx].slots[slotIdx].captions.push('ระบุหมายเหตุเพิ่มเติม...');
-      renderAllA4Pages();
-    }
-
-    function updateCaptionText(pageIdx, slotIdx, capIdx, val) {
-      appState.pages[pageIdx].slots[slotIdx].captions[capIdx] = val;
-    }
-
-    function updateSlotSubHeader(pageIdx, slotIdx, val) {
-      appState.pages[pageIdx].slots[slotIdx].subHeader = val;
-    }
-
-    function addCustomSubNote() {
-      const txt = prompt('เพิ่มหัวข้อหมายเหตุ / รายการตรวจเช็คเพิ่มเติม (หัวข้อที่ 7):', 'ตรวจสอบระบบเซฟตี้และเซ็นเซอร์ปกติ');
-      if (txt) {
-        appState.extraNotes.push(txt);
-        renderAllA4Pages();
-      }
-    }
-
-    // Center-cropped & Compressed Image Loader so A4 never lags or overflows
-    function processImageFile(file, callback) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const side = 800; // Square high-res center crop
-          canvas.width = side;
-          canvas.height = side;
-          const ctx = canvas.getContext('2d');
-          const minDim = Math.min(img.width, img.height);
-          const sx = (img.width - minDim) / 2;
-          const sy = (img.height - minDim) / 2;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, side, side);
-          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, side, side);
-          callback(canvas.toDataURL('image/jpeg', 0.85));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function uploadSingleSlotImage(pageIdx, slotIdx, event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      processImageFile(file, (dataUrl) => {
-        appState.pages[pageIdx].slots[slotIdx].imgData = dataUrl;
-        renderAllA4Pages();
-      });
-    }
-
-    function triggerMultiUpload() {
-      document.getElementById('multiFileInput').click();
-    }
-
-    // Batch upload multiple photos at once & auto-paginate if exceeding slots
-    function handleMultiFiles(event) {
-      const files = Array.from(event.target.files);
-      if (!files.length) return;
-
-      let currentPIdx = appState.activePageIndex;
-      let currentSlotIdx = 0;
-
-      // Find first empty slot on active page
-      const firstEmpty = appState.pages[currentPIdx].slots.findIndex(s => !s.imgData);
-      if (firstEmpty !== -1) currentSlotIdx = firstEmpty;
-
-      let processed = 0;
-      files.forEach((file) => {
-        processImageFile(file, (dataUrl) => {
-          while (currentSlotIdx >= appState.pages[currentPIdx].slots.length) {
-            const currentSecId = appState.pages[currentPIdx].sectionId;
-            appState.pages.push(createPageObject(currentSecId, parseInt(appState.gridCount, 10)));
-            currentPIdx = appState.pages.length - 1;
-            currentSlotIdx = 0;
-          }
-          appState.pages[currentPIdx].slots[currentSlotIdx].imgData = dataUrl;
-          currentSlotIdx++;
-          processed++;
-          if (processed === files.length) {
-            renderAllA4Pages();
-          }
-        });
-      });
-      event.target.value = '';
-    }
-
-    // Render all A4 Sheets with strictly isolated sections
-    function renderAllA4Pages() {
-      const container = document.getElementById('a4Container');
-      document.getElementById('activePageIndicator').innerText =
-        `หน้าที่ ${appState.activePageIndex + 1} / ${appState.pages.length}`;
-
-      container.innerHTML = appState.pages.map((page, pIdx) => {
-        const isCurrent = pIdx === appState.activePageIndex;
-        const gridClass = `grid-${page.slots.length}`;
-        const secObj = MAIN_SECTIONS.find(s => s.id === page.sectionId);
-
-        // Dedicated block for Section 6 & Section 7 so they never mix with 1-5
-        let dedicatedMetricsHtml = '';
-        if (page.sectionId === 6) {
-          dedicatedMetricsHtml = `
-            <div class="mb-3 border-2 border-blue-900 rounded-lg overflow-hidden">
-              <div class="bg-blue-900 text-white px-3 py-1.5 text-xs font-bold flex justify-between">
-                <span>ตารางบันทึกค่าทางวิศวกรรม (TEMPERATURE & VIBRATION RECORD)</span>
-                <span>มาตรฐาน ISO 10816-3</span>
-              </div>
-              <table class="w-full text-xs text-center border-collapse">
-                <thead>
-                  <tr class="bg-slate-100 border-b border-slate-300 font-bold">
-                    <th class="p-1.5 border-r border-slate-300">พารามิเตอร์ที่วัด</th>
-                    <th class="p-1.5 border-r border-slate-300">จุดวัดที่ 1 (DE)</th>
-                    <th class="p-1.5 border-r border-slate-300">จุดวัดที่ 2 (NDE)</th>
-                    <th class="p-1.5">จุดวัดที่ 3 (HOUSING)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="border-b border-slate-300">
-                    <td class="p-1.5 font-bold bg-rose-50 text-rose-900 border-r border-slate-300">Temperature (°C)</td>
-                    <td class="p-1.5 font-bold text-rose-700 border-r border-slate-300">${appState.metrics.t1} °C</td>
-                    <td class="p-1.5 font-bold text-rose-700 border-r border-slate-300">${appState.metrics.t2} °C</td>
-                    <td class="p-1.5 font-bold text-rose-700">${appState.metrics.t3} °C</td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5 font-bold bg-indigo-50 text-indigo-900 border-r border-slate-300">Vibration (mm/s)</td>
-                    <td class="p-1.5 font-bold text-indigo-700 border-r border-slate-300">${appState.metrics.v1} mm/s</td>
-                    <td class="p-1.5 font-bold text-indigo-700 border-r border-slate-300">${appState.metrics.v2} mm/s</td>
-                    <td class="p-1.5 font-bold text-indigo-700">${appState.metrics.v3} mm/s</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          `;
-        } else if (page.sectionId === 7) {
-          dedicatedMetricsHtml = `
-            <div class="mb-3 border-2 border-amber-700 rounded-lg p-3 bg-amber-50/40">
-              <div class="text-xs font-bold text-amber-900 mb-1">📌 ข้อเสนอแนะทางเทคนิค / รหัสแจ้งเตือน (COMMENT & ALARM CODE):</div>
-              <p class="text-xs text-slate-800 whitespace-pre-line bg-white p-2 rounded border border-amber-300">${appState.commentAlarm || '-'}</p>
-              <div class="mt-2 space-y-1">
-                ${appState.extraNotes.map((n, idx) => `
-                  <div class="text-[11px] text-slate-700 flex items-center gap-1.5">
-                    <span class="font-bold text-amber-800">• หัวข้อย่อยที่ ${idx + 1}:</span> <span>${n}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }
-
-        return `
-          <div onclick="selectActivePage(${pIdx})"
-               class="a4-sheet ${appState.orientation} ${isCurrent ? 'ring-4 ring-blue-500' : ''}">
-            
-            <!-- TOP PROFESSIONAL ENGINEERING BANNER -->
-            <div>
-              <div class="border-b-2 border-slate-900 pb-2 mb-2 flex items-center justify-between">
+    <!-- ==========================================
+         TOP INDUSTRIAL COMMAND HEADER (NO-PRINT)
+         ========================================== -->
+    <header class="no-print bg-slate-900 border-b border-slate-700/80 sticky top-0 z-40 px-3 py-2.5 shadow-lg">
+        <div class="max-w-[1920px] mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand & Job Status Badge -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20 text-white font-bold text-lg">
+                    <i class="fa-solid fa-gears"></i>
+                </div>
                 <div>
-                  <div class="flex items-center gap-2">
-                    <span class="bg-slate-900 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded">MAINTENANCE REPORT</span>
-                    <span class="text-xs font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded border border-blue-300">${appState.jobStatus}</span>
-                  </div>
-                  <h2 class="text-base font-extrabold text-slate-900 mt-1">${page.sectionTitle}</h2>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-sm sm:text-base font-bold tracking-tight text-white">MAINT-REPORT <span class="text-orange-400">A4 PRO</span></h1>
+                        <button id="jobStatusToggleBtn" onclick="toggleJobStatus()" class="px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition shadow-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30" title="คลิกเพื่อสลับสถานะ เปิดงาน / ปิดงาน">
+                            <span id="jobStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="jobStatusText">เปิดงาน (OPEN JOB)</span>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">ระบบจัดทำใบงานซ่อมบำรุงเครื่องจักร วางรูป A4 อัตโนมัติ & เชื่อมต่อ Google Sheets</p>
                 </div>
-                <div class="text-right text-[11px] leading-tight bg-slate-100 px-3 py-1.5 rounded border border-slate-300">
-                  <div><strong>รหัสเครื่องจักร:</strong> <span class="text-blue-800 font-extrabold">${appState.machineCode}</span></div>
-                  <div><strong>วันที่เข้าทำ:</strong> ${appState.date}</div>
-                  <div><strong>แผ่นที่:</strong> ${pIdx + 1} / ${appState.pages.length}</div>
+            </div>
+
+            <!-- Action Toolbar -->
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <!-- Camera Button -->
+                <button onclick="openCameraModal()" class="px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>ถ่ายรูป/สลับกล้อง</span>
+                </button>
+
+                <!-- Bulk Add Photos -->
+                <button onclick="triggerBulkUpload()" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-images"></i>
+                    <span>เพิ่มหลายรูปพร้อมกัน</span>
+                </button>
+                <input type="file" id="bulkImageInput" accept="image/*" multiple class="hidden" onchange="handleBulkImageSelect(event)">
+                <input type="file" id="singleSlotImageInput" accept="image/*" class="hidden" onchange="handleSingleSlotImageSelect(event)">
+
+                <!-- Google Sheets Save & History -->
+                <button onclick="openSheetsModal()" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-table"></i>
+                    <span class="hidden md:inline">Google Sheets / ประวัติ</span>
+                    <span class="md:hidden">Sheets</span>
+                </button>
+
+                <!-- Export Dropdown / Direct Buttons -->
+                <div class="flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+                    <button onclick="printOrSavePDF()" class="px-2.5 py-1.5 rounded-md hover:bg-slate-700 text-amber-300 text-xs font-medium flex items-center gap-1 transition" title="ปริ้นงาน หรือ บันทึกเป็น PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>ปริ้น/PDF</span>
+                    </button>
+                    <button onclick="exportWordDoc()" class="px-2.5 py-1.5 rounded-md hover:bg-slate-700 text-sky-300 text-xs font-medium flex items-center gap-1 transition" title="บันทึกเป็นไฟล์ Microsoft Word (.doc)">
+                        <i class="fa-solid fa-file-word"></i>
+                        <span>.WORD</span>
+                    </button>
+                    <button onclick="openSaveFolderModal()" class="px-2.5 py-1.5 rounded-md hover:bg-slate-700 text-purple-300 text-xs font-medium flex items-center gap-1 transition" title="บันทึกเข้าโฟลเดอร์ในเครื่อง">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span class="hidden lg:inline">ลงโฟลเดอร์</span>
+                    </button>
                 </div>
-              </div>
 
-              <!-- DEDICATED SECTION 6 OR 7 TABLE IF SELECTED -->
-              ${dedicatedMetricsHtml}
+                <!-- Install PWA App on Phone -->
+                <button onclick="handleInstallPWA()" class="px-2.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-medium flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <span class="hidden sm:inline">ติดตั้งแอป</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-              <!-- PHOTO GRID (4, 6, 8, 12) CENTERED NEATLY -->
-              <div class="${gridClass} my-1">
-                ${page.slots.map((slot, sIdx) => `
-                  <div class="border border-slate-300 rounded-lg p-1.5 bg-slate-50/60 flex flex-col items-center justify-between">
-                    
-                    <!-- SUBHEADER & BEFORE/AFTER BADGE -->
-                    <div class="w-full flex items-center justify-between gap-1 mb-1">
-                      <input type="text" value="${slot.subHeader}"
-                        onchange="updateSlotSubHeader(${pIdx}, ${sIdx}, this.value)"
-                        class="text-[11px] font-bold text-slate-800 bg-transparent border-b border-transparent focus:border-blue-500 w-full outline-none" />
-                      <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded whitespace-nowrap ${
-                        slot.tagLabel.includes('ก่อนทำ')
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                          : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                      }">${slot.tagLabel}</span>
+    <!-- ==========================================
+         MAIN WORKSPACE (SPLIT CONTROL & A4 PREVIEW)
+         ========================================== -->
+    <div id="mainLayout" class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+
+        <!-- LEFT CONTROL PANEL (INSPECTOR & 1-7 SECTIONS MANAGER) -->
+        <aside id="controlPanel" class="no-print w-full lg:w-[440px] xl:w-[480px] bg-slate-900 border-r border-slate-800 flex flex-col h-auto lg:h-[calc(100vh-57px)] overflow-y-auto shrink-0 z-20">
+
+            <!-- Mobile View Switcher Tabs -->
+            <div class="flex lg:hidden bg-slate-800 p-1.5 border-b border-slate-700 sticky top-0 z-30">
+                <button onclick="switchMobileView('editor')" id="mobTabEditor" class="flex-1 py-2 rounded-lg text-xs font-bold bg-orange-600 text-white shadow">
+                    <i class="fa-solid fa-sliders mr-1"></i> ตั้งค่าใบงาน & หัวข้อ 1-7
+                </button>
+                <button onclick="switchMobileView('preview')" id="mobTabPreview" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-300 hover:text-white">
+                    <i class="fa-solid fa-file-lines mr-1"></i> ดูหน้ากระดาษ A4 (<span id="mobPageCount">1</span> หน้า)
+                </button>
+            </div>
+
+            <div class="p-3.5 space-y-4">
+
+                <!-- 1. MACHINE & JOB HEADER CARD -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 shadow-sm">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-industry"></i> ข้อมูลเครื่องจักรและใบงานหลัก
+                        </h2>
+                        <button onclick="resetNewJob()" class="text-[11px] text-slate-400 hover:text-rose-400 flex items-center gap-1 transition">
+                            <i class="fa-solid fa-rotate-right"></i> เริ่มใบงานใหม่
+                        </button>
                     </div>
 
-                    <!-- CENTERED EXACT CM PHOTO BOX -->
-                    <label class="photo-box ${appState.photoSize} ${slot.imgData ? 'has-img' : ''} cursor-pointer group">
-                      ${slot.imgData
-                        ? `<img src="${slot.imgData}" alt="photo" />`
-                        : `<div class="text-center p-2 text-slate-400 group-hover:text-blue-600">
-                             <div class="text-lg">📷</div>
-                             <div class="text-[10px] font-bold">แตะเพิ่มรูป</div>
-                             <div class="text-[9px]">(${appState.photoSize.replace('size-', '')} ซม.)</div>
-                           </div>`
-                      }
-                      <input type="file" accept="image/*" class="hidden" onchange="uploadSingleSlotImage(${pIdx}, ${sIdx}, event)">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">รหัสเครื่องจักร (Machine Code) *</label>
+                            <input type="text" id="inpMachineCode" oninput="updateJobMeta()" placeholder="เช่น MTR-BLW-001" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white font-semibold outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">วันที่เข้าทำ (Service Date) *</label>
+                            <input type="date" id="inpServiceDate" onchange="updateJobMeta()" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">ชื่อเครื่องจักร / พื้นที่ติดตั้ง</label>
+                            <input type="text" id="inpMachineName" oninput="updateJobMeta()" placeholder="เช่น Main Exhaust Blower #1" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">เลขที่ใบงาน (Job Order No.)</label>
+                            <input type="text" id="inpJobNo" oninput="updateJobMeta()" placeholder="เช่น WO-2026-089" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">ผู้ปฏิบัติงาน (Technician)</label>
+                            <input type="text" id="inpTechnician" oninput="updateJobMeta()" placeholder="ชื่อช่าง / ทีมวิศวกรรม" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">ผู้ตรวจสอบ (Supervisor)</label>
+                            <input type="text" id="inpSupervisor" oninput="updateJobMeta()" placeholder="หัวหน้างาน / วิศวกร" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. MULTI-PAGE & SECTION 1-7 SEPARATION CONTROLLER -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group"></i> จัดการหน้ากระดาษ A4 (แยกหัวข้อ 1-7 ไม่ปนกัน)
+                        </h2>
+                        <button onclick="generateAll7SectionsPages()" class="px-2 py-1 rounded bg-sky-600/30 border border-sky-500/40 hover:bg-sky-600/50 text-sky-200 text-[11px] font-medium transition" title="สร้างหน้ากระดาษครบทั้ง 7 หัวข้ออัตโนมัติ">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>สร้างครบ 7 หัวข้อ
+                        </button>
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 mb-2.5">คลิกเลือกหน้าที่ต้องการแก้ไข หรือกดเพิ่มหน้ากระดาษตามหัวข้อ 1 - 7 แยกเป็นสัดส่วนชัดเจน</p>
+
+                    <!-- Page Pills List -->
+                    <div id="pageTabsContainer" class="flex flex-wrap gap-1.5 mb-3"></div>
+
+                    <!-- Add New Page by Section Dropdown -->
+                    <div class="flex gap-1.5">
+                        <select id="newPageSectionSelect" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                            <option value="1">หัวข้อที่ 1: OVERHAUL MOTOR (ก่อนทำ - หลังทำ)</option>
+                            <option value="2">หัวข้อที่ 2: OVERHAUL BLOWER (ก่อนทำ - หลังทำ)</option>
+                            <option value="3">หัวข้อที่ 3: เปลี่ยนสายพาน & ตั้ง Alignment Laser (ก่อน-หลัง)</option>
+                            <option value="4">หัวข้อที่ 4: CLEANING (ก่อนทำ - หลังทำ)</option>
+                            <option value="5">หัวข้อที่ 5: PM (Preventive Maintenance)</option>
+                            <option value="6">หัวข้อที่ 6: วัดความร้อน Temp (3 ค่า) & Vibration (3 ค่า)</option>
+                            <option value="7">หัวข้อที่ 7: ข้อเสนอแนะ Comment / Alarm Code</option>
+                            <option value="custom">หัวข้อเพิ่มเติม (กำหนดชื่อหัวข้อเอง)</option>
+                        </select>
+                        <button onclick="addNewPageFromSelect()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shrink-0 flex items-center gap-1 shadow">
+                            <i class="fa-solid fa-plus"></i> เพิ่มหน้า A4
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. CURRENT PAGE SETTINGS (SECTION, ORIENTATION, GRID, FRAME CM SIZE) -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                        <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-pen"></i> ตั้งค่าหน้าปัจจุบัน: <span id="lblCurrentPageIndex" class="text-white">หน้าที่ 1</span>
+                        </span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="duplicateCurrentPage()" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px]" title="คัดลอกหน้านี้">
+                                <i class="fa-regular fa-copy"></i> ซ้ำหน้า
+                            </button>
+                            <button onclick="deleteCurrentPage()" class="px-2 py-1 rounded bg-rose-900/50 hover:bg-rose-700 text-rose-200 text-[11px]" title="ลบหน้านี้">
+                                <i class="fa-solid fa-trash-can"></i> ลบหน้า
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section Assignment for Current Page -->
+                    <div>
+                        <label class="block text-[11px] text-slate-300 mb-1">หัวข้อประจำหน้ากระดาษนี้ (1 - 7 แยกสัดส่วนชัดเจน)</label>
+                        <select id="curPageSectionSelect" onchange="changeCurrentPageSection(this.value)" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white font-medium outline-none">
+                            <option value="1">1. OVERHAUL MOTOR (ก่อนทำ - หลังทำ)</option>
+                            <option value="2">2. OVERHAUL BLOWER (ก่อนทำ - หลังทำ)</option>
+                            <option value="3">3. เปลี่ยนสายพาน และ ตั้ง Alignment Laser (ก่อนทำ - หลังทำ)</option>
+                            <option value="4">4. CLEANING (ก่อนทำ - หลังทำ)</option>
+                            <option value="5">5. PM (Preventive Maintenance)</option>
+                            <option value="6">6. วัดค่าความร้อน Temperature (°C) 3 ค่า & Vibration (mm/s) 3 ค่า</option>
+                            <option value="7">7. ข้อเสนอแนะ Comment / Alarm Code</option>
+                            <option value="custom">8. หัวข้อกำหนดเอง (Custom Header)</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Sub-header / Additional Title on Page -->
+                    <div>
+                        <label class="block text-[11px] text-slate-300 mb-1">เพิ่มหัวข้อย่อย / รายละเอียดงานประจำหน้านี้</label>
+                        <input type="text" id="inpCustomSubHeader" oninput="updateCurrentPageSubHeader(this.value)" placeholder="เช่น เปลี่ยนลูกปืนมอเตอร์ SKF 6312 / อัดจาระบีใหม่" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                    </div>
+
+                    <!-- Orientation & Grid Count -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">แนวกระดาษ A4</label>
+                            <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                                <button id="btnOrientPortrait" onclick="setPageOrientation('portrait')" class="py-1.5 rounded text-xs font-medium flex items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-file-image"></i> แนวตั้ง
+                                </button>
+                                <button id="btnOrientLandscape" onclick="setPageOrientation('landscape')" class="py-1.5 rounded text-xs font-medium flex items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-image"></i> แนวนอน
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">จำนวนช่องตารางรูป / หน้า A4</label>
+                            <div class="grid grid-cols-4 gap-1 bg-slate-900 p-1 rounded-lg border border-slate-700">
+                                <button onclick="setPageGridCount(4)" id="btnGrid4" class="py-1.5 rounded text-xs font-bold transition">4 รูป</button>
+                                <button onclick="setPageGridCount(6)" id="btnGrid6" class="py-1.5 rounded text-xs font-bold transition">6 รูป</button>
+                                <button onclick="setPageGridCount(8)" id="btnGrid8" class="py-1.5 rounded text-xs font-bold transition">8 รูป</button>
+                                <button onclick="setPageGridCount(12)" id="btnGrid12" class="py-1.5 rounded text-xs font-bold transition">12 รูป</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frame Size Selector (4x4 cm to 9x9 cm or Auto) & Image Fit Mode -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">ปรับขนาดกรอบรูปภาพ (ซม.)</label>
+                            <select id="selFrameSizeCm" onchange="setPageFrameSize(this.value)" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                                <option value="auto">ปรับอัตโนมัติ (เต็มช่องพอดี A4)</option>
+                                <option value="4">4 x 4 ซม. (มาตรฐานเล็ก)</option>
+                                <option value="5">5 x 5 ซม. (มาตรฐานกลาง)</option>
+                                <option value="6">6 x 6 ซม. (ยอดนิยม)</option>
+                                <option value="7">7 x 7 ซม. (คมชัดใหญ่)</option>
+                                <option value="8">8 x 8 ซม. (ใหญ่พิเศษ)</option>
+                                <option value="9">9 x 9 ซม. (สูงสุดสำหรับ 4 รูป)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] text-slate-300 mb-1">การจัดวางรูปให้อยู่ตรงกลาง</label>
+                            <select id="selImageFitMode" onchange="setPageImageFit(this.value)" class="w-full bg-slate-900 border border-slate-600 focus:border-orange-500 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                                <option value="cover">เต็มกรอบอยู่ตรงกลางสวยๆ (Cover)</option>
+                                <option value="contain">เห็นครบทั้งภาพอยู่ตรงกลาง (Contain)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. SECTION-SPECIFIC ENGINEERING DATA PANEL (DYNAMICALLY SHOWN FOR SEC 5, 6, 7) -->
+                <div id="section6EngineeringPanel" class="bg-slate-800/90 border border-amber-500/40 rounded-xl p-3.5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-temperature-high"></i> ข้อมูลวิศวกรรม (หัวข้อที่ 6: Temp °C 3 ค่า & Vibration 3 ค่า)
+                        </h3>
+                        <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">แสดงในตาราง A4</span>
+                    </div>
+
+                    <!-- Temperature 3 Values -->
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-700">
+                        <label class="block text-[11px] font-semibold text-rose-300 mb-1.5">
+                            <i class="fa-solid fa-fire-flame-curved mr-1"></i> วัดค่าความร้อน Temperature (°C) - 3 ค่า
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 1: Motor DE (°C)</span>
+                                <input type="number" step="0.1" id="inpTemp1" oninput="updateEngineeringMetrics()" placeholder="เช่น 58.5" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 2: Motor NDE (°C)</span>
+                                <input type="number" step="0.1" id="inpTemp2" oninput="updateEngineeringMetrics()" placeholder="เช่น 54.2" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 3: Blower/Brg (°C)</span>
+                                <input type="number" step="0.1" id="inpTemp3" oninput="updateEngineeringMetrics()" placeholder="เช่น 61.0" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vibration 3 Values -->
+                    <div class="bg-slate-900/90 p-2.5 rounded-lg border border-slate-700">
+                        <label class="block text-[11px] font-semibold text-cyan-300 mb-1.5">
+                            <i class="fa-solid fa-wave-square mr-1"></i> วัดค่าความสั่นสะเทือน Vibration (mm/s) - 3 ค่า
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 1: Horizontal (mm/s)</span>
+                                <input type="number" step="0.01" id="inpVib1" oninput="updateEngineeringMetrics()" placeholder="เช่น 1.85" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 2: Vertical (mm/s)</span>
+                                <input type="number" step="0.01" id="inpVib2" oninput="updateEngineeringMetrics()" placeholder="เช่น 2.10" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 3: Axial (mm/s)</span>
+                                <input type="number" step="0.01" id="inpVib3" oninput="updateEngineeringMetrics()" placeholder="เช่น 1.40" class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white font-bold">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. SECTION 7 COMMENT / ALARM CODE & PAGE REMARKS -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 shadow-sm space-y-2.5">
+                    <h3 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-clipboard-check"></i> หัวข้อที่ 7: Alarm Code / ข้อเสนอแนะ / หมายเหตุท้ายหน้า
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-300 mb-0.5">รหัสแจ้งเตือน (Alarm Code)</label>
+                            <input type="text" id="inpAlarmCode" oninput="updateEngineeringMetrics()" placeholder="เช่น ALM-OVH-02 / ปกติ" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-300 mb-0.5">สรุปผลการตรวจซ่อม</label>
+                            <select id="inpOverallResult" onchange="updateEngineeringMetrics()" class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white">
+                                <option value="ปกติ พร้อมใช้งาน (Normal / Ready)">ปกติ พร้อมใช้งาน (Normal)</option>
+                                <option value="เฝ้าระวัง (Monitor / Warning)">เฝ้าระวัง (Warning)</option>
+                                <option value="รออะไหล่ / แก้ไขเร่งด่วน (Action Required)">รออะไหล่ / แก้ไขเร่งด่วน</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-300 mb-0.5">ข้อเสนอแนะ (Comment) / สาเหตุและการแก้ไข</label>
+                        <textarea id="inpComment" rows="2" oninput="updateEngineeringMetrics()" placeholder="ระบุข้อเสนอแนะวิศวกรรม, การตั้งค่า Alignment Laser, หรือรายการอะไหล่ที่เปลี่ยน..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-xs text-white outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-300 mb-0.5">หมายเหตุประจำหน้ากระดาษนี้ (แสดงด้านล่างของหน้านี้)</label>
+                        <input type="text" id="inpPageFooterNote" oninput="updateCurrentPageFooterNote(this.value)" placeholder="หมายเหตุเพิ่มเติมเฉพาะหน้านี้..." class="w-full bg-slate-900 border border-slate-600 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none">
+                    </div>
+                </div>
+
+                <!-- 6. PHOTO SLOTS QUICK EDITOR (MULTI-LINE CAPTIONS & BEFORE/AFTER TAGS) -->
+                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-bold text-purple-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check"></i> จัดการรูปและหมายเหตุใต้ภาพในหน้านี้
+                        </h3>
+                        <button onclick="autoAssignBeforeAfterTags()" class="text-[11px] bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 px-2 py-0.5 rounded border border-purple-500/40 transition">
+                            เรียง ก่อนทำ/หลังทำ อัตโนมัติ
+                        </button>
+                    </div>
+                    <div id="slotQuickEditorList" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- RIGHT LIVE A4 MULTI-PAGE WORKSPACE -->
+        <main id="previewContainer" class="flex-1 bg-slate-950/90 overflow-auto relative flex flex-col items-center">
+            <!-- Floating Zoom & Quick Page Bar (No-Print) -->
+            <div class="no-print sticky top-3 z-30 bg-slate-900/95 backdrop-blur border border-slate-700 rounded-full px-4 py-1.5 shadow-xl flex items-center gap-3 mt-3">
+                <span class="text-xs text-slate-300 font-medium flex items-center gap-1.5">
+                    <i class="fa-solid fa-print text-orange-400"></i> ตัวอย่างกระดาษจริง A4
+                </span>
+                <div class="h-4 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-1">
+                    <button onclick="adjustPreviewZoom(-0.1)" class="w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-xs text-white flex items-center justify-center">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <span id="zoomValueText" class="text-xs font-bold text-amber-400 w-12 text-center">100%</span>
+                    <button onclick="adjustPreviewZoom(0.1)" class="w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-xs text-white flex items-center justify-center">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button onclick="fitZoomToScreen()" class="ml-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-sky-300">
+                        พอดีจอ
+                    </button>
+                </div>
+            </div>
+
+            <!-- The Dynamic A4 Sheets Container -->
+            <div id="a4Workspace" class="a4-workspace">
+                <!-- Rendered via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================
+         BUILT-IN WEBRTC CAMERA MODAL (SWITCH FRONT/BACK)
+         ========================================== -->
+    <div id="cameraModal" class="no-print fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 bg-slate-800 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-camera text-sky-400"></i>
+                    <h3 class="text-sm font-bold text-white">กล้องถ่ายรูปหน้างานซ่อมบำรุง</h3>
+                </div>
+                <button onclick="closeCameraModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 space-y-3">
+                <div class="relative bg-black rounded-xl overflow-hidden aspect-[4/3] flex items-center justify-center border border-slate-700">
+                    <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                    <canvas id="cameraCanvas" class="hidden"></canvas>
+                    <div id="cameraStatusOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 text-center p-4">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-sky-400 mb-2"></i>
+                        <p class="text-xs text-slate-300">กำลังเปิดกล้องถ่ายภาพ...</p>
+                    </div>
+                    <div class="absolute top-2 left-2 bg-black/60 px-2.5 py-1 rounded-full text-[11px] text-emerald-300 border border-emerald-500/30">
+                        เป้าหมาย: <span id="cameraTargetInfo">ช่องว่างถัดไป</span>
+                    </div>
+                </div>
+
+                <!-- Camera Controls -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="switchCameraFacingMode()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-600">
+                        <i class="fa-solid fa-camera-rotate text-sky-400"></i>
+                        <span>สลับกล้อง หน้า/หลัง</span>
+                    </button>
+
+                    <button onclick="capturePhotoFromVideo()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-circle-dot"></i>
+                        <span>กดถ่ายรูป</span>
+                    </button>
+
+                    <label class="py-2.5 px-3 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                        <span>กล้องมือถือตรง</span>
+                        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleNativeCameraCapture(event)">
                     </label>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!-- MULTI-LINE CAPTIONS UNDER EACH PHOTO -->
-                    <div class="w-full mt-1.5 space-y-1">
-                      ${slot.captions.map((cap, cIdx) => `
-                        <input type="text" value="${cap}"
-                          onchange="updateCaptionText(${pIdx}, ${sIdx}, ${cIdx}, this.value)"
-                          class="w-full text-[10px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-700" />
-                      `).join('')}
-                      <button onclick="event.stopPropagation(); addCaptionLine(${pIdx}, ${sIdx})"
-                        class="no-print text-[9px] text-blue-700 font-bold hover:underline">+ เพิ่มบรรทัดหมายเหตุใต้รูป</button>
+    <!-- ==========================================
+         GOOGLE SHEETS & JOB DATABASE HISTORY MODAL
+         ========================================== -->
+    <div id="sheetsModal" class="no-print fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-5 py-3.5 bg-slate-800 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-table"></i>
                     </div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <!-- COMPACT SUMMARY & SIGNATURE FOOTER INSIDE A4 BOUNDARY -->
-            <div class="border-t-2 border-slate-800 pt-1.5 mt-1 text-[10px] flex items-center justify-between">
-              <div class="space-y-0.5">
-                <div><strong>สรุปค่าวัดอ้างอิง:</strong> Temp: ${appState.metrics.t1}/${appState.metrics.t2}/${appState.metrics.t3} °C | Vib: ${appState.metrics.v1}/${appState.metrics.v2}/${appState.metrics.v3} mm/s</div>
-                <div><strong>หมายเหตุหน้างาน:</strong> ${appState.commentAlarm.substring(0, 95)}</div>
-              </div>
-              <div class="flex items-center gap-4">
-                <div class="text-center">
-                  <div class="border-b border-slate-400 w-24 h-4"></div>
-                  <div>ผู้ปฏิบัติงาน / ช่างเทคนิค</div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">ระบบบันทึกข้อมูล Google Sheets & ตรวจสอบประวัติใบงาน</h3>
+                        <p class="text-[11px] text-slate-400">บันทึกรหัสเครื่องจักร หัวข้อ 1-7 ค่าความร้อน ความสั่นสะเทือน และเปิดตรวจสอบย้อนหลังได้ทันที</p>
+                    </div>
                 </div>
-                <div class="text-center">
-                  <div class="border-b border-slate-400 w-24 h-4"></div>
-                  <div>วิศวกรผู้ตรวจสอบ</div>
+                <button onclick="closeSheetsModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-5 flex-1">
+                <!-- Action Bar: Save Current Job -->
+                <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                        <h4 class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกใบงานปัจจุบันเข้าสู่ระบบ & Google Sheets
+                        </h4>
+                        <p class="text-[11px] text-slate-300 mt-0.5">ระบบจะบันทึกข้อมูลทั้งในเครื่อง (เปิดดูและแก้ไขซ้ำได้ทันที) และส่งไปยัง Google Sheets Web App URL หากตั้งค่าไว้</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="saveJobToDatabaseAndSheets()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลใบงานนี้ทันที
+                        </button>
+                        <button onclick="exportHistoryCSV()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-600 text-xs font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-csv"></i> ดาวน์โหลด CSV (Excel/Sheets)
+                        </button>
+                    </div>
                 </div>
-                <button onclick="event.stopPropagation(); removePage(${pIdx})" class="no-print bg-rose-100 text-rose-700 px-2 py-1 rounded font-bold">ลบหน้านี้</button>
-              </div>
+
+                <!-- Google Sheets Webhook Config -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                            <i class="fa-brands fa-google-drive"></i> ลิงก์เชื่อมต่อ Google Sheets (Apps Script Web App URL)
+                        </label>
+                        <button onclick="toggleAppsScriptGuide()" class="text-[11px] text-amber-400 hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-code"></i> ดูโค้ดตั้งค่า Google Sheets ฟรี (1 นาที)
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="url" id="inpGoogleScriptUrl" placeholder="https://script.google.com/macros/s/......./exec" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-xs text-white outline-none">
+                        <button onclick="saveGoogleScriptUrl()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">
+                            บันทึกลิงก์
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Apps Script Code Helper -->
+                    <div id="appsScriptGuideBox" class="hidden bg-slate-950 border border-slate-700 rounded-lg p-3 text-[11px] text-slate-300 space-y-2">
+                        <p class="font-semibold text-amber-300">วิธีเชื่อม Google Sheets ของคุณเองง่ายๆ:</p>
+                        <ol class="list-decimal list-inside space-y-1 text-slate-400">
+                            <li>สร้างไฟล์ Google Sheets ใหม่ ไปที่เมนู <b>ส่วนขยาย (Extensions) &gt; Apps Script</b></li>
+                            <li>คัดลอกโค้ดด้านล่างไปวางทับทั้งหมด แล้วกด <b>การทำให้ใช้งานได้ (Deploy) &gt; รายการใหม่ (New deployment)</b></li>
+                            <li>เลือกประเภทเป็น <b>เว็บแอป (Web App)</b> ตั้งค่าผู้มีสิทธิ์เข้าถึงเป็น <b>ทุกคน (Anyone)</b> แล้วนำ URL มาวางในช่องด้านบน</li>
+                        </ol>
+                        <div class="relative">
+                            <pre id="appsScriptCodeText" class="bg-slate-900 p-2.5 rounded border border-slate-800 text-[10px] text-emerald-300 overflow-x-auto font-mono">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Timestamp", "JobNo", "MachineCode", "MachineName", "ServiceDate", "Status", "Technician", "Temp1_C", "Temp2_C", "Temp3_C", "Vib1_mms", "Vib2_mms", "Vib3_mms", "AlarmCode", "OverallResult", "Comment", "SectionsSummary"]);
+  }
+  var d = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), d.jobNo, d.machineCode, d.machineName, d.serviceDate, d.status, d.technician, d.temp1, d.temp2, d.temp3, d.vib1, d.vib2, d.vib3, d.alarmCode, d.overallResult, d.comment, d.sectionsSummary]);
+  return ContentService.createTextOutput(JSON.stringify({status: "success"})).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                            <button onclick="copyAppsScriptCode()" class="absolute top-2 right-2 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-[10px]">
+                                คัดลอกโค้ด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Jobs History Table (Searchable & Re-openable) -->
+                <div class="space-y-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock-rotate-left text-orange-400"></i> ตารางเปิดตรวจสอบใบงานย้อนหลัง (<span id="savedJobsCount">0</span> รายการ)
+                        </h4>
+                        <input type="text" id="inpSearchHistory" oninput="renderJobHistoryTable()" placeholder="ค้นหารหัสเครื่องจักร, วันที่, ช่าง..." class="bg-slate-800 border border-slate-600 rounded-lg px-3 py-1 text-xs text-white outline-none w-full sm:w-64">
+                    </div>
+
+                    <div class="border border-slate-700 rounded-xl overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+                                    <th class="py-2.5 px-3">วันที่เข้าทำ</th>
+                                    <th class="py-2.5 px-3">รหัสเครื่องจักร</th>
+                                    <th class="py-2.5 px-3">สถานะ</th>
+                                    <th class="py-2.5 px-3">Temp (°C) 3 ค่า</th>
+                                    <th class="py-2.5 px-3">Vibration 3 ค่า</th>
+                                    <th class="py-2.5 px-3">Alarm / ผลตรวจ</th>
+                                    <th class="py-2.5 px-3 text-right">จัดการ / เปิดดู</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobHistoryTableBody" class="divide-y divide-slate-800 bg-slate-900/60">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
 
-          </div>
-        `;
-      }).join('');
-    }
-
-    // Camera Modal with Front/Back Switch
-    let mediaStream = null;
-    let currentFacingMode = 'environment';
-
-    async function openCameraModal() {
-      const modal = document.getElementById('cameraModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      await startCameraStream();
-    }
-
-    async function startCameraStream() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(t => t.stop());
-      }
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 1280 } },
-          audio: false
-        });
-        document.getElementById('cameraVideo').srcObject = mediaStream;
-      } catch (err) {
-        alert('ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตการเข้าถึงกล้องบนเบราว์เซอร์ครับ');
-      }
-    }
-
-    async function switchCameraFacing() {
-      currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
-      await startCameraStream();
-    }
-
-    function captureCameraPhoto() {
-      const video = document.getElementById('cameraVideo');
-      const canvas = document.getElementById('cameraCanvas');
-      const side = 800;
-      canvas.width = side;
-      canvas.height = side;
-      const ctx = canvas.getContext('2d');
-      const minDim = Math.min(video.videoWidth || 640, video.videoHeight || 640);
-      const sx = ((video.videoWidth || 640) - minDim) / 2;
-      const sy = ((video.videoHeight || 640) - minDim) / 2;
-      ctx.drawImage(video, sx, sy, minDim, minDim, 0, 0, side, side);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
-      const page = appState.pages[appState.activePageIndex];
-      let emptyIdx = page.slots.findIndex(s => !s.imgData);
-      if (emptyIdx === -1) emptyIdx = 0;
-      page.slots[emptyIdx].imgData = dataUrl;
-      renderAllA4Pages();
-      closeCameraModal();
-    }
-
-    function closeCameraModal() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(t => t.stop());
-      }
-      const modal = document.getElementById('cameraModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    // Save & Retrieve from Google Sheet
-    function saveToGoogleSheet() {
-      syncAllPages();
-      const payload = JSON.stringify(appState);
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run
-          .withSuccessHandler(res => alert(res.message))
-          .withFailureHandler(err => alert('บันทึกไม่สำเร็จ: ' + err))
-          .saveReportToSheet(payload);
-      } else {
-        localStorage.setItem('SMART_MNT_' + appState.machineCode, payload);
-        alert('บันทึกข้อมูลลงหน่วยความจำเครื่องสำเร็จ! (เมื่อรันบน Google Apps Script ระบบจะบันทึกลง Google Sheet อัตโนมัติ)');
-      }
-    }
-
-    function openSearchModal() {
-      const modal = document.getElementById('searchModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      fetchRecordsFromSheet();
-    }
-
-    function closeSearchModal() {
-      const modal = document.getElementById('searchModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function fetchRecordsFromSheet() {
-      const q = document.getElementById('searchMachineInput').value;
-      const box = document.getElementById('searchResultsBox');
-      box.innerHTML = 'กำลังดึงข้อมูลจาก Google Sheet...';
-
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(res => {
-          if (!res.success || !res.records.length) {
-            box.innerHTML = '<div class="p-3 text-center text-slate-400">ไม่พบประวัติของรหัสเครื่องจักรนี้</div>';
-            return;
-          }
-          box.innerHTML = res.records.map((r, i) => `
-            <div class="py-2 px-2 flex items-center justify-between hover:bg-slate-50">
-              <div>
-                <div class="font-bold text-slate-800">${r.machineCode} <span class="text-blue-600">(${r.date})</span></div>
-                <div class="text-[11px] text-slate-500">สถานะ: ${r.jobStatus} | บันทึกเมื่อ: ${r.timestamp}</div>
-              </div>
-              <button onclick='restoreRecord(${JSON.stringify(r.rawJson)})' class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold">
-                เรียกดูข้อมูล
-              </button>
+    <!-- ==========================================
+         SAVE TO FOLDER / EXPORT BUNDLE MODAL
+         ========================================== -->
+    <div id="saveFolderModal" class="no-print fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 bg-slate-800 flex items-center justify-between border-b border-slate-700">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-purple-400"></i> บันทึกเข้าโฟลเดอร์ (.PDF / .WORD / .JSON)
+                </h3>
+                <button onclick="closeSaveFolderModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-          `).join('');
-        }).loadReportByMachine(q);
-      } else {
-        box.innerHTML = '<div class="p-3 text-slate-500">โหมดทดลองหน้าจอ: เมื่อนำโค้ดไปวางใน Google Apps Script จะดึงข้อมูลจาก Sheet 1JRG64ajtj9KvbQGfEMOKC5J6dqL2l4g_M_nu5xbMK6k ได้ทันทีครับ</div>';
-      }
-    }
+            <div class="p-4 space-y-3">
+                <p class="text-xs text-slate-300">เลือกรูปแบบไฟล์ที่ต้องการบันทึกลงในโฟลเดอร์เครื่องคอมพิวเตอร์หรือโทรศัพท์ของคุณ:</p>
 
-    function restoreRecord(rawJson) {
-      try {
-        appState = JSON.parse(rawJson);
-        document.getElementById('machineCode').value = appState.machineCode;
-        document.getElementById('jobDate').value = appState.date;
-        document.getElementById('jobStatus').value = appState.jobStatus;
-        document.getElementById('temp1').value = appState.metrics.t1;
-        document.getElementById('temp2').value = appState.metrics.t2;
-        document.getElementById('temp3').value = appState.metrics.t3;
-        document.getElementById('vib1').value = appState.metrics.v1;
-        document.getElementById('vib2').value = appState.metrics.v2;
-        document.getElementById('vib3').value = appState.metrics.v3;
-        document.getElementById('commentAlarm').value = appState.commentAlarm;
-        renderSectionButtons();
-        renderAllA4Pages();
-        closeSearchModal();
-      } catch (e) {
-        alert('ไม่สามารถอ่านข้อมูลได้');
-      }
-    }
+                <button onclick="downloadDirectPDFFile()" class="w-full py-3 px-4 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 flex items-center justify-between text-left transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-pdf text-2xl text-rose-400"></i>
+                        <div>
+                            <div class="text-xs font-bold text-white">บันทึกไฟล์ .PDF ลงโฟลเดอร์</div>
+                            <div class="text-[11px] text-slate-400">สร้างไฟล์ PDF ขนาด A4 พอดีหน้ากระดาษพร้อมรูปภาพ</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-download text-rose-300"></i>
+                </button>
 
-    // Export PDF / Word (.doc) & Save to Drive Folder
-    function exportDocument(format, uploadToDrive) {
-      const element = document.getElementById('a4Container');
-      const fileBase = `Maintenance_${appState.machineCode}_${appState.date}`;
+                <button onclick="exportWordDoc()" class="w-full py-3 px-4 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/40 flex items-center justify-between text-left transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-word text-2xl text-sky-400"></i>
+                        <div>
+                            <div class="text-xs font-bold text-white">บันทึกไฟล์ .WORD (.doc) ลงโฟลเดอร์</div>
+                            <div class="text-[11px] text-slate-400">เปิดแก้ไขต่อใน Microsoft Word ได้ทันทีพร้อมตารางและรูป</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-download text-sky-300"></i>
+                </button>
 
-      if (format === 'pdf') {
-        const opt = {
-          margin: 0,
-          filename: `${fileBase}.pdf`,
-          image: { type: 'jpeg', quality: 0.95 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: appState.orientation }
+                <button onclick="saveProjectBackupFile()" class="w-full py-3 px-4 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 flex items-center justify-between text-left transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-code text-2xl text-emerald-400"></i>
+                        <div>
+                            <div class="text-xs font-bold text-white">บันทึกไฟล์ต้นฉบับใบงาน (.JSON) ลงโฟลเดอร์</div>
+                            <div class="text-[11px] text-slate-400">สำหรับเปิดแก้ไขในแอปนี้ในภายหลังครบทุกหน้า</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-download text-emerald-300"></i>
+                </button>
+
+                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400">ต้องการเปิดไฟล์ใบงานเดิมจากโฟลเดอร์?</span>
+                    <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 cursor-pointer border border-slate-600">
+                        <i class="fa-solid fa-upload mr-1"></i> เปิดไฟล์ใบงาน
+                        <input type="file" accept=".json" class="hidden" onchange="importProjectBackupFile(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         INSTALL APP ON PHONE (PWA) MODAL
+         ========================================== -->
+    <div id="pwaInstallModal" class="no-print fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 bg-slate-800 flex items-center justify-between border-b border-slate-700">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-orange-400"></i> ติดตั้งเว็บแอปไว้ในโทรศัพท์มือถือ
+                </h3>
+                <button onclick="closePwaModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-3 text-xs text-slate-300">
+                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-brands fa-android text-base"></i> สำหรับ Android (Chrome / Edge)
+                    </div>
+                    <p class="text-[11px] text-slate-300">กดที่เมนู <b>จุด 3 จุด (⋮)</b> มุมขวาบนของเบราว์เซอร์ แล้วเลือก <b>"ติดตั้งแอป" (Install App)</b> หรือ <b>"เพิ่มไปยังหน้าจอหลัก" (Add to Home screen)</b></p>
+                </div>
+
+                <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <div class="font-bold text-sky-400 flex items-center gap-1.5">
+                        <i class="fa-brands fa-apple text-base"></i> สำหรับ iPhone / iPad (Safari)
+                    </div>
+                    <p class="text-[11px] text-slate-300">กดปุ่ม <b>แชร์ (Share <i class="fa-solid fa-arrow-up-from-bracket"></i>)</b> ด้านล่างหน้าจอ แล้วเลื่อนลงมาเลือก <b>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</b></p>
+                </div>
+
+                <button onclick="closePwaModal()" class="w-full py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold">
+                    รับทราบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         CUSTOM TOAST NOTIFICATION BOX
+         ========================================== -->
+    <div id="toastContainer" class="no-print fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==========================================
+         APPLICATION JAVASCRIPT LOGIC
+         ========================================== -->
+    <script>
+        /* =========================================================
+           1. DEFINITIONS OF THE 7 STRICT REPORT SECTIONS
+           ========================================================= */
+        const SECTION_DEFINITIONS = {
+            "1": {
+                code: "SEC-01",
+                number: 1,
+                title: "หัวข้อที่ 1: OVERHAUL MOTOR (ก่อนทำ - หลังทำ)",
+                shortName: "1. OVERHAUL MOTOR",
+                badgeColor: "#1d4ed8",
+                lightBg: "#eff6ff",
+                defaultTags: ["ก่อนทำ (Before)", "หลังทำ (After)"]
+            },
+            "2": {
+                code: "SEC-02",
+                number: 2,
+                title: "หัวข้อที่ 2: OVERHAUL BLOWER (ก่อนทำ - หลังทำ)",
+                shortName: "2. OVERHAUL BLOWER",
+                badgeColor: "#0369a1",
+                lightBg: "#f0f9ff",
+                defaultTags: ["ก่อนทำ (Before)", "หลังทำ (After)"]
+            },
+            "3": {
+                code: "SEC-03",
+                number: 3,
+                title: "หัวข้อที่ 3: เปลี่ยนสายพาน และ ตั้ง Alignment Laser (ก่อนทำ - หลังทำ)",
+                shortName: "3. สายพาน & Alignment Laser",
+                badgeColor: "#7e22ce",
+                lightBg: "#faf5ff",
+                defaultTags: ["ก่อนทำ (Before)", "หลังทำ (After)"]
+            },
+            "4": {
+                code: "SEC-04",
+                number: 4,
+                title: "หัวข้อที่ 4: CLEANING (ก่อนทำ - หลังทำ)",
+                shortName: "4. CLEANING",
+                badgeColor: "#0f766e",
+                lightBg: "#f0fdfa",
+                defaultTags: ["ก่อนทำ (Before)", "หลังทำ (After)"]
+            },
+            "5": {
+                code: "SEC-05",
+                number: 5,
+                title: "หัวข้อที่ 5: PM (Preventive Maintenance - บำรุงรักษาเชิงป้องกัน)",
+                shortName: "5. PM Maintenance",
+                badgeColor: "#15803d",
+                lightBg: "#f0fdf4",
+                defaultTags: ["จุดตรวจ PM", "หลังดำเนินการ PM"]
+            },
+            "6": {
+                code: "SEC-06",
+                number: 6,
+                title: "หัวข้อที่ 6: วัดค่าความร้อน Temperature (°C) 3 ค่า & ความสั่นสะเทือน Vibration (mm/s) 3 ค่า",
+                shortName: "6. Temp (°C) & Vibration",
+                badgeColor: "#b45309",
+                lightBg: "#fffbeb",
+                defaultTags: ["วัดค่า Temperature (°C)", "วัดค่า Vibration (mm/s)"]
+            },
+            "7": {
+                code: "SEC-07",
+                number: 7,
+                title: "หัวข้อที่ 7: ข้อเสนอแนะ (Comment) / Alarm Code และการส่งมอบงาน",
+                shortName: "7. Comment / Alarm Code",
+                badgeColor: "#be123c",
+                lightBg: "#fff1f2",
+                defaultTags: ["สภาพจุดแจ้งเตือน/Alarm", "หลังแก้ไข/ข้อเสนอแนะ"]
+            },
+            "custom": {
+                code: "SEC-08",
+                number: 8,
+                title: "หัวข้อเพิ่มเติม: รายละเอียดการตรวจสอบและบำรุงรักษาเพิ่มเติม",
+                shortName: "หัวข้อเพิ่มเติม",
+                badgeColor: "#334155",
+                lightBg: "#f8fafc",
+                defaultTags: ["ก่อนทำ (Before)", "หลังทำ (After)"]
+            }
         };
-        if (uploadToDrive && typeof google !== 'undefined' && google.script) {
-          html2pdf().set(opt).from(element).outputPdf('datauristring').then(pdfBase64 => {
-            google.script.run.withSuccessHandler(res => {
-              alert(`บันทึกไฟล์ PDF เข้าโฟลเดอร์ ${res.folderName} บน Google Drive สำเร็จ!`);
-            }).saveFileToDriveFolder(pdfBase64, `${fileBase}.pdf`, 'application/pdf');
-          });
-        } else {
-          html2pdf().set(opt).from(element).save();
+
+        /* =========================================================
+           2. APPLICATION STATE STRUCTURE
+           ========================================================= */
+        let appState = {
+            jobId: "JOB-" + Date.now(),
+            status: "OPEN", // "OPEN" (เปิดงาน) or "CLOSED" (ปิดงาน)
+            machineCode: "MTR-BLW-101",
+            machineName: "Main Exhaust Blower Line 1",
+            serviceDate: new Date().toISOString().split('T')[0],
+            jobNo: "WO-" + new Date().getFullYear() + "-001",
+            technician: "ทีมวิศวกรรมซ่อมบำรุง",
+            supervisor: "วิศวกรผู้ตรวจสอบ",
+            engineering: {
+                temp1: "56.4",
+                temp2: "53.8",
+                temp3: "59.1",
+                vib1: "1.75",
+                vib2: "1.92",
+                vib3: "1.34",
+                alarmCode: "NONE (ปกติ)",
+                overallResult: "ปกติ พร้อมใช้งาน (Normal / Ready)",
+                comment: "ดำเนินการ Overhaul เปลี่ยนตลับลูกปืน ตั้งศูนย์ด้วย Alignment Laser และวัดค่าความร้อน-ความสั่นสะเทือนอยู่ในเกณฑ์มาตรฐาน ISO 10816"
+            },
+            currentPageIndex: 0,
+            previewZoom: 0.78,
+            pages: []
+        };
+
+        let activeSingleSlotTarget = null; // { pageIdx, slotIdx }
+        let cameraStream = null;
+        let currentFacingMode = "environment"; // Default back camera for field work
+        let deferredPrompt = null;
+
+        /* =========================================================
+           3. INITIALIZATION & DEFAULT PAGE FACTORY
+           ========================================================= */
+        function createPageObject(sectionKey = "1", orientation = "portrait", gridCount = 4, frameSizeCm = "auto") {
+            const sec = SECTION_DEFINITIONS[sectionKey] || SECTION_DEFINITIONS["1"];
+            const slots = [];
+            for (let i = 0; i < gridCount; i++) {
+                const isBefore = i % 2 === 0;
+                slots.push({
+                    id: "slot_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+                    imageData: "",
+                    tag: isBefore ? sec.defaultTags[0] : sec.defaultTags[1],
+                    caption: `รายการที่ ${i + 1}: ระบุรายละเอียดใต้ภาพ...`
+                });
+            }
+            return {
+                id: "page_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+                sectionKey: String(sectionKey),
+                subHeader: "",
+                orientation: orientation, // "portrait" | "landscape"
+                gridCount: Number(gridCount), // 4 | 6 | 8 | 12
+                frameSizeCm: String(frameSizeCm), // "auto" | "4" | "5" | "6" | "7" | "8" | "9"
+                imageFit: "cover", // "cover" | "contain"
+                footerNote: "ตรวจสอบความเรียบร้อยตามมาตรฐานงานซ่อมบำรุงเครื่องจักร",
+                slots: slots
+            };
         }
-      } else if (format === 'word') {
-        const htmlContent = `
-          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-          <head><meta charset='utf-8'><title>${fileBase}</title></head>
-          <body>${element.innerHTML}</body></html>
-        `;
-        const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${fileBase}.doc`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    }
 
-    function closeAndPrintJob() {
-      document.getElementById('jobStatus').value = 'ปิดงาน (CLOSED JOB)';
-      syncAllPages();
-      saveToGoogleSheet();
-      window.print();
-    }
+        window.onload = function () {
+            initPwaManifest();
+            loadSavedScriptUrl();
 
-    function installPWA() {
-      alert('วิธีติดตั้งเป็นแอปบนมือถือ:\n• Android (Chrome): แตะเมนู ⋮ มุมขวาบน เลือก "เพิ่มลงในหน้าจอหลัก (Add to Home screen)"\n• iPhone (Safari): แตะปุ่มแชร์ (Share) ด้านล่าง เลือก "เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"');
-    }
+            // Initialize with Section 1 page so user immediately sees a clean A4 sheet
+            appState.pages = [
+                createPageObject("1", "portrait", 4, "auto")
+            ];
 
-    window.onload = initDefaultPages;
-  </script>
+            syncInputsFromState();
+            renderAll();
+            autoFitOnMobile();
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth < 768) {
+                    autoFitOnMobile();
+                }
+            });
+        };
+
+        function autoFitOnMobile() {
+            const container = document.getElementById('previewContainer');
+            if (!container) return;
+            const availW = container.clientWidth || window.innerWidth;
+            if (availW < 850) {
+                const scale = Math.max(0.36, Math.min(0.95, (availW - 28) / 820));
+                appState.previewZoom = parseFloat(scale.toFixed(2));
+                applyZoomTransform();
+            }
+        }
+
+        /* =========================================================
+           4. RENDERING ENGINE (A4 PAGES, CONTROLS, SLOTS)
+           ========================================================= */
+        function renderAll() {
+            renderPageTabs();
+            syncCurrentPageControls();
+            renderSlotQuickEditor();
+            renderA4Workspace();
+        }
+
+        function syncInputsFromState() {
+            document.getElementById('inpMachineCode').value = appState.machineCode;
+            document.getElementById('inpMachineName').value = appState.machineName;
+            document.getElementById('inpServiceDate').value = appState.serviceDate;
+            document.getElementById('inpJobNo').value = appState.jobNo;
+            document.getElementById('inpTechnician').value = appState.technician;
+            document.getElementById('inpSupervisor').value = appState.supervisor;
+
+            document.getElementById('inpTemp1').value = appState.engineering.temp1;
+            document.getElementById('inpTemp2').value = appState.engineering.temp2;
+            document.getElementById('inpTemp3').value = appState.engineering.temp3;
+            document.getElementById('inpVib1').value = appState.engineering.vib1;
+            document.getElementById('inpVib2').value = appState.engineering.vib2;
+            document.getElementById('inpVib3').value = appState.engineering.vib3;
+            document.getElementById('inpAlarmCode').value = appState.engineering.alarmCode;
+            document.getElementById('inpOverallResult').value = appState.engineering.overallResult;
+            document.getElementById('inpComment').value = appState.engineering.comment;
+
+            updateJobStatusBadgeUI();
+        }
+
+        function updateJobStatusBadgeUI() {
+            const btn = document.getElementById('jobStatusToggleBtn');
+            const dot = document.getElementById('jobStatusDot');
+            const txt = document.getElementById('jobStatusText');
+            if (appState.status === "OPEN") {
+                btn.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition shadow-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                txt.textContent = "เปิดงาน (OPEN JOB)";
+            } else {
+                btn.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition shadow-sm bg-blue-500/20 text-blue-300 border border-blue-500/40 hover:bg-blue-500/30";
+                dot.className = "w-2 h-2 rounded-full bg-blue-400";
+                txt.textContent = "ปิดงานแล้ว (COMPLETED)";
+            }
+        }
+
+        function toggleJobStatus() {
+            appState.status = appState.status === "OPEN" ? "CLOSED" : "OPEN";
+            updateJobStatusBadgeUI();
+            renderA4Workspace();
+            showToast(appState.status === "OPEN" ? "เปลี่ยนสถานะเป็น: เปิดงาน (OPEN JOB)" : "เปลี่ยนสถานะเป็น: ปิดงานเรียบร้อย (COMPLETED)", "info");
+        }
+
+        function renderPageTabs() {
+            const container = document.getElementById('pageTabsContainer');
+            container.innerHTML = "";
+            document.getElementById('mobPageCount').textContent = appState.pages.length;
+
+            appState.pages.forEach((page, idx) => {
+                const sec = SECTION_DEFINITIONS[page.sectionKey] || SECTION_DEFINITIONS["1"];
+                const isActive = idx === appState.currentPageIndex;
+                const btn = document.createElement('button');
+                btn.onclick = () => selectPage(idx);
+                btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition ${
+                    isActive
+                        ? 'bg-orange-600 text-white border-orange-400 shadow-md'
+                        : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-700'
+                }`;
+                btn.innerHTML = `
+                    <span class="px-1.5 py-0.2 rounded bg-black/30 text-[10px]">หน้า ${idx + 1}</span>
+                    <span class="truncate max-w-[135px]">${sec.shortName}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function syncCurrentPageControls() {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            const sec = SECTION_DEFINITIONS[page.sectionKey] || SECTION_DEFINITIONS["1"];
+
+            document.getElementById('lblCurrentPageIndex').textContent = `หน้าที่ ${appState.currentPageIndex + 1} (${sec.shortName})`;
+            document.getElementById('curPageSectionSelect').value = page.sectionKey;
+            document.getElementById('inpCustomSubHeader').value = page.subHeader || "";
+            document.getElementById('selFrameSizeCm').value = page.frameSizeCm;
+            document.getElementById('selImageFitMode').value = page.imageFit;
+            document.getElementById('inpPageFooterNote').value = page.footerNote || "";
+
+            // Orientation active button style
+            const btnP = document.getElementById('btnOrientPortrait');
+            const btnL = document.getElementById('btnOrientLandscape');
+            if (page.orientation === 'portrait') {
+                btnP.className = "py-1.5 rounded text-xs font-bold bg-orange-600 text-white flex items-center justify-center gap-1 shadow";
+                btnL.className = "py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1";
+            } else {
+                btnL.className = "py-1.5 rounded text-xs font-bold bg-orange-600 text-white flex items-center justify-center gap-1 shadow";
+                btnP.className = "py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1";
+            }
+
+            // Grid active button style
+            [4, 6, 8, 12].forEach(num => {
+                const b = document.getElementById('btnGrid' + num);
+                if (page.gridCount === num) {
+                    b.className = "py-1.5 rounded text-xs font-bold bg-sky-600 text-white shadow";
+                } else {
+                    b.className = "py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white";
+                }
+            });
+        }
+
+        function renderSlotQuickEditor() {
+            const list = document.getElementById('slotQuickEditorList');
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+
+            list.innerHTML = "";
+            page.slots.forEach((slot, sIdx) => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-700 rounded-lg p-2 flex items-start gap-2";
+                row.innerHTML = `
+                    <div class="w-12 h-12 rounded bg-slate-800 border border-slate-600 overflow-hidden shrink-0 flex items-center justify-center cursor-pointer relative" onclick="triggerSingleSlotUpload(${appState.currentPageIndex}, ${sIdx})" title="คลิกเพื่อเปลี่ยนรูปช่องที่ ${sIdx + 1}">
+                        ${slot.imageData
+                            ? `<img src="${slot.imageData}" class="w-full h-full object-cover">`
+                            : `<span class="text-[10px] text-slate-400 font-bold">#${sIdx + 1}</span>`
+                        }
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-1">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-orange-400 shrink-0">ช่อง #${sIdx + 1}</span>
+                            <input type="text" value="${escapeHtml(slot.tag)}" oninput="updateSlotTag(${appState.currentPageIndex}, ${sIdx}, this.value)" placeholder="เช่น ก่อนทำ / หลังทำ" class="flex-1 bg-slate-800 border border-slate-600 rounded px-1.5 py-0.5 text-[11px] text-amber-300 font-semibold outline-none">
+                            ${slot.imageData ? `<button onclick="clearSlotImage(${appState.currentPageIndex}, ${sIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1" title="ลบรูปนี้"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                        </div>
+                        <textarea rows="2" oninput="updateSlotCaption(${appState.currentPageIndex}, ${sIdx}, this.value)" placeholder="พิมพ์หมายเหตุใต้รูปภาพ (ได้หลายบรรทัด)..." class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white outline-none">${escapeHtml(slot.caption)}</textarea>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        /* =========================================================
+           5. STRICT A4 MULTI-PAGE DOCUMENT RENDERER
+           ========================================================= */
+        function getGridDimensions(page, hasCompactTopTable) {
+            const isPortrait = page.orientation === "portrait";
+            const count = page.gridCount;
+
+            // Determine columns & rows so cards fit strictly inside A4
+            let cols = 2;
+            let rows = 2;
+            if (count === 4) {
+                cols = 2; rows = 2;
+            } else if (count === 6) {
+                cols = isPortrait ? 2 : 3;
+                rows = isPortrait ? 3 : 2;
+            } else if (count === 8) {
+                cols = isPortrait ? 2 : 4;
+                rows = isPortrait ? 4 : 2;
+            } else if (count === 12) {
+                cols = isPortrait ? 3 : 4;
+                rows = isPortrait ? 4 : 3;
+            }
+
+            // Calculate available height in millimeters inside A4 sheet
+            // Total height: Portrait = 297mm, Landscape = 210mm
+            // Reserved for Header (~28mm), Section Banner (~11mm), Footer/Sign (~22mm), Padding (~20mm)
+            const totalPageMm = isPortrait ? 297 : 210;
+            const totalWidthMm = isPortrait ? 210 : 297;
+            const extraTableMm = hasCompactTopTable ? 34 : 0;
+            const availableGridHeightMm = totalPageMm - 82 - extraTableMm;
+            const availableGridWidthMm = totalWidthMm - 24;
+
+            const maxSlotHeightMm = Math.floor((availableGridHeightMm - (rows - 1) * 3) / rows);
+            const maxSlotWidthMm = Math.floor((availableGridWidthMm - (cols - 1) * 3) / cols);
+
+            // Compute exact photo frame size in mm
+            let frameWidthMm, frameHeightMm;
+            if (page.frameSizeCm === "auto") {
+                frameHeightMm = Math.max(22, maxSlotHeightMm - 15);
+                frameWidthMm = Math.max(28, maxSlotWidthMm - 6);
+            } else {
+                const requestedMm = parseFloat(page.frameSizeCm) * 10; // e.g., 6cm = 60mm
+                // Clamp to slot boundaries so it NEVER overflows the A4 page
+                const safeMaxH = Math.max(20, maxSlotHeightMm - 14);
+                const safeMaxW = Math.max(20, maxSlotWidthMm - 6);
+                const finalSideMm = Math.min(requestedMm, safeMaxH, safeMaxW);
+                frameWidthMm = finalSideMm;
+                frameHeightMm = finalSideMm;
+            }
+
+            return { cols, rows, maxSlotHeightMm, frameWidthMm, frameHeightMm };
+        }
+
+        function renderA4Workspace() {
+            const workspace = document.getElementById('a4Workspace');
+            workspace.innerHTML = "";
+
+            appState.pages.forEach((page, pageIdx) => {
+                const sec = SECTION_DEFINITIONS[page.sectionKey] || SECTION_DEFINITIONS["1"];
+                const isSec6 = page.sectionKey === "6";
+                const isSec7 = page.sectionKey === "7";
+                const isSec5 = page.sectionKey === "5";
+                const hasCompactTopTable = isSec6 || isSec7 || isSec5;
+
+                const { cols, rows, maxSlotHeightMm, frameWidthMm, frameHeightMm } = getGridDimensions(page, hasCompactTopTable);
+
+                const pageEl = document.createElement('div');
+                pageEl.className = `a4-page ${page.orientation} ${pageIdx === appState.currentPageIndex ? 'active-page-ring' : ''}`;
+                pageEl.onclick = (e) => {
+                    if (appState.currentPageIndex !== pageIdx) {
+                        selectPage(pageIdx);
+                    }
+                };
+
+                // Status Stamp styling
+                const statusBadgeHtml = appState.status === "OPEN"
+                    ? `<span style="background:#dcfce7; color:#166534; border:1px solid #86efac; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10px;">สถานะ: เปิดงาน (OPEN JOB)</span>`
+                    : `<span style="background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; padding:2px 8px; border-radius:4px; font-weight:700; font-size:10px;">สถานะ: ปิดงานแล้ว (CLOSED)</span>`;
+
+                // Optional Section-Specific Top Engineering Table (Section 5, 6, or 7)
+                let engineeringBlockHtml = "";
+                if (isSec6) {
+                    const t1 = parseFloat(appState.engineering.temp1) || 0;
+                    const t2 = parseFloat(appState.engineering.temp2) || 0;
+                    const t3 = parseFloat(appState.engineering.temp3) || 0;
+                    const v1 = parseFloat(appState.engineering.vib1) || 0;
+                    const v2 = parseFloat(appState.engineering.vib2) || 0;
+                    const v3 = parseFloat(appState.engineering.vib3) || 0;
+
+                    engineeringBlockHtml = `
+                        <div style="margin-bottom:5px; border:1px solid #f59e0b; border-radius:5px; background:#fffbeb; padding:4px 8px; font-size:10.5px;">
+                            <div style="font-weight:700; color:#92400e; margin-bottom:3px; display:flex; justify-content:space-between;">
+                                <span>ตารางบันทึกค่าทางวิศวกรรม: ความร้อน Temperature (°C) 3 ค่า และ ความสั่นสะเทือน Vibration (mm/s) 3 ค่า</span>
+                                <span>เกณฑ์มาตรฐาน ISO 10816</span>
+                            </div>
+                            <table style="width:100%; border-collapse:collapse; background:#ffffff; font-size:10px; text-align:center;">
+                                <thead>
+                                    <tr style="background:#fef3c7; color:#78350f; border:1px solid #fcd34d;">
+                                        <th style="border:1px solid #fcd34d; padding:2px 4px; text-align:left;">พารามิเตอร์การวัด</th>
+                                        <th style="border:1px solid #fcd34d; padding:2px 4px;">ค่าที่ 1 (จุดที่ 1 / DE)</th>
+                                        <th style="border:1px solid #fcd34d; padding:2px 4px;">ค่าที่ 2 (จุดที่ 2 / NDE)</th>
+                                        <th style="border:1px solid #fcd34d; padding:2px 4px;">ค่าที่ 3 (จุดที่ 3 / Housing)</th>
+                                        <th style="border:1px solid #fcd34d; padding:2px 4px;">สถานะประเมิน</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="border:1px solid #e2e8f0; padding:2px 6px; text-align:left; font-weight:700; color:#be123c;">1. วัดค่าความร้อน Temperature (°C)</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">${escapeHtml(appState.engineering.temp1 || '-')} °C</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">${escapeHtml(appState.engineering.temp2 || '-')} °C</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">${escapeHtml(appState.engineering.temp3 || '-')} °C</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700; color:${Math.max(t1,t2,t3) > 75 ? '#dc2626' : '#15803d'};">${Math.max(t1,t2,t3) > 75 ? 'สูงกว่าเกณฑ์ (High)' : 'ปกติ (Normal)'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border:1px solid #e2e8f0; padding:2px 6px; text-align:left; font-weight:700; color:#0369a1;">2. ความสั่นสะเทือน Vibration (mm/s)</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">H: ${escapeHtml(appState.engineering.vib1 || '-')} mm/s</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">V: ${escapeHtml(appState.engineering.vib2 || '-')} mm/s</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700;">A: ${escapeHtml(appState.engineering.vib3 || '-')} mm/s</td>
+                                        <td style="border:1px solid #e2e8f0; padding:2px; font-weight:700; color:${Math.max(v1,v2,v3) > 4.5 ? '#dc2626' : '#15803d'};">${Math.max(v1,v2,v3) > 4.5 ? 'เฝ้าระวัง (Warning)' : 'ปกติ (Normal)'}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else if (isSec7) {
+                    engineeringBlockHtml = `
+                        <div style="margin-bottom:5px; border:1px solid #fda4af; border-radius:5px; background:#fff1f2; padding:5px 8px; font-size:10.5px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                                <span><strong style="color:#9f1239;">รหัสแจ้งเตือน (Alarm Code):</strong> <span style="font-weight:700; color:#be123c; background:#ffe4e6; padding:1px 6px; border-radius:3px;">${escapeHtml(appState.engineering.alarmCode || '-')}</span></span>
+                                <span><strong style="color:#0f172a;">สรุปผลตรวจซ่อม:</strong> <strong style="color:#15803d;">${escapeHtml(appState.engineering.overallResult || '-')}</strong></span>
+                            </div>
+                            <div style="background:#ffffff; border:1px solid #fecdd3; border-radius:4px; padding:4px 6px; color:#1e293b;">
+                                <strong>ข้อเสนอแนะ (Comment) / รายละเอียดการแก้ไข:</strong> ${escapeHtml(appState.engineering.comment || '-')}
+                            </div>
+                        </div>
+                    `;
+                } else if (isSec5) {
+                    engineeringBlockHtml = `
+                        <div style="margin-bottom:5px; border:1px solid #86efac; border-radius:5px; background:#f0fdf4; padding:4px 8px; font-size:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; color:#14532d;">
+                            <strong>รายการตรวจสอบ PM มาตรฐาน:</strong>
+                            <span>☑ ตรวจเช็คเสียงและการหมุนลูกปืน</span>
+                            <span>☑ อัดจาระบี/สารหล่อลื่น</span>
+                            <span>☑ ตรวจความตึงสายพาน & พูลเลย์</span>
+                            <span>☑ ตรวจขั้วสายไฟและฉนวนมอเตอร์</span>
+                        </div>
+                    `;
+                }
+
+                // Build Photo Grid Cards HTML
+                let slotsHtml = "";
+                page.slots.forEach((slot, sIdx) => {
+                    const isBeforeTag = slot.tag.includes("ก่อน") || slot.tag.toLowerCase().includes("before");
+                    const badgeBg = isBeforeTag ? "#fef3c7" : "#dcfce7";
+                    const badgeText = isBeforeTag ? "#92400e" : "#166534";
+                    const badgeBorder = isBeforeTag ? "#fcd34d" : "#86efac";
+
+                    slotsHtml += `
+                        <div class="photo-slot-card group" style="height:${maxSlotHeightMm}mm; max-height:${maxSlotHeightMm}mm;">
+                            <!-- Top Slot Bar: Number & Before/After Tag -->
+                            <div style="width:100%; display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; font-size:10px;">
+                                <span style="font-weight:700; color:#475569;">รูปที่ ${sIdx + 1}</span>
+                                <span style="background:${badgeBg}; color:${badgeText}; border:1px solid ${badgeBorder}; padding:0px 6px; border-radius:999px; font-weight:700; font-size:9.5px;">
+                                    ${escapeHtml(slot.tag)}
+                                </span>
+                            </div>
+
+                            <!-- Centered Photo Frame (Exact cm or Auto Fit) -->
+                            <div class="photo-frame-box ${slot.imageData ? 'has-image' : ''}"
+                                 style="width:${frameWidthMm}mm; height:${frameHeightMm}mm;"
+                                 onclick="triggerSingleSlotUpload(${pageIdx}, ${sIdx})">
+                                ${slot.imageData
+                                    ? `<img src="${slot.imageData}" style="object-fit:${page.imageFit}; object-position:center center;" alt="Slot ${sIdx + 1}">`
+                                    : `<div class="no-print text-center p-2 cursor-pointer text-slate-400 hover:text-sky-600 transition">
+                                            <i class="fa-solid fa-camera-retro text-lg mb-1 block"></i>
+                                            <span style="font-size:10px; display:block; font-weight:600;">คลิกเพิ่มรูป / ถ่ายรูป</span>
+                                            <span style="font-size:9px; color:#94a3b8;">(${page.frameSizeCm === 'auto' ? 'Auto Fit' : page.frameSizeCm + 'x' + page.frameSizeCm + ' ซม.'})</span>
+                                       </div>`
+                                }
+
+                                <!-- Hover Quick Action Overlay (No-Print) -->
+                                <div class="slot-action-overlay no-print opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 right-1 flex gap-1 bg-slate-900/80 p-1 rounded">
+                                    <button onclick="event.stopPropagation(); openCameraForSlot(${pageIdx}, ${sIdx})" class="w-6 h-6 rounded bg-sky-600 text-white text-[10px] flex items-center justify-center" title="ถ่ายรูปใส่ช่องนี้">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); triggerSingleSlotUpload(${pageIdx}, ${sIdx})" class="w-6 h-6 rounded bg-indigo-600 text-white text-[10px] flex items-center justify-center" title="เลือกรูปใส่ช่องนี้">
+                                        <i class="fa-solid fa-folder-open"></i>
+                                    </button>
+                                    ${slot.imageData ? `
+                                    <button onclick="event.stopPropagation(); clearSlotImage(${pageIdx}, ${sIdx})" class="w-6 h-6 rounded bg-rose-600 text-white text-[10px] flex items-center justify-center" title="ลบรูป">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Multi-line Caption / Remark Under Photo -->
+                            <div class="caption-box" contenteditable="true"
+                                 onblur="updateSlotCaptionFromPreview(${pageIdx}, ${sIdx}, this.innerText)"
+                                 title="คลิกเพื่อพิมพ์แก้ไขหมายเหตุใต้รูปภาพได้โดยตรง">${escapeHtml(slot.caption)}</div>
+                        </div>
+                    `;
+                });
+
+                pageEl.innerHTML = `
+                    <!-- TOP DOCUMENT HEADER -->
+                    <div>
+                        <div style="border-bottom:2px solid #0f172a; padding-bottom:5px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="background:#0f172a; color:#ffffff; font-weight:800; font-size:12px; padding:2px 7px; border-radius:4px;">MAINTENANCE REPORT</span>
+                                    <span style="font-size:14px; font-weight:800; color:#0f172a;">ใบรายงานผลการซ่อมบำรุงและตรวจสอบเครื่องจักร</span>
+                                </div>
+                                <div style="font-size:10.5px; color:#334155; margin-top:3px; display:flex; flex-wrap:wrap; gap:12px;">
+                                    <span><strong>รหัสเครื่องจักร:</strong> <span style="color:#c2410c; font-weight:700;">${escapeHtml(appState.machineCode || '-')}</span></span>
+                                    <span><strong>ชื่อเครื่องจักร:</strong> ${escapeHtml(appState.machineName || '-')}</span>
+                                    <span><strong>เลขที่ใบงาน:</strong> ${escapeHtml(appState.jobNo || '-')}</span>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                ${statusBadgeHtml}
+                                <div style="font-size:10.5px; color:#334155; margin-top:4px;">
+                                    <strong>วันที่เข้าทำ:</strong> ${formatThaiDate(appState.serviceDate)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DEDICATED SECTION BANNER (1 - 7 SEPARATED CLEARLY) -->
+                        <div style="background:${sec.lightBg}; border-left:5px solid ${sec.badgeColor}; border-top:1px solid #cbd5e1; border-right:1px solid #cbd5e1; border-bottom:1px solid #cbd5e1; padding:4px 10px; border-radius:4px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:12.5px; font-weight:800; color:${sec.badgeColor};">
+                                    ${escapeHtml(sec.title)}
+                                </div>
+                                ${page.subHeader ? `<div style="font-size:10.5px; color:#334155; font-weight:600;">รายละเอียดงาน: ${escapeHtml(page.subHeader)}</div>` : ''}
+                            </div>
+                            <div style="font-size:10px; font-weight:700; color:#475569; background:#ffffff; padding:2px 7px; border-radius:4px; border:1px solid #cbd5e1;">
+                                กรอบรูป: ${page.frameSizeCm === 'auto' ? 'มาตรฐานพอดีช่อง' : page.frameSizeCm + 'x' + page.frameSizeCm + ' ซม.'} | ${page.gridCount} รูป/หน้า
+                            </div>
+                        </div>
+
+                        <!-- SECTION-SPECIFIC ENGINEERING TABLE (IF SEC 5, 6, 7) -->
+                        ${engineeringBlockHtml}
+
+                        <!-- PHOTO GRID CONTAINER -->
+                        <div style="display:grid; grid-template-columns:repeat(${cols}, minmax(0, 1fr)); gap:3mm; width:100%; align-items:stretch;">
+                            ${slotsHtml}
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM PAGE FOOTER & SIGNATURES -->
+                    <div style="border-top:1.5px solid #334155; padding-top:4px; margin-top:4px; font-size:10px; color:#334155; display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div style="max-width:58%;">
+                            <div><strong>หมายเหตุประจำหน้า:</strong> ${escapeHtml(page.footerNote || '-')}</div>
+                            <div style="font-size:9.5px; color:#64748b; margin-top:1px;">
+                                รหัสเครื่องจักร: ${escapeHtml(appState.machineCode)} | หมวดหมู่: ${escapeHtml(sec.shortName)}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:18px; text-align:center;">
+                            <div>
+                                <div style="border-bottom:1px dotted #64748b; width:110px; height:14px;"></div>
+                                <div>ผู้ปฏิบัติงาน: ${escapeHtml(appState.technician || '........................')}</div>
+                            </div>
+                            <div>
+                                <div style="border-bottom:1px dotted #64748b; width:110px; height:14px;"></div>
+                                <div>ผู้ตรวจสอบ: ${escapeHtml(appState.supervisor || '........................')}</div>
+                            </div>
+                            <div style="font-weight:700; color:#0f172a; padding-left:4px;">
+                                หน้า ${pageIdx + 1} / ${appState.pages.length}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                workspace.appendChild(pageEl);
+            });
+
+            applyZoomTransform();
+        }
+
+        /* =========================================================
+           6. PAGE & SECTION CONTROLLERS
+           ========================================================= */
+        function selectPage(idx) {
+            appState.currentPageIndex = idx;
+            renderAll();
+        }
+
+        function addNewPageFromSelect() {
+            const secKey = document.getElementById('newPageSectionSelect').value;
+            const currentOrient = appState.pages[appState.currentPageIndex]?.orientation || "portrait";
+            const newPage = createPageObject(secKey, currentOrient, 4, "auto");
+            appState.pages.push(newPage);
+            appState.currentPageIndex = appState.pages.length - 1;
+            renderAll();
+            showToast(`เพิ่มหน้ากระดาษใหม่ (${SECTION_DEFINITIONS[secKey].shortName}) เรียบร้อย`, "success");
+        }
+
+        function generateAll7SectionsPages() {
+            const existingSections = new Set(appState.pages.map(p => p.sectionKey));
+            let added = 0;
+            ["1", "2", "3", "4", "5", "6", "7"].forEach(secKey => {
+                if (!existingSections.has(secKey)) {
+                    appState.pages.push(createPageObject(secKey, "portrait", 4, "auto"));
+                    added++;
+                }
+            });
+            if (added === 0) {
+                showToast("มีหน้ากระดาษครบทั้ง 7 หัวข้ออยู่แล้ว สามารถกด + เพิ่มหน้าซ้ำได้ตามต้องการ", "info");
+            } else {
+                renderAll();
+                showToast(`สร้างหน้ากระดาษแยกครบทั้ง 7 หัวข้อ (เพิ่ม ${added} หน้า) เรียบร้อย!`, "success");
+            }
+        }
+
+        function changeCurrentPageSection(newSecKey) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.sectionKey = String(newSecKey);
+            const sec = SECTION_DEFINITIONS[newSecKey] || SECTION_DEFINITIONS["1"];
+            page.slots.forEach((slot, i) => {
+                slot.tag = (i % 2 === 0) ? sec.defaultTags[0] : sec.defaultTags[1];
+            });
+            renderAll();
+        }
+
+        function updateCurrentPageSubHeader(val) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.subHeader = val;
+            renderA4Workspace();
+        }
+
+        function updateCurrentPageFooterNote(val) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.footerNote = val;
+            renderA4Workspace();
+        }
+
+        function setPageOrientation(orient) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.orientation = orient;
+            renderAll();
+        }
+
+        function setPageGridCount(newCount) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            const sec = SECTION_DEFINITIONS[page.sectionKey] || SECTION_DEFINITIONS["1"];
+            const currentSlots = page.slots;
+
+            if (newCount > currentSlots.length) {
+                for (let i = currentSlots.length; i < newCount; i++) {
+                    currentSlots.push({
+                        id: "slot_" + Date.now() + "_" + i,
+                        imageData: "",
+                        tag: (i % 2 === 0) ? sec.defaultTags[0] : sec.defaultTags[1],
+                        caption: `รายการที่ ${i + 1}: ระบุรายละเอียดใต้ภาพ...`
+                    });
+                }
+            } else if (newCount < currentSlots.length) {
+                page.slots = currentSlots.slice(0, newCount);
+            }
+            page.gridCount = newCount;
+            renderAll();
+            showToast(`ปรับตารางเป็น ${newCount} รูปต่อหน้า A4 เรียบร้อย`, "info");
+        }
+
+        function setPageFrameSize(cmVal) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.frameSizeCm = cmVal;
+            renderAll();
+        }
+
+        function setPageImageFit(fitVal) {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.imageFit = fitVal;
+            renderA4Workspace();
+        }
+
+        function duplicateCurrentPage() {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            const clone = JSON.parse(JSON.stringify(page));
+            clone.id = "page_" + Date.now();
+            appState.pages.splice(appState.currentPageIndex + 1, 0, clone);
+            appState.currentPageIndex++;
+            renderAll();
+            showToast("ทำซ้ำหน้ากระดาษเรียบร้อย", "success");
+        }
+
+        function deleteCurrentPage() {
+            if (appState.pages.length <= 1) {
+                showToast("ต้องมีอย่างน้อย 1 หน้ากระดาษในรายงาน", "warning");
+                return;
+            }
+            appState.pages.splice(appState.currentPageIndex, 1);
+            if (appState.currentPageIndex >= appState.pages.length) {
+                appState.currentPageIndex = appState.pages.length - 1;
+            }
+            renderAll();
+            showToast("ลบหน้ากระดาษเรียบร้อย", "info");
+        }
+
+        function updateJobMeta() {
+            appState.machineCode = document.getElementById('inpMachineCode').value;
+            appState.machineName = document.getElementById('inpMachineName').value;
+            appState.serviceDate = document.getElementById('inpServiceDate').value;
+            appState.jobNo = document.getElementById('inpJobNo').value;
+            appState.technician = document.getElementById('inpTechnician').value;
+            appState.supervisor = document.getElementById('inpSupervisor').value;
+            renderA4Workspace();
+        }
+
+        function updateEngineeringMetrics() {
+            appState.engineering.temp1 = document.getElementById('inpTemp1').value;
+            appState.engineering.temp2 = document.getElementById('inpTemp2').value;
+            appState.engineering.temp3 = document.getElementById('inpTemp3').value;
+            appState.engineering.vib1 = document.getElementById('inpVib1').value;
+            appState.engineering.vib2 = document.getElementById('inpVib2').value;
+            appState.engineering.vib3 = document.getElementById('inpVib3').value;
+            appState.engineering.alarmCode = document.getElementById('inpAlarmCode').value;
+            appState.engineering.overallResult = document.getElementById('inpOverallResult').value;
+            appState.engineering.comment = document.getElementById('inpComment').value;
+            renderA4Workspace();
+        }
+
+        function updateSlotTag(pageIdx, slotIdx, val) {
+            appState.pages[pageIdx].slots[slotIdx].tag = val;
+            renderA4Workspace();
+        }
+
+        function updateSlotCaption(pageIdx, slotIdx, val) {
+            appState.pages[pageIdx].slots[slotIdx].caption = val;
+            renderA4Workspace();
+        }
+
+        function updateSlotCaptionFromPreview(pageIdx, slotIdx, val) {
+            appState.pages[pageIdx].slots[slotIdx].caption = val.trim();
+            renderSlotQuickEditor();
+        }
+
+        function clearSlotImage(pageIdx, slotIdx) {
+            appState.pages[pageIdx].slots[slotIdx].imageData = "";
+            renderAll();
+        }
+
+        function autoAssignBeforeAfterTags() {
+            const page = appState.pages[appState.currentPageIndex];
+            if (!page) return;
+            page.slots.forEach((slot, idx) => {
+                slot.tag = (idx % 2 === 0) ? "ก่อนทำ (Before)" : "หลังทำ (After)";
+            });
+            renderAll();
+            showToast("จัดป้ายกำกับ ก่อนทำ / หลังทำ สลับคู่เรียบร้อย", "success");
+        }
+
+        /* =========================================================
+           7. IMAGE PROCESSING, BULK UPLOAD & CENTER FIT
+           ========================================================= */
+        function compressAndCenterImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 1200;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.85));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function triggerBulkUpload() {
+            document.getElementById('bulkImageInput').value = "";
+            document.getElementById('bulkImageInput').click();
+        }
+
+        function handleBulkImageSelect(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+
+            let processedCount = 0;
+            const dataUrls = [];
+
+            files.forEach((file, idx) => {
+                compressAndCenterImage(file, (dataUrl) => {
+                    dataUrls[idx] = { dataUrl, name: file.name };
+                    processedCount++;
+                    if (processedCount === files.length) {
+                        distributeBulkImages(dataUrls);
+                    }
+                });
+            });
+        }
+
+        function distributeBulkImages(items) {
+            let pIdx = appState.currentPageIndex;
+            let inserted = 0;
+
+            items.forEach(item => {
+                let placed = false;
+                // Find empty slot starting from current page
+                while (pIdx < appState.pages.length) {
+                    const page = appState.pages[pIdx];
+                    const emptySlot = page.slots.find(s => !s.imageData);
+                    if (emptySlot) {
+                        emptySlot.imageData = item.dataUrl;
+                        placed = true;
+                        inserted++;
+                        break;
+                    } else {
+                        pIdx++;
+                    }
+                }
+                // If all existing pages from currentPageIndex onwards are full, create a new page with the same section & settings
+                if (!placed) {
+                    const refPage = appState.pages[appState.pages.length - 1];
+                    const newPage = createPageObject(refPage.sectionKey, refPage.orientation, refPage.gridCount, refPage.frameSizeCm);
+                    newPage.slots[0].imageData = item.dataUrl;
+                    appState.pages.push(newPage);
+                    pIdx = appState.pages.length - 1;
+                    inserted++;
+                }
+            });
+
+            renderAll();
+            showToast(`เพิ่มรูปภาพพร้อมกัน ${inserted} รูป และจัดกึ่งกลางกรอบอัตโนมัติเรียบร้อย!`, "success");
+        }
+
+        function triggerSingleSlotUpload(pageIdx, slotIdx) {
+            activeSingleSlotTarget = { pageIdx, slotIdx };
+            document.getElementById('singleSlotImageInput').value = "";
+            document.getElementById('singleSlotImageInput').click();
+        }
+
+        function handleSingleSlotImageSelect(event) {
+            const file = event.target.files?.[0];
+            if (!file || !activeSingleSlotTarget) return;
+            compressAndCenterImage(file, (dataUrl) => {
+                const { pageIdx, slotIdx } = activeSingleSlotTarget;
+                if (appState.pages[pageIdx] && appState.pages[pageIdx].slots[slotIdx]) {
+                    appState.pages[pageIdx].slots[slotIdx].imageData = dataUrl;
+                    renderAll();
+                    showToast(`อัปเดตรูปภาพช่องที่ ${slotIdx + 1} เรียบร้อย`, "success");
+                }
+            });
+        }
+
+        /* =========================================================
+           8. BUILT-IN CAMERA WITH FRONT/BACK SWITCH
+           ========================================================= */
+        function openCameraForSlot(pageIdx, slotIdx) {
+            activeSingleSlotTarget = { pageIdx, slotIdx };
+            document.getElementById('cameraTargetInfo').textContent = `หน้าที่ ${pageIdx + 1} - ช่องรูปที่ ${slotIdx + 1}`;
+            openCameraModal(true);
+        }
+
+        function openCameraModal(keepTarget = false) {
+            if (!keepTarget) {
+                activeSingleSlotTarget = null;
+                document.getElementById('cameraTargetInfo').textContent = `ช่องว่างถัดไปในหน้าปัจจุบัน`;
+            }
+            const modal = document.getElementById('cameraModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            startCameraStream();
+        }
+
+        async function startCameraStream() {
+            const video = document.getElementById('cameraVideo');
+            const overlay = document.getElementById('cameraStatusOverlay');
+            overlay.classList.remove('hidden');
+
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+            }
+
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: currentFacingMode,
+                        width: { ideal: 1280 },
+                        height: { ideal: 960 }
+                    },
+                    audio: false
+                });
+                video.srcObject = cameraStream;
+                overlay.classList.add('hidden');
+            } catch (err) {
+                overlay.innerHTML = `
+                    <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-400 mb-2"></i>
+                    <p class="text-xs text-slate-200 font-semibold">เบราว์เซอร์จำกัดสิทธิ์กล้อง หรือเชื่อมต่อผ่านโหมดจำลอง</p>
+                    <p class="text-[11px] text-slate-400 mt-1">คุณสามารถกดปุ่ม "กล้องมือถือตรง" ด้านล่างเพื่อถ่ายภาพจากกล้องโทรศัพท์ได้ทันที</p>
+                `;
+            }
+        }
+
+        function switchCameraFacingMode() {
+            currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+            startCameraStream();
+            showToast(currentFacingMode === "environment" ? "สลับเป็น: กล้องหลัง (Back Camera)" : "สลับเป็น: กล้องหน้า (Front Camera)", "info");
+        }
+
+        function capturePhotoFromVideo() {
+            const video = document.getElementById('cameraVideo');
+            if (!cameraStream || !video.videoWidth) {
+                showToast("กรุณาใช้ปุ่ม 'กล้องมือถือตรง' หากอุปกรณ์ไม่รองรับ WebRTC สด", "warning");
+                return;
+            }
+            const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            insertCapturedPhoto(dataUrl);
+        }
+
+        function handleNativeCameraCapture(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            compressAndCenterImage(file, (dataUrl) => {
+                insertCapturedPhoto(dataUrl);
+                closeCameraModal();
+            });
+        }
+
+        function insertCapturedPhoto(dataUrl) {
+            if (activeSingleSlotTarget) {
+                const { pageIdx, slotIdx } = activeSingleSlotTarget;
+                appState.pages[pageIdx].slots[slotIdx].imageData = dataUrl;
+                renderAll();
+                closeCameraModal();
+                showToast(`บันทึกรูปถ่ายลงในช่องที่ ${slotIdx + 1} เรียบร้อย`, "success");
+            } else {
+                distributeBulkImages([{ dataUrl, name: "CameraPhoto.jpg" }]);
+            }
+        }
+
+        function closeCameraModal() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
+            }
+            const modal = document.getElementById('cameraModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        /* =========================================================
+           9. GOOGLE SHEETS SYNC & LOCAL HISTORY MANAGER
+           ========================================================= */
+        const STORAGE_KEY_HISTORY = "MAINT_A4_PRO_HISTORY_V1";
+        const STORAGE_KEY_SCRIPT_URL = "MAINT_A4_PRO_GSCRIPT_URL";
+
+        function loadSavedScriptUrl() {
+            const url = localStorage.getItem(STORAGE_KEY_SCRIPT_URL) || "";
+            const inp = document.getElementById('inpGoogleScriptUrl');
+            if (inp) inp.value = url;
+        }
+
+        function saveGoogleScriptUrl() {
+            const url = document.getElementById('inpGoogleScriptUrl').value.trim();
+            localStorage.setItem(STORAGE_KEY_SCRIPT_URL, url);
+            showToast("บันทึกลิงก์ Google Sheets Web App เรียบร้อย", "success");
+        }
+
+        function toggleAppsScriptGuide() {
+            const box = document.getElementById('appsScriptGuideBox');
+            box.classList.toggle('hidden');
+        }
+
+        function copyAppsScriptCode() {
+            const code = document.getElementById('appsScriptCodeText').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = code;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast("คัดลอกโค้ด Google Apps Script เรียบร้อย", "success");
+        }
+
+        function openSheetsModal() {
+            renderJobHistoryTable();
+            const modal = document.getElementById('sheetsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeSheetsModal() {
+            const modal = document.getElementById('sheetsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function getSavedHistoryList() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY) || "[]");
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function saveJobToDatabaseAndSheets() {
+            updateJobMeta();
+            updateEngineeringMetrics();
+
+            const sectionsSummary = appState.pages.map((p, i) => {
+                const sec = SECTION_DEFINITIONS[p.sectionKey] || SECTION_DEFINITIONS["1"];
+                const filledPhotos = p.slots.filter(s => !!s.imageData).length;
+                return `หน้า ${i + 1}: ${sec.shortName} (${filledPhotos}/${p.gridCount} รูป)`;
+            }).join(" | ");
+
+            const record = {
+                jobId: appState.jobId,
+                savedAt: new Date().toLocaleString('th-TH'),
+                jobNo: appState.jobNo,
+                machineCode: appState.machineCode,
+                machineName: appState.machineName,
+                serviceDate: appState.serviceDate,
+                status: appState.status,
+                technician: appState.technician,
+                supervisor: appState.supervisor,
+                temp1: appState.engineering.temp1,
+                temp2: appState.engineering.temp2,
+                temp3: appState.engineering.temp3,
+                vib1: appState.engineering.vib1,
+                vib2: appState.engineering.vib2,
+                vib3: appState.engineering.vib3,
+                alarmCode: appState.engineering.alarmCode,
+                overallResult: appState.engineering.overallResult,
+                comment: appState.engineering.comment,
+                sectionsSummary: sectionsSummary,
+                fullStateSnapshot: JSON.parse(JSON.stringify(appState))
+            };
+
+            // Save to Local Storage Database
+            const list = getSavedHistoryList();
+            const existIdx = list.findIndex(item => item.jobId === appState.jobId);
+            if (existIdx >= 0) {
+                list[existIdx] = record;
+            } else {
+                list.unshift(record);
+            }
+
+            try {
+                localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(list.slice(0, 30)));
+            } catch (storageErr) {
+                // If base64 photos exceed localStorage quota, store metadata + light snapshot
+                record.fullStateSnapshot.pages.forEach(p => p.slots.forEach(s => { s.imageData = ""; }));
+                localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(list.slice(0, 30)));
+            }
+
+            renderJobHistoryTable();
+
+            // Send to Google Sheets if URL is configured
+            const scriptUrl = (localStorage.getItem(STORAGE_KEY_SCRIPT_URL) || "").trim();
+            if (scriptUrl) {
+                try {
+                    showToast("กำลังส่งข้อมูลไปยัง Google Sheets...", "info");
+                    await fetch(scriptUrl, {
+                        method: "POST",
+                        mode: "no-cors",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(record)
+                    });
+                    showToast("บันทึกข้อมูลเข้า Google Sheets และฐานข้อมูลในเครื่องสำเร็จ!", "success");
+                } catch (err) {
+                    showToast("บันทึกในเครื่องสำเร็จ (ไม่สามารถติดต่อ URL Google Sheets ได้)", "warning");
+                }
+            } else {
+                showToast("บันทึกใบงานลงฐานข้อมูลเรียบร้อย! (เปิดตรวจสอบย้อนหลังได้ทันที)", "success");
+            }
+        }
+
+        function renderJobHistoryTable() {
+            const tbody = document.getElementById('jobHistoryTableBody');
+            const query = (document.getElementById('inpSearchHistory')?.value || "").toLowerCase();
+            const list = getSavedHistoryList();
+            document.getElementById('savedJobsCount').textContent = list.length;
+
+            const filtered = list.filter(item => {
+                return (
+                    (item.machineCode || "").toLowerCase().includes(query) ||
+                    (item.machineName || "").toLowerCase().includes(query) ||
+                    (item.serviceDate || "").toLowerCase().includes(query) ||
+                    (item.technician || "").toLowerCase().includes(query) ||
+                    (item.jobNo || "").toLowerCase().includes(query)
+                );
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-6 text-center text-slate-400">
+                            ยังไม่มีประวัติใบงานที่บันทึก หรือไม่พบข้อมูลที่ค้นหา (กดปุ่ม "บันทึกข้อมูลใบงานนี้ทันที" ด้านบนเพื่อบันทึก)
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            filtered.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/70 transition";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-medium text-slate-200">${escapeHtml(item.serviceDate)}</td>
+                    <td class="py-2.5 px-3">
+                        <div class="font-bold text-orange-400">${escapeHtml(item.machineCode)}</div>
+                        <div class="text-[10px] text-slate-400">${escapeHtml(item.machineName)}</div>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.status === 'OPEN' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}">
+                            ${item.status === 'OPEN' ? 'เปิดงาน' : 'ปิดงาน'}
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3 text-rose-300 font-semibold">${escapeHtml(item.temp1)} / ${escapeHtml(item.temp2)} / ${escapeHtml(item.temp3)} °C</td>
+                    <td class="py-2.5 px-3 text-cyan-300 font-semibold">${escapeHtml(item.vib1)} / ${escapeHtml(item.vib2)} / ${escapeHtml(item.vib3)}</td>
+                    <td class="py-2.5 px-3">
+                        <div class="text-amber-300 font-semibold">${escapeHtml(item.alarmCode)}</div>
+                        <div class="text-[10px] text-slate-400 truncate max-w-[140px]">${escapeHtml(item.sectionsSummary)}</div>
+                    </td>
+                    <td class="py-2.5 px-3 text-right space-x-1">
+                        <button onclick="loadJobFromHistory('${item.jobId}')" class="px-2.5 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold">
+                            เปิดดู/แก้ไข
+                        </button>
+                        <button onclick="deleteJobFromHistory('${item.jobId}')" class="px-2 py-1 rounded bg-rose-900/60 hover:bg-rose-700 text-rose-200 text-[11px]">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadJobFromHistory(jobId) {
+            const list = getSavedHistoryList();
+            const found = list.find(x => x.jobId === jobId);
+            if (!found || !found.fullStateSnapshot) return;
+            appState = JSON.parse(JSON.stringify(found.fullStateSnapshot));
+            syncInputsFromState();
+            renderAll();
+            closeSheetsModal();
+            showToast(`เปิดข้อมูลใบงานรหัสเครื่องจักร ${appState.machineCode} เรียบร้อย`, "success");
+        }
+
+        function deleteJobFromHistory(jobId) {
+            let list = getSavedHistoryList();
+            list = list.filter(x => x.jobId !== jobId);
+            localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(list));
+            renderJobHistoryTable();
+            showToast("ลบรายการประวัติเรียบร้อย", "info");
+        }
+
+        function exportHistoryCSV() {
+            const list = getSavedHistoryList();
+            if (!list.length) {
+                showToast("ยังไม่มีข้อมูลในประวัติสำหรับส่งออก CSV", "warning");
+                return;
+            }
+            const headers = ["SavedAt", "JobNo", "MachineCode", "MachineName", "ServiceDate", "Status", "Technician", "Supervisor", "Temp1_C", "Temp2_C", "Temp3_C", "Vib1_mms", "Vib2_mms", "Vib3_mms", "AlarmCode", "OverallResult", "Comment", "SectionsSummary"];
+            const rows = list.map(r => [
+                r.savedAt, r.jobNo, r.machineCode, r.machineName, r.serviceDate, r.status, r.technician, r.supervisor,
+                r.temp1, r.temp2, r.temp3, r.vib1, r.vib2, r.vib3, r.alarmCode, r.overallResult, r.comment, r.sectionsSummary
+            ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(","));
+
+            const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            triggerFileDownload(blob, `Maintenance_Records_${appState.machineCode || 'All'}.csv`);
+            showToast("ดาวน์โหลดไฟล์ตาราง CSV สำหรับเปิดใน Excel / Google Sheets เรียบร้อย", "success");
+        }
+
+        /* =========================================================
+           10. EXPORT TO PDF, PRINT, WORD (.DOC) & LOCAL FOLDER
+           ========================================================= */
+        function printOrSavePDF() {
+            // Adjust @page orientation dynamically based on first page
+            const firstOrient = appState.pages[0]?.orientation || "portrait";
+            let styleTag = document.getElementById('dynamicPrintPageStyle');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'dynamicPrintPageStyle';
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = `@media print { @page { size: A4 ${firstOrient}; margin: 0; } }`;
+            window.print();
+        }
+
+        async function downloadDirectPDFFile() {
+            closeSaveFolderModal();
+            showToast("กำลังสร้างไฟล์ .PDF ขนาด A4 กรุณารอสักครู่...", "info");
+            const workspace = document.getElementById('a4Workspace');
+            const prevTransform = workspace.style.transform;
+            workspace.style.transform = "none";
+
+            const firstOrient = appState.pages[0]?.orientation || "portrait";
+            const opt = {
+                margin: 0,
+                filename: `Report_${appState.machineCode || 'Machine'}_${appState.serviceDate}.pdf`,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: firstOrient }
+            };
+
+            try {
+                await html2pdf().set(opt).from(workspace).save();
+                showToast("ดาวน์โหลดไฟล์ .PDF ลงเครื่องเรียบร้อย!", "success");
+            } catch (e) {
+                printOrSavePDF();
+            } finally {
+                workspace.style.transform = prevTransform;
+            }
+        }
+
+        function exportWordDoc() {
+            closeSaveFolderModal();
+            showToast("กำลังสร้างไฟล์ Microsoft Word (.doc) พร้อมตารางและรูปภาพ...", "info");
+
+            let pagesWordHtml = "";
+            appState.pages.forEach((page, pIdx) => {
+                const sec = SECTION_DEFINITIONS[page.sectionKey] || SECTION_DEFINITIONS["1"];
+                const cols = page.gridCount === 12 ? 3 : 2;
+                const imgDimPx = page.frameSizeCm === "auto" ? 210 : Math.round(parseFloat(page.frameSizeCm) * 37.8);
+
+                let tableRowsHtml = "";
+                for (let i = 0; i < page.slots.length; i += cols) {
+                    let rowCells = "";
+                    for (let c = 0; c < cols; c++) {
+                        const slot = page.slots[i + c];
+                        if (slot) {
+                            rowCells += `
+                                <td style="border:1px solid #94a3b8; padding:8px; text-align:center; vertical-align:top; width:${Math.floor(100 / cols)}%;">
+                                    <div style="font-weight:bold; font-size:10pt; color:#1e293b; margin-bottom:4px;">
+                                        รูปที่ ${i + c + 1} - [${escapeHtml(slot.tag)}]
+                                    </div>
+                                    ${slot.imageData
+                                        ? `<img src="${slot.imageData}" width="${imgDimPx}" height="${imgDimPx}" style="width:${imgDimPx}px; height:${imgDimPx}px; object-fit:cover; border:1px solid #cbd5e1;">`
+                                        : `<div style="width:${imgDimPx}px; height:${imgDimPx}px; border:1px dashed #cbd5e1; line-height:${imgDimPx}px; color:#94a3b8; margin:0 auto;">(ไม่มีรูปภาพ)</div>`
+                                    }
+                                    <div style="margin-top:6px; font-size:10pt; color:#0f172a; text-align:left; background:#f8fafc; padding:4px;">
+                                        ${escapeHtml(slot.caption)}
+                                    </div>
+                                </td>
+                            `;
+                        }
+                    }
+                    tableRowsHtml += `<tr>${rowCells}</tr>`;
+                }
+
+                pagesWordHtml += `
+                    <div style="page-break-after:always; font-family:'Sarabun', 'TH SarabunPSK', sans-serif;">
+                        <h2 style="margin:0 0 4px 0; font-size:15pt; color:#0f172a;">ใบรายงานผลการซ่อมบำรุงเครื่องจักร (MAINTENANCE REPORT)</h2>
+                        <p style="margin:0 0 8px 0; font-size:11pt;">
+                            <strong>รหัสเครื่องจักร:</strong> ${escapeHtml(appState.machineCode)} |
+                            <strong>ชื่อเครื่องจักร:</strong> ${escapeHtml(appState.machineName)} |
+                            <strong>วันที่เข้าทำ:</strong> ${escapeHtml(appState.serviceDate)} |
+                            <strong>สถานะ:</strong> ${appState.status === 'OPEN' ? 'เปิดงาน' : 'ปิดงานแล้ว'}
+                        </p>
+                        <div style="background:#eff6ff; border-left:5px solid #1d4ed8; padding:6px 10px; margin-bottom:8px; font-size:12pt; font-weight:bold; color:#1e3a8a;">
+                            ${escapeHtml(sec.title)} ${page.subHeader ? ` - (${escapeHtml(page.subHeader)})` : ''}
+                        </div>
+
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:10px; font-size:10pt;" border="1" cellspacing="0" cellpadding="4">
+                            <tr style="background:#fef3c7; font-weight:bold;">
+                                <td>Temperature (°C) 3 ค่า</td>
+                                <td>DE: ${escapeHtml(appState.engineering.temp1)} °C</td>
+                                <td>NDE: ${escapeHtml(appState.engineering.temp2)} °C</td>
+                                <td>Blower: ${escapeHtml(appState.engineering.temp3)} °C</td>
+                            </tr>
+                            <tr style="background:#e0f2fe; font-weight:bold;">
+                                <td>Vibration (mm/s) 3 ค่า</td>
+                                <td>H: ${escapeHtml(appState.engineering.vib1)} mm/s</td>
+                                <td>V: ${escapeHtml(appState.engineering.vib2)} mm/s</td>
+                                <td>A: ${escapeHtml(appState.engineering.vib3)} mm/s</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><strong>Alarm Code:</strong> ${escapeHtml(appState.engineering.alarmCode)}</td>
+                                <td colspan="2"><strong>ข้อเสนอแนะ:</strong> ${escapeHtml(appState.engineering.comment)}</td>
+                            </tr>
+                        </table>
+
+                        <table style="width:100%; border-collapse:collapse;" border="1" cellspacing="0" cellpadding="6">
+                            ${tableRowsHtml}
+                        </table>
+
+                        <p style="margin-top:10px; font-size:10.5pt;">
+                            <strong>หมายเหตุประจำหน้า:</strong> ${escapeHtml(page.footerNote)} <br>
+                            <strong>ผู้ปฏิบัติงาน:</strong> ${escapeHtml(appState.technician)} &nbsp;&nbsp;&nbsp;&nbsp;
+                            <strong>ผู้ตรวจสอบ:</strong> ${escapeHtml(appState.supervisor)} &nbsp;&nbsp;&nbsp;&nbsp;
+                            <strong>หน้า ${pIdx + 1}/${appState.pages.length}</strong>
+                        </p>
+                    </div>
+                `;
+            });
+
+            const wordFileContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset="utf-8"><title>Maintenance Report</title></head>
+                <body>${pagesWordHtml}</body>
+                </html>
+            `;
+
+            const blob = new Blob(['\ufeff', wordFileContent], { type: 'application/msword' });
+            triggerFileDownload(blob, `Report_${appState.machineCode || 'Machine'}_${appState.serviceDate}.doc`);
+            showToast("บันทึกไฟล์ Microsoft Word (.doc) เรียบร้อย!", "success");
+        }
+
+        function openSaveFolderModal() {
+            const m = document.getElementById('saveFolderModal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeSaveFolderModal() {
+            const m = document.getElementById('saveFolderModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        async function saveProjectBackupFile() {
+            closeSaveFolderModal();
+            const jsonStr = JSON.stringify(appState, null, 2);
+            const fileName = `MaintJob_${appState.machineCode || 'Machine'}_${appState.serviceDate}.json`;
+
+            if (window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{ description: 'Maintenance Report File', accept: { 'application/json': ['.json'] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(jsonStr);
+                    await writable.close();
+                    showToast("บันทึกไฟล์เข้าโฟลเดอร์ที่เลือกเรียบร้อย!", "success");
+                    return;
+                } catch (e) {
+                    // User canceled or iframe restriction -> fallback download
+                }
+            }
+
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            triggerFileDownload(blob, fileName);
+            showToast("ดาวน์โหลดไฟล์ต้นฉบับ (.json) ลงโฟลเดอร์เครื่องเรียบร้อย", "success");
+        }
+
+        function importProjectBackupFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const loaded = JSON.parse(e.target.result);
+                    if (loaded && Array.isArray(loaded.pages)) {
+                        appState = loaded;
+                        syncInputsFromState();
+                        renderAll();
+                        closeSaveFolderModal();
+                        showToast("เปิดไฟล์ใบงานจากโฟลเดอร์เรียบร้อย!", "success");
+                    }
+                } catch (err) {
+                    showToast("รูปแบบไฟล์ไม่ถูกต้อง", "warning");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function triggerFileDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        /* =========================================================
+           11. PWA INSTALL & VIEW UTILITIES
+           ========================================================= */
+        function initPwaManifest() {
+            const manifest = {
+                name: "ระบบจัดทำรายงานซ่อมบำรุงเครื่องจักร A4 มืออาชีพ",
+                short_name: "MaintReport A4",
+                start_url: ".",
+                display: "standalone",
+                background_color: "#0f172a",
+                theme_color: "#f97316",
+                icons: [
+                    {
+                        src: "https://placehold.co/192x192/f97316/ffffff?text=A4+PRO",
+                        sizes: "192x192",
+                        type: "image/png"
+                    },
+                    {
+                        src: "https://placehold.co/512x512/0f172a/f97316?text=MAINT+A4",
+                        sizes: "512x512",
+                        type: "image/png"
+                    }
+                ]
+            };
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = URL.createObjectURL(blob);
+            document.head.appendChild(link);
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+        }
+
+        async function handleInstallPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    showToast("ติดตั้งแอปลงในโทรศัพท์เรียบร้อย!", "success");
+                }
+            } else {
+                const m = document.getElementById('pwaInstallModal');
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            }
+        }
+
+        function closePwaModal() {
+            const m = document.getElementById('pwaInstallModal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function adjustPreviewZoom(delta) {
+            appState.previewZoom = Math.max(0.35, Math.min(1.3, parseFloat((appState.previewZoom + delta).toFixed(2))));
+            applyZoomTransform();
+        }
+
+        function fitZoomToScreen() {
+            const container = document.getElementById('previewContainer');
+            const availW = container.clientWidth || window.innerWidth;
+            appState.previewZoom = Math.max(0.38, Math.min(1.0, parseFloat(((availW - 40) / 840).toFixed(2))));
+            applyZoomTransform();
+        }
+
+        function applyZoomTransform() {
+            const ws = document.getElementById('a4Workspace');
+            const lbl = document.getElementById('zoomValueText');
+            if (ws) ws.style.transform = `scale(${appState.previewZoom})`;
+            if (lbl) lbl.textContent = `${Math.round(appState.previewZoom * 100)}%`;
+        }
+
+        function switchMobileView(mode) {
+            const preview = document.getElementById('previewContainer');
+            const tabEditor = document.getElementById('mobTabEditor');
+            const tabPreview = document.getElementById('mobTabPreview');
+            if (mode === 'preview') {
+                preview.scrollIntoView({ behavior: 'smooth' });
+                tabPreview.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-orange-600 text-white shadow";
+                tabEditor.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-300";
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                tabEditor.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-orange-600 text-white shadow";
+                tabPreview.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-300";
+            }
+        }
+
+        function resetNewJob() {
+            appState.jobId = "JOB-" + Date.now();
+            appState.status = "OPEN";
+            appState.serviceDate = new Date().toISOString().split('T')[0];
+            appState.pages = [createPageObject("1", "portrait", 4, "auto")];
+            appState.currentPageIndex = 0;
+            syncInputsFromState();
+            renderAll();
+            showToast("เริ่มใบงานใหม่เรียบร้อย", "info");
+        }
+
+        function formatThaiDate(isoStr) {
+            if (!isoStr) return "-";
+            const parts = isoStr.split("-");
+            if (parts.length !== 3) return isoStr;
+            const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            const yearBuddhist = parseInt(parts[0], 10) + 543;
+            const mIdx = parseInt(parts[1], 10) - 1;
+            return `${parseInt(parts[2], 10)} ${months[mIdx] || parts[1]} ${yearBuddhist}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: "bg-emerald-600 border-emerald-400 text-white",
+                info: "bg-slate-800 border-sky-400 text-white",
+                warning: "bg-amber-600 border-amber-300 text-white"
+            };
+            toast.className = `px-4 py-2.5 rounded-xl border shadow-2xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
 </body>
 </html>
