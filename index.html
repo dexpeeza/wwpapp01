@@ -48,10 +48,10 @@
             min-height: var(--a4-height);
             max-width: var(--a4-width);
             max-height: var(--a4-height);
-            background: #ffffff;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(148, 163, 184, 0.25);
             margin: 0 auto 24px auto;
-            padding: 8mm 10mm;
+            padding: 7.5mm 9.5mm;
             box-sizing: border-box;
             position: relative;
             overflow: hidden; /* Guarantees nothing spills outside the A4 boundary */
@@ -61,6 +61,7 @@
             page-break-after: always;
             break-after: page;
             transition: width 0.25s ease, height 0.25s ease;
+            border-top: 4px solid #0f172a;
         }
 
         .a4-sheet.landscape {
@@ -87,15 +88,17 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background-color: #f8fafc;
-            border: 1.5px dashed #cbd5e1;
-            border-radius: 6px;
+            background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            border: 1.5px dashed #94a3b8;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 4px rgba(15, 23, 42, 0.06);
             transition: all 0.2s ease;
         }
 
         .photo-frame-box.has-image {
-            border: 1.5px solid #334155;
+            border: 2px solid #1e293b;
             background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
         }
 
         .photo-frame-box img {
@@ -242,12 +245,6 @@
                     <span class="hidden xl:inline">ปิดงาน+.PDF/.WORD</span>
                 </button>
 
-                <!-- Camera Capture -->
-                <button onclick="openCameraModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1.5 shadow">
-                    <i class="fa-solid fa-camera"></i>
-                    <span>ถ่ายรูป/สลับกล้อง</span>
-                </button>
-
                 <!-- Multi Photo Upload -->
                 <button onclick="triggerBatchUpload()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-images"></i>
@@ -285,48 +282,73 @@
     <!-- ==================== MODE 1: EQUIPMENT & SPARE PARTS CHECK-OUT / CHECK-IN WORKSPACE ==================== -->
     <section id="equipmentWorkspace" class="hidden no-print flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-4 space-y-4 overflow-y-auto">
 
-        <!-- Summary KPI Cards -->
+        <!-- Summary KPI Cards (Clickable to Inspect Status) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3.5 flex items-center justify-between shadow">
+            <!-- Card 1: ใบเบิก-จ่ายทั้งหมด -->
+            <div onclick="openEquipmentStatusInspector('ALL')" id="kpiCardAll"
+                class="cursor-pointer group bg-slate-800/90 hover:bg-slate-800 border-2 border-slate-700 hover:border-cyan-400 rounded-2xl p-3.5 flex items-center justify-between shadow-lg transition transform hover:-translate-y-0.5">
                 <div>
-                    <div class="text-xs text-slate-400 font-medium">ใบเบิก-จ่ายทั้งหมด</div>
+                    <div class="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                        <span>ใบเบิก-จ่ายทั้งหมด</span>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.2 rounded border border-cyan-500/30 group-hover:bg-cyan-500 group-hover:text-slate-950 transition">คลิกดูสถานะ</span>
+                    </div>
                     <div id="eqKpiTotal" class="text-2xl font-extrabold text-white mt-0.5">0</div>
-                    <div class="text-[11px] text-cyan-400">บันทึกพร้อมดึงข้อมูลตรวจสอบ</div>
+                    <div class="text-[11px] text-cyan-400 flex items-center gap-1">
+                        <i class="fa-solid fa-hand-pointer text-[10px]"></i> กดเพื่อดูรายการใบเบิกทั้งหมด
+                    </div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl">
+                <div class="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/30 group-hover:bg-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl transition">
                     <i class="fa-solid fa-clipboard-list"></i>
                 </div>
             </div>
 
-            <div class="bg-slate-800/90 border border-amber-500/40 rounded-2xl p-3.5 flex items-center justify-between shadow">
+            <!-- Card 2: กำลังเบิกขึ้นของเข้าทำงาน (ยังไม่คืน) -->
+            <div onclick="openEquipmentStatusInspector('ACTIVE_OUT')" id="kpiCardActiveOut"
+                class="cursor-pointer group bg-slate-800/90 hover:bg-slate-800 border-2 border-amber-500/40 hover:border-amber-400 rounded-2xl p-3.5 flex items-center justify-between shadow-lg transition transform hover:-translate-y-0.5">
                 <div>
-                    <div class="text-xs text-amber-300 font-medium">กำลังเบิกขึ้นของเข้าทำงาน (ยังไม่คืน)</div>
+                    <div class="text-xs text-amber-300 font-semibold flex items-center gap-1.5">
+                        <span>กำลังเบิกขึ้นของเข้าทำงาน (ยังไม่คืน)</span>
+                    </div>
                     <div id="eqKpiActiveOut" class="text-2xl font-extrabold text-amber-400 mt-0.5">0</div>
-                    <div class="text-[11px] text-slate-400">อุปกรณ์อยู่หน้างานซ่อมบำรุง</div>
+                    <div class="text-[11px] text-amber-200/80 flex items-center gap-1">
+                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i> กดดูอุปกรณ์ที่อยู่หน้างาน / รอคืน
+                    </div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
+                <div class="w-11 h-11 rounded-xl bg-amber-500/15 border border-amber-500/30 group-hover:bg-amber-500/30 flex items-center justify-center text-amber-400 text-xl transition">
                     <i class="fa-solid fa-truck-ramp-box"></i>
                 </div>
             </div>
 
-            <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-3.5 flex items-center justify-between shadow">
+            <!-- Card 3: นำของมาคืนครบแล้ว -->
+            <div onclick="openEquipmentStatusInspector('RETURNED')" id="kpiCardReturned"
+                class="cursor-pointer group bg-slate-800/90 hover:bg-slate-800 border-2 border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-3.5 flex items-center justify-between shadow-lg transition transform hover:-translate-y-0.5">
                 <div>
-                    <div class="text-xs text-emerald-300 font-medium">นำของมาคืนครบแล้ว</div>
+                    <div class="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
+                        <span>นำของมาคืนครบแล้ว</span>
+                    </div>
                     <div id="eqKpiReturned" class="text-2xl font-extrabold text-emerald-400 mt-0.5">0</div>
-                    <div class="text-[11px] text-slate-400">ตรวจสอบสภาพสมบูรณ์</div>
+                    <div class="text-[11px] text-emerald-200/80 flex items-center gap-1">
+                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i> กดดูรายการที่นำมาคืนครบแล้ว
+                    </div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 group-hover:bg-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl transition">
                     <i class="fa-solid fa-circle-check"></i>
                 </div>
             </div>
 
-            <div class="bg-slate-800/90 border border-rose-500/40 rounded-2xl p-3.5 flex items-center justify-between shadow">
+            <!-- Card 4: อุปกรณ์ซ่อมชำรุด / รอซ่อม -->
+            <div onclick="openEquipmentStatusInspector('REPAIR')" id="kpiCardRepair"
+                class="cursor-pointer group bg-slate-800/90 hover:bg-slate-800 border-2 border-rose-500/40 hover:border-rose-400 rounded-2xl p-3.5 flex items-center justify-between shadow-lg transition transform hover:-translate-y-0.5">
                 <div>
-                    <div class="text-xs text-rose-300 font-medium">อุปกรณ์ซ่อมชำรุด / รอซ่อม</div>
+                    <div class="text-xs text-rose-300 font-semibold flex items-center gap-1.5">
+                        <span>อุปกรณ์ซ่อมชำรุด / รอซ่อม</span>
+                    </div>
                     <div id="eqKpiRepair" class="text-2xl font-extrabold text-rose-400 mt-0.5">0</div>
-                    <div class="text-[11px] text-slate-400">แจ้งซ่อมบำรุงเครื่องมือช่าง</div>
+                    <div class="text-[11px] text-rose-200/80 flex items-center gap-1">
+                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i> กดดูสถานะอุปกรณ์ชำรุด / ส่งซ่อม
+                    </div>
                 </div>
-                <div class="w-11 h-11 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xl">
+                <div class="w-11 h-11 rounded-xl bg-rose-500/15 border border-rose-500/30 group-hover:bg-rose-500/30 flex items-center justify-center text-rose-400 text-xl transition">
                     <i class="fa-solid fa-screwdriver-wrench"></i>
                 </div>
             </div>
@@ -581,11 +603,7 @@
                     <div class="flex gap-1.5">
                         <button onclick="exportEquipmentHistoryToCSV()" class="px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-emerald-300 text-[11px] font-semibold flex items-center gap-1">
                             <i class="fa-solid fa-file-csv"></i> ดาวน์โหลด .CSV
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Search & Status Filter -->
+                    <!-- Search & Status Filter -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div class="sm:col-span-2">
                         <input type="text" id="eqSearchKeyword" oninput="renderEquipmentHistoryList()"
@@ -595,10 +613,14 @@
                     <div>
                         <select id="eqFilterStatusSelect" onchange="renderEquipmentHistoryList()"
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-semibold">
-                            <option value="ALL">แสดงทุกสถานะ</option>
-                            <option value="รอตรวจสอบ">รอตรวจสอบ (Pending)</option>
-                            <option value="กำลังเบิกขึ้นของเข้าทำงาน">กำลังเบิกขึ้นของ (ยังไม่คืน)</option>
+                            <option value="ALL">แสดงทุกสถานะ (ทั้งหมด)</option>
+                            <option value="GROUP_ACTIVE_OUT">🚚 กำลังเบิกขึ้นของเข้าทำงาน (ยังไม่คืน)</option>
+                            <option value="GROUP_RETURNED">✅ นำของมาคืนครบแล้ว</option>
+                            <option value="GROUP_REPAIR">🔧 อุปกรณ์ซ่อมชำรุด / รอซ่อม</option>
+                            <option value="รอตรวจสอบ">⏳ รอตรวจสอบ (Pending)</option>
+                            <option value="กำลังเบิกขึ้นของเข้าทำงาน">กำลังเบิกขึ้นของเข้าทำงาน</option>
                             <option value="นำมาคืนครบแล้ว">นำมาคืนครบแล้ว</option>
+                            <option value="คืนของเมื่อคืนเรียบร้อย">คืนของเมื่อคืนเรียบร้อย</option>
                             <option value="คืนบางส่วน / ค้างคืน">คืนบางส่วน / ค้างคืน</option>
                             <option value="อะไหล่ใช้เปลี่ยนหน้างาน">อะไหล่ใช้เปลี่ยนหน้างาน</option>
                             <option value="อุปกรณ์ชำรุด / ส่งซ่อม">อุปกรณ์ชำรุด / ส่งซ่อม</option>
@@ -1045,79 +1067,75 @@
             </div>
         </div>
     </div>
+                    <!-- </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
 
-    <!-- ==================== MODAL 3: LOCAL HISTORY & JOB INSPECTION DATABASE ==================== -->
-    <div id="sheetsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-            <div class="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
+    <!-- ==================== MODAL 4: EQUIPMENT STATUS INSPECTOR MODAL (กดดูสถานะจาก 4 การ์ดด้านบน) ==================== -->
+    <div id="eqStatusInspectorModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <!-- Modal Header -->
+            <div class="px-4 py-3 bg-slate-800 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                    <div id="eqInspectorIconBox" class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+                        <i class="fa-solid fa-clipboard-check"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-white">ระบบบันทึกและเปิดตรวจสอบประวัติใบงานซ่อมบำรุง (Machine History Log)</h3>
-                        <p class="text-[11px] text-slate-400">บันทึกข้อมูลเครื่องจักร หัวข้อ 1-7 ค่าความร้อน 3 ค่า ความสั่นสะเทือน 3 ค่า และกดเปิดตรวจสอบย้อนหลังได้ทันที</p>
+                        <h3 id="eqInspectorTitle" class="text-sm sm:text-base font-extrabold text-white">ตรวจสอบสถานะใบเบิก-จ่ายและอุปกรณ์ซ่อมบำรุง</h3>
+                        <p id="eqInspectorSubtitle" class="text-[11px] text-slate-400">คลิกเลือกหมวดสถานะด้านล่างเพื่อตรวจสอบรายการอุปกรณ์ ผู้เบิกจ่าย ผู้นำมาคืน หรือดึงข้อมูลขึ้นมาแก้ไข</p>
                     </div>
                 </div>
-                <button onclick="closeSheetsModal()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-rose-600 text-white flex items-center justify-center">
+                <button onclick="closeEquipmentStatusInspector()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-rose-600 text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-4 overflow-y-auto space-y-4 flex-1">
-                <!-- Action Row: Save Current Job -->
-                <div class="bg-slate-800/90 border border-slate-700 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <div class="text-xs font-bold text-emerald-400">บันทึกใบงานปัจจุบันเก็บเข้าประวัติการซ่อมบำรุง</div>
-                        <p class="text-[11px] text-slate-300">รหัสเครื่องจักร: <span id="sheetModalMachinePreview" class="font-bold text-white">MCH-BLW-014</span> | สถานะ: <span id="sheetModalStatusPreview" class="text-amber-300 font-semibold">OPEN</span></p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="saveRecordToSheetsDB()" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 shadow-lg">
-                            <i class="fa-solid fa-floppy-disk"></i> บันทึกใบงานนี้เก็บไว้ตรวจสอบ
-                        </button>
-                        <button onclick="exportRecordsToCSV()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-white flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-csv text-emerald-400"></i> ส่งออกตาราง (.CSV)
-                        </button>
-                    </div>
-                </div>
+            <!-- Interactive 4 Status Tabs inside Modal -->
+            <div class="px-4 pt-3 pb-2 bg-slate-900/90 border-b border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onclick="openEquipmentStatusInspector('ALL')" id="modalTabAll"
+                    class="py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-clipboard-list mr-1.5"></i>ใบเบิก-จ่ายทั้งหมด</span>
+                    <span id="modalCountAll" class="px-2 py-0.5 rounded-full bg-slate-800 text-[11px]">0</span>
+                </button>
+                <button onclick="openEquipmentStatusInspector('ACTIVE_OUT')" id="modalTabActiveOut"
+                    class="py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-truck-ramp-box mr-1.5"></i>กำลังเบิกขึ้นของ (ยังไม่คืน)</span>
+                    <span id="modalCountActiveOut" class="px-2 py-0.5 rounded-full bg-slate-800 text-[11px]">0</span>
+                </button>
+                <button onclick="openEquipmentStatusInspector('RETURNED')" id="modalTabReturned"
+                    class="py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-circle-check mr-1.5"></i>นำของมาคืนครบแล้ว</span>
+                    <span id="modalCountReturned" class="px-2 py-0.5 rounded-full bg-slate-800 text-[11px]">0</span>
+                </button>
+                <button onclick="openEquipmentStatusInspector('REPAIR')" id="modalTabRepair"
+                    class="py-2 px-3 rounded-xl text-xs font-bold border flex items-center justify-between transition">
+                    <span><i class="fa-solid fa-screwdriver-wrench mr-1.5"></i>อุปกรณ์ซ่อมชำรุด / รอซ่อม</span>
+                    <span id="modalCountRepair" class="px-2 py-0.5 rounded-full bg-slate-800 text-[11px]">0</span>
+                </button>
+            </div>
 
-                <!-- Search & Records Table -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between gap-2">
-                        <input type="text" id="searchSheetInput" oninput="renderSheetsTable()" placeholder="ค้นหารหัสเครื่องจักร, วันที่, Alarm Code..."
-                            class="w-full sm:w-80 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-                    </div>
-                    <div class="overflow-x-auto border border-slate-700 rounded-xl">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
-                                    <th class="py-2.5 px-3">วันที่เข้าทำ</th>
-                                    <th class="py-2.5 px-3">รหัสเครื่องจักร</th>
-                                    <th class="py-2.5 px-3">สถานะ</th>
-                                    <th class="py-2.5 px-3">Temp 3 ค่า (°C)</th>
-                                    <th class="py-2.5 px-3">Vibration 3 ค่า (mm/s)</th>
-                                    <th class="py-2.5 px-3">Alarm / Comment</th>
-                                    <th class="py-2.5 px-3 text-center">รูปภาพ</th>
-                                    <th class="py-2.5 px-3 text-right">ตรวจสอบ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sheetsTableBody" class="divide-y divide-slate-800"></tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Modal Body: Detailed List of Matching Requisitions & Equipment Items -->
+            <div id="eqInspectorBody" class="p-4 overflow-y-auto space-y-3 flex-1">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-4 py-2.5 bg-slate-800/80 border-t border-slate-700 flex items-center justify-between text-xs">
+                <span class="text-slate-400">คุณสามารถเปลี่ยนสถานะใบเบิก หรือกด <strong class="text-cyan-300">"ดึงข้อมูลขึ้นมาดู / แก้ไข"</strong> ได้ทันที</span>
+                <button onclick="closeEquipmentStatusInspector()" class="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold">
+                    ปิดหน้าต่าง
+                </button>
             </div>
         </div>
     </div>
 
     <!-- ==================== MOBILE FLOATING BOTTOM BAR (เข้าถึงง่ายบนโทรศัพท์มือถือ) ==================== -->
-    <nav class="no-print sm:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-700 px-2 py-1.5 grid grid-cols-4 gap-1 text-[10px] font-bold text-center shadow-2xl">
+    <nav class="no-print sm:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-700 px-2 py-1.5 grid grid-cols-3 gap-1 text-[10px] font-bold text-center shadow-2xl">
         <button onclick="switchWorkspaceMode('REPORT_A4')" class="py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-file-invoice text-sm"></i>
             <span>รายงาน A4</span>
-        </button>
-        <button onclick="openCameraModal()" class="py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 flex flex-col items-center justify-center gap-0.5">
-            <i class="fa-solid fa-camera text-sm"></i>
-            <span>ถ่ายรูป/สลับกล้อง</span>
         </button>
         <button onclick="triggerBatchUpload()" class="py-1.5 rounded-lg bg-blue-500/20 text-blue-300 flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-images text-sm"></i>
@@ -1602,11 +1620,257 @@
                             remark: 'ใช้หล่อลื่นลูกปืนหน้างาน'
                         }
                     ]
+                },
+                {
+                    docId: 'EQ-2026-082',
+                    checkoutDate: '2026-11-08',
+                    returnDate: '2026-11-09',
+                    overallStatus: 'อุปกรณ์ชำรุด / ส่งซ่อม',
+                    machineOrSite: 'MCH-MOT-009 (ปั๊มน้ำหล่อเย็น)',
+                    requesterName: 'ช่างอนุชา (ทีม Overhaul)',
+                    issuerName: 'คุณวิชัย (เจ้าหน้าที่สโตร์ช่าง)',
+                    returnerName: 'ช่างอนุชา (ทีม Overhaul)',
+                    receiverName: 'คุณวิชัย (เจ้าหน้าที่สโตร์ช่าง)',
+                    note: 'พบสายไฮดรอลิกซึมและหัววัดอุณหภูมิสายขาด ส่งซ่อมแผนกเครื่องมือวัด',
+                    items: [
+                        {
+                            code: 'TL-HYD-04',
+                            category: 'อุปกรณ์ซ่อมบำรุง',
+                            name: 'แม่แรงไฮดรอลิกยกมอเตอร์ 10 ตัน (Hydraulic Jack)',
+                            qtyOut: 1,
+                            qtyReturn: 1,
+                            unit: 'ตัว',
+                            itemStatus: 'ชำรุด / ส่งซ่อม',
+                            remark: 'ซีลน้ำมันรั่วซึม รอเปลี่ยนซีล'
+                        },
+                        {
+                            code: 'TL-TEMP-05',
+                            category: 'อุปกรณ์ซ่อมบำรุง',
+                            name: 'เครื่องวัดอุณหภูมิอินฟราเรด (IR Thermometer)',
+                            qtyOut: 1,
+                            qtyReturn: 1,
+                            unit: 'เครื่อง',
+                            itemStatus: 'ชำรุด / ส่งซ่อม',
+                            remark: 'ส่งสอบเทียบและซ่อมปุ่มกด'
+                        }
+                    ]
                 }
             ];
 
             renderEquipmentItemsTable();
             renderEquipmentHistoryList();
+        }
+
+        // Helper functions to categorize records accurately for the 4 KPI cards
+        function isRecordActiveOut(rec) {
+            const st = rec.overallStatus || '';
+            return st.includes('กำลังเบิก') || st.includes('ค้างคืน') || st.includes('รอตรวจสอบ') ||
+                (rec.items || []).some(i => (i.itemStatus || '').includes('กำลังใช้งาน') || (i.itemStatus || '').includes('ค้างคืน'));
+        }
+
+        function isRecordReturned(rec) {
+            const st = rec.overallStatus || '';
+            return st.includes('คืนครบ') || st.includes('คืนของเมื่อคืนเรียบร้อย');
+        }
+
+        function isRecordRepair(rec) {
+            const st = rec.overallStatus || '';
+            return st.includes('ชำรุด') || st.includes('ส่งซ่อม') ||
+                (rec.items || []).some(i => (i.itemStatus || '').includes('ชำรุด') || (i.itemStatus || '').includes('ส่งซ่อม'));
+        }
+
+        function openEquipmentStatusInspector(categoryKey) {
+            const selectEl = document.getElementById('eqFilterStatusSelect');
+            if (selectEl) {
+                if (categoryKey === 'ALL') selectEl.value = 'ALL';
+                else if (categoryKey === 'ACTIVE_OUT') selectEl.value = 'GROUP_ACTIVE_OUT';
+                else if (categoryKey === 'RETURNED') selectEl.value = 'GROUP_RETURNED';
+                else if (categoryKey === 'REPAIR') selectEl.value = 'GROUP_REPAIR';
+            }
+            renderEquipmentHistoryList();
+
+            const all = equipmentState.historyRecords || [];
+            const listActiveOut = all.filter(isRecordActiveOut);
+            const listReturned = all.filter(isRecordReturned);
+            const listRepair = all.filter(isRecordRepair);
+
+            document.getElementById('modalCountAll').textContent = all.length;
+            document.getElementById('modalCountActiveOut').textContent = listActiveOut.length;
+            document.getElementById('modalCountReturned').textContent = listReturned.length;
+            document.getElementById('modalCountRepair').textContent = listRepair.length;
+
+            // Highlight active tab in Modal
+            const tabConfig = {
+                ALL: {
+                    id: 'modalTabAll',
+                    title: 'รายการใบเบิก-จ่ายอุปกรณ์ทั้งหมด (' + all.length + ' ใบงาน)',
+                    subtitle: 'แสดงประวัติใบเบิก-จ่ายอุปกรณ์เข้าทำงาน ขึ้นของ และรับคืนทั้งหมดในระบบ',
+                    icon: 'fa-solid fa-clipboard-list',
+                    activeCls: 'border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow',
+                    list: all
+                },
+                ACTIVE_OUT: {
+                    id: 'modalTabActiveOut',
+                    title: 'สถานะ: กำลังเบิกขึ้นของเข้าทำงาน / ยังไม่คืน (' + listActiveOut.length + ' ใบงาน)',
+                    subtitle: 'รายการอุปกรณ์ซ่อมบำรุงและเครื่องมือช่างที่กำลังใช้งานอยู่หน้างาน หรือรอตรวจสอบรับคืน',
+                    icon: 'fa-solid fa-truck-ramp-box',
+                    activeCls: 'border-amber-400 bg-amber-500/20 text-amber-200 shadow',
+                    list: listActiveOut
+                },
+                RETURNED: {
+                    id: 'modalTabReturned',
+                    title: 'สถานะ: นำของมาคืนครบแล้ว (' + listReturned.length + ' ใบงาน)',
+                    subtitle: 'รายการอุปกรณ์ที่นำมาคืนเข้าสโตร์ครบถ้วนและตรวจสอบสภาพเรียบร้อยแล้ว',
+                    icon: 'fa-solid fa-circle-check',
+                    activeCls: 'border-emerald-400 bg-emerald-500/20 text-emerald-200 shadow',
+                    list: listReturned
+                },
+                REPAIR: {
+                    id: 'modalTabRepair',
+                    title: 'สถานะ: อุปกรณ์ซ่อมชำรุด / รอซ่อม (' + listRepair.length + ' ใบงาน)',
+                    subtitle: 'รายการอุปกรณ์ซ่อมบำรุงหรือเครื่องมือช่างที่แจ้งชำรุด อยู่ระหว่างส่งซ่อมหรือรออะไหล่',
+                    icon: 'fa-solid fa-screwdriver-wrench',
+                    activeCls: 'border-rose-400 bg-rose-500/20 text-rose-200 shadow',
+                    list: listRepair
+                }
+            };
+
+            ['ALL', 'ACTIVE_OUT', 'RETURNED', 'REPAIR'].forEach(k => {
+                const btn = document.getElementById(tabConfig[k].id);
+                if (!btn) return;
+                if (k === categoryKey) {
+                    btn.className = 'py-2 px-3 rounded-xl text-xs font-extrabold border-2 flex items-center justify-between transition ' + tabConfig[k].activeCls;
+                } else {
+                    btn.className = 'py-2 px-3 rounded-xl text-xs font-semibold border border-slate-700 bg-slate-800/70 text-slate-300 hover:bg-slate-800 flex items-center justify-between transition';
+                }
+            });
+
+            const activeMeta = tabConfig[categoryKey] || tabConfig.ALL;
+            document.getElementById('eqInspectorTitle').textContent = activeMeta.title;
+            document.getElementById('eqInspectorSubtitle').textContent = activeMeta.subtitle;
+
+            const bodyEl = document.getElementById('eqInspectorBody');
+            if (activeMeta.list.length === 0) {
+                bodyEl.innerHTML = `
+                    <div class="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700 text-slate-400 text-xs space-y-2">
+                        <i class="fa-solid fa-box-open text-2xl text-slate-500 block"></i>
+                        <div>ไม่มีรายการใบเบิกในสถานะนี้</div>
+                    </div>
+                `;
+            } else {
+                bodyEl.innerHTML = activeMeta.list.map(rec => {
+                    const rowsHtml = (rec.items || []).map((it, idx) => {
+                        const isItemRepair = (it.itemStatus || '').includes('ชำรุด') || (it.itemStatus || '').includes('ส่งซ่อม');
+                        const isItemReturned = (it.itemStatus || '').includes('คืนแล้ว');
+                        const itemBadge = isItemRepair
+                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                            : (isItemReturned ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/40');
+                        return `
+                            <tr class="border-t border-slate-800 text-[11px]">
+                                <td class="py-1.5 px-2 text-slate-400 font-mono">${idx + 1}</td>
+                                <td class="py-1.5 px-2 font-mono text-cyan-300">${escapeHtml(it.code)}</td>
+                                <td class="py-1.5 px-2 text-slate-300">${escapeHtml(it.category)}</td>
+                                <td class="py-1.5 px-2 font-bold text-white">${escapeHtml(it.name)}</td>
+                                <td class="py-1.5 px-2 text-center text-amber-300 font-bold">${it.qtyOut} ${escapeHtml(it.unit)}</td>
+                                <td class="py-1.5 px-2 text-center text-emerald-300 font-bold">${it.qtyReturn} ${escapeHtml(it.unit)}</td>
+                                <td class="py-1.5 px-2">
+                                    <span class="px-2 py-0.5 rounded border text-[10px] font-bold ${itemBadge}">${escapeHtml(it.itemStatus)}</span>
+                                </td>
+                                <td class="py-1.5 px-2 text-slate-300">${escapeHtml(it.remark || '-')}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3.5 space-y-2.5 shadow">
+                            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="font-mono font-extrabold text-xs px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                                        ${escapeHtml(rec.docId)}
+                                    </span>
+                                    <span class="text-xs font-bold text-white">หน้างาน/เครื่องจักร: ${escapeHtml(rec.machineOrSite)}</span>
+                                    <span class="text-[11px] text-amber-300"><i class="fa-solid fa-calendar-plus mr-1"></i>วันเบิก: <b>${escapeHtml(rec.checkoutDate)}</b></span>
+                                    <span class="text-[11px] text-emerald-300"><i class="fa-solid fa-calendar-check mr-1"></i>วันคืน: <b>${escapeHtml(rec.returnDate || '-')}</b></span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <select onchange="quickChangeRequisitionStatus('${escapeHtml(rec.docId)}', this.value, '${categoryKey}')"
+                                        class="bg-slate-900 border border-slate-600 rounded-lg px-2 py-1 text-[11px] text-cyan-300 font-bold">
+                                        <option value="รอตรวจสอบ" ${rec.overallStatus === 'รอตรวจสอบ' ? 'selected' : ''}>⏳ รอตรวจสอบ</option>
+                                        <option value="กำลังเบิกขึ้นของเข้าทำงาน" ${rec.overallStatus === 'กำลังเบิกขึ้นของเข้าทำงาน' ? 'selected' : ''}>🚚 กำลังเบิกขึ้นของเข้าทำงาน</option>
+                                        <option value="นำมาคืนครบแล้ว" ${rec.overallStatus === 'นำมาคืนครบแล้ว' ? 'selected' : ''}>✅ นำมาคืนครบแล้ว</option>
+                                        <option value="คืนของเมื่อคืนเรียบร้อย" ${rec.overallStatus === 'คืนของเมื่อคืนเรียบร้อย' ? 'selected' : ''}>🌙 คืนของเมื่อคืนเรียบร้อย</option>
+                                        <option value="อุปกรณ์ชำรุด / ส่งซ่อม" ${rec.overallStatus === 'อุปกรณ์ชำรุด / ส่งซ่อม' ? 'selected' : ''}>🔧 อุปกรณ์ชำรุด / ส่งซ่อม</option>
+                                    </select>
+                                    <button onclick="loadEquipmentRecordToForm('${escapeHtml(rec.docId)}'); closeEquipmentStatusInspector();"
+                                        class="px-3 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-extrabold flex items-center gap-1 shadow">
+                                        <i class="fa-solid fa-folder-open"></i> ดึงใบเบิกนี้ขึ้นมาดู / แก้ไข
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-300 bg-slate-900/70 px-3 py-1.5 rounded-lg">
+                                <div>ผู้เบิกจ่าย/ขึ้นของ: <strong class="text-white">${escapeHtml(rec.requesterName)}</strong></div>
+                                <div>ผู้จ่ายของ (สโตร์): <strong class="text-white">${escapeHtml(rec.issuerName)}</strong></div>
+                                <div>ผู้นำของมาคืน: <strong class="text-emerald-300">${escapeHtml(rec.returnerName || '-')}</strong></div>
+                            </div>
+
+                            <div class="overflow-x-auto border border-slate-700 rounded-xl bg-slate-950/70">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-900 text-slate-400 text-[10px]">
+                                            <th class="py-1 px-2 w-8">#</th>
+                                            <th class="py-1 px-2 w-24">รหัส</th>
+                                            <th class="py-1 px-2 w-28">ประเภท</th>
+                                            <th class="py-1 px-2">ชื่ออุปกรณ์ซ่อมบำรุง / อะไหล่ช่าง</th>
+                                            <th class="py-1 px-2 text-center w-20">จำนวนเบิก</th>
+                                            <th class="py-1 px-2 text-center w-20">จำนวนคืน</th>
+                                            <th class="py-1 px-2 w-36">สถานะรายชิ้น</th>
+                                            <th class="py-1 px-2">หมายเหตุ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${rowsHtml}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('eqStatusInspectorModal').classList.remove('hidden');
+        }
+
+        function quickChangeRequisitionStatus(docId, newStatus, currentCategoryKey) {
+            const rec = equipmentState.historyRecords.find(r => r.docId === docId);
+            if (!rec) return;
+            rec.overallStatus = newStatus;
+            if (newStatus.includes('คืนครบ') || newStatus.includes('คืนของเมื่อคืน')) {
+                if (!rec.returnDate || rec.returnDate === '-') {
+                    rec.returnDate = new Date().toISOString().split('T')[0];
+                }
+                if (!rec.returnerName || rec.returnerName === '-') {
+                    rec.returnerName = rec.requesterName;
+                }
+                (rec.items || []).forEach(it => {
+                    if (it.category !== 'อะไหล่ช่าง') {
+                        it.qtyReturn = it.qtyOut;
+                        it.itemStatus = 'คืนแล้ว (สภาพปกติ)';
+                    }
+                });
+            } else if (newStatus.includes('ชำรุด')) {
+                (rec.items || []).forEach(it => {
+                    it.itemStatus = 'ชำรุด / ส่งซ่อม';
+                });
+            }
+            try {
+                localStorage.setItem('MAINT_PRO_EQUIP_RECORDS', JSON.stringify(equipmentState.historyRecords.slice(0, 30)));
+            } catch (e) {}
+            renderEquipmentHistoryList();
+            openEquipmentStatusInspector(currentCategoryKey || 'ALL');
+            showToast(`อัปเดตสถานะใบเบิก ${docId} เป็น "${newStatus}" เรียบร้อยแล้ว`);
+        }
+
+        function closeEquipmentStatusInspector() {
+            document.getElementById('eqStatusInspectorModal').classList.add('hidden');
         }
 
         function renderEquipmentItemsTable() {
@@ -1834,15 +2098,23 @@
 
             const all = equipmentState.historyRecords || [];
             document.getElementById('eqKpiTotal').textContent = all.length;
-            document.getElementById('eqKpiActiveOut').textContent = all.filter(r => r.overallStatus.includes('รอตรวจสอบ') || r.overallStatus.includes('กำลังเบิก') || r.overallStatus.includes('ค้างคืน')).length;
-            document.getElementById('eqKpiReturned').textContent = all.filter(r => r.overallStatus.includes('คืนครบ')).length;
-            document.getElementById('eqKpiRepair').textContent = all.filter(r => r.overallStatus.includes('ชำรุด')).length;
+            document.getElementById('eqKpiActiveOut').textContent = all.filter(isRecordActiveOut).length;
+            document.getElementById('eqKpiReturned').textContent = all.filter(isRecordReturned).length;
+            document.getElementById('eqKpiRepair').textContent = all.filter(isRecordRepair).length;
 
             const keyword = (document.getElementById('eqSearchKeyword')?.value || '').toLowerCase();
             const statusFilter = document.getElementById('eqFilterStatusSelect')?.value || 'ALL';
 
             const filtered = all.filter(rec => {
-                if (statusFilter !== 'ALL' && rec.overallStatus !== statusFilter) return false;
+                if (statusFilter === 'GROUP_ACTIVE_OUT') {
+                    if (!isRecordActiveOut(rec)) return false;
+                } else if (statusFilter === 'GROUP_RETURNED') {
+                    if (!isRecordReturned(rec)) return false;
+                } else if (statusFilter === 'GROUP_REPAIR') {
+                    if (!isRecordRepair(rec)) return false;
+                } else if (statusFilter !== 'ALL' && rec.overallStatus !== statusFilter) {
+                    return false;
+                }
                 const haystack = [
                     rec.docId, rec.checkoutDate, rec.returnDate, rec.overallStatus,
                     rec.machineOrSite, rec.requesterName, rec.issuerName, rec.returnerName,
@@ -2321,68 +2593,59 @@
                     `).join('');
 
                     return `
-                        <div class="border border-slate-300 rounded-lg bg-white p-1.5 flex flex-col justify-between relative group shadow-sm"
-                             style="border-top: 3px solid ${secDef.badgeColor};">
+                        <div class="bg-transparent p-1 flex flex-col justify-between relative">
 
-                            <!-- Top Slot Header: Section Tag & Before/After Status -->
-                            <div class="flex items-center justify-between gap-1 mb-1 border-b border-slate-100 pb-0.5">
-                                <span class="text-[10px] font-bold text-slate-800 truncate" title="${escapeHtml(slot.sectionTitle)}">
-                                    ${escapeHtml(slot.sectionTitle)}
+                            <!-- Top Slot Header: Section Tag & Before/After Status (No Outer Box Border, Upgraded Pill Design) -->
+                            <div class="flex items-center justify-between gap-1.5 mb-1 px-2 py-0.5 bg-slate-100/90 border-l-4 rounded-r-md" style="border-left-color: ${secDef.badgeColor};">
+                                <span class="text-[10px] font-extrabold text-slate-800 truncate" title="${escapeHtml(slot.sectionTitle)}">
+                                    <span class="text-slate-400 font-mono mr-0.5">#${slotIdx + 1}</span> ${escapeHtml(slot.sectionTitle)}
                                 </span>
-                                <span class="px-1.5 py-0.2 rounded text-[9px] font-bold text-white shrink-0" style="background-color: ${badgeBg};">
+                                <span class="px-2 py-0.5 rounded-full text-[8.5px] font-extrabold text-white tracking-wide shadow-sm shrink-0" style="background-color: ${badgeBg};">
                                     ${escapeHtml(slot.statusTag)}
                                 </span>
                             </div>
 
-                            <!-- Centered Photo Frame Box (Exact CM with A4 Overflow Guard) -->
+                            <!-- Centered Inner Photo Frame Box (กรอบใน: กดถ่ายรูป และมีปุ่ม ถ่ายรูป / เพิ่มรูป / ลบรูป ด้านล่างในกรอบใน) -->
                             <div class="my-auto py-0.5 flex items-center justify-center w-full">
-                                <div onclick="onSlotPhotoClick(${pageIdx}, ${slotIdx})"
+                                <div onclick="openCameraForSlot(${pageIdx}, ${slotIdx})"
                                      class="photo-frame-box ${slot.imageSrc ? 'has-image' : ''} cursor-pointer"
                                      style="width: ${safeCm}cm; height: ${safeCm}cm;">
                                     ${
                                         slot.imageSrc
                                             ? `<img src="${slot.imageSrc}" alt="Maintenance Photo" style="object-fit: ${appState.imageFitMode};">`
-                                            : `<div class="text-center p-2 text-slate-400 select-none">
-                                                <i class="fa-solid fa-camera-retro text-lg mb-1 block text-slate-400"></i>
-                                                <span class="text-[9px] block font-semibold text-slate-500">คลิกเพิ่มรูป / ถ่ายรูป</span>
-                                                <span class="text-[8px] block text-slate-400">ขนาดตั้งค่า ${requestedCm}x${requestedCm} ซม.</span>
+                                            : `<div class="text-center p-2 pb-7 text-slate-400 select-none">
+                                                <i class="fa-solid fa-camera-retro text-lg mb-1 block text-indigo-500"></i>
+                                                <span class="text-[9px] block font-bold text-slate-600">กดถ่ายรูป / เพิ่มรูป</span>
+                                                <span class="text-[8px] block text-slate-400">ขนาด ${requestedCm}x${requestedCm} ซม.</span>
                                                </div>`
                                     }
 
-                                    <!-- Hover Action Overlay (Hidden on Print/PDF) -->
-                                    <div class="slot-action-overlay no-print opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 bg-slate-900/65 flex items-center justify-center gap-1.5 p-1">
-                                        <button onclick="event.stopPropagation(); onSlotPhotoClick(${pageIdx}, ${slotIdx})"
-                                            class="w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs flex items-center justify-center shadow" title="เลือกรูปใหม่">
-                                            <i class="fa-solid fa-image"></i>
+                                    <!-- Bottom Bar Inside Inner Frame (ปุ่ม ถ่ายรูป / เพิ่มรูป / ลบรูป ด้านล่างของกรอบใน) -->
+                                    <div class="slot-action-overlay no-print absolute bottom-1 inset-x-1 z-10 flex items-center justify-center gap-1 bg-slate-900/80 backdrop-blur-sm py-1 px-1.5 rounded-md border border-white/15 shadow">
+                                        <button type="button" onclick="event.stopPropagation(); openCameraForSlot(${pageIdx}, ${slotIdx})"
+                                            class="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] font-bold flex items-center gap-1 shadow">
+                                            <i class="fa-solid fa-camera"></i> ถ่ายรูป
                                         </button>
-                                        <button onclick="event.stopPropagation(); openCameraForSlot(${pageIdx}, ${slotIdx})"
-                                            class="w-7 h-7 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs flex items-center justify-center shadow" title="ถ่ายรูปใส่ช่องนี้">
-                                            <i class="fa-solid fa-camera"></i>
+                                        <button type="button" onclick="event.stopPropagation(); onSlotPhotoClick(${pageIdx}, ${slotIdx})"
+                                            class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-bold flex items-center gap-1 shadow">
+                                            <i class="fa-solid fa-image"></i> เพิ่มรูป
                                         </button>
-                                        <button onclick="event.stopPropagation(); openSlotEditModal(${pageIdx}, ${slotIdx})"
-                                            class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs flex items-center justify-center shadow" title="แก้ไขหัวข้อและหมายเหตุใต้รูป">
-                                            <i class="fa-solid fa-pen"></i>
+                                        <button type="button" onclick="event.stopPropagation(); clearSlotPhoto(${pageIdx}, ${slotIdx})"
+                                            class="px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-[9px] font-bold flex items-center gap-1 shadow">
+                                            <i class="fa-solid fa-trash"></i> ลบรูป
                                         </button>
-                                        ${
-                                            slot.imageSrc
-                                                ? `<button onclick="event.stopPropagation(); clearSlotPhoto(${pageIdx}, ${slotIdx})"
-                                                    class="w-7 h-7 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs flex items-center justify-center shadow" title="ลบรูป">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                   </button>`
-                                                : ''
-                                        }
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Under-Photo Sub-Header & Multi-Remarks (หมายเหตุใต้รูปภาพหลายรายการ) -->
                             <div onclick="openSlotEditModal(${pageIdx}, ${slotIdx})"
-                                 class="mt-1 pt-1 border-t border-slate-200 bg-slate-50/80 rounded px-1.5 py-1 cursor-pointer hover:bg-amber-50/60 transition">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[10px] font-bold text-slate-900 truncate">
-                                        หัวข้อ: ${escapeHtml(slot.subTitle || '-')}
+                                 class="mt-1 bg-gradient-to-b from-slate-50 to-slate-100/90 border border-slate-300/90 rounded-md px-2 py-1 cursor-pointer hover:border-blue-500 hover:bg-blue-50/40 transition shadow-sm">
+                                <div class="flex items-center justify-between border-b border-slate-200/80 pb-0.5">
+                                    <span class="text-[10px] font-extrabold text-slate-900 truncate">
+                                        <i class="fa-solid fa-tag text-[8px] text-slate-500 mr-1"></i>หัวข้อ: ${escapeHtml(slot.subTitle || '-')}
                                     </span>
-                                    <span class="no-print text-[9px] text-blue-600 font-semibold"><i class="fa-solid fa-plus-circle"></i> เพิ่มหัวข้อ/หมายเหตุ</span>
+                                    <span class="no-print text-[8.5px] text-blue-700 bg-blue-100/80 px-1.5 rounded font-bold"><i class="fa-solid fa-pen"></i> แก้ไขหมายเหตุ</span>
                                 </div>
                                 <div class="mt-0.5 space-y-0.5 max-h-[38px] overflow-hidden">
                                     ${remarksHTML}
@@ -2396,48 +2659,57 @@
                     <div class="a4-sheet ${isLandscape ? 'landscape' : ''} ${pageIdx === appState.activePageIndex ? 'ring-4 ring-cyan-500/50' : ''}"
                          onclick="selectActivePage(${pageIdx})">
 
-                        <!-- 1. OFFICIAL A4 ENGINEERING REPORT HEADER (NO APP ICON ON A4 SHEET) -->
-                        <div class="border-b-2 border-slate-800 pb-1.5 mb-1.5 shrink-0">
-                            <div class="flex items-center justify-between gap-2">
-                                <div>
-                                    <h2 class="text-sm font-extrabold text-slate-900 tracking-tight leading-tight">
-                                        ใบรายงานการซ่อมบำรุงและโอเวอร์ฮอลเครื่องจักร (MACHINE MAINTENANCE REPORT)
-                                    </h2>
-                                    <p class="text-[10px] text-slate-600 font-medium">
-                                        ชื่อเครื่องจักร/แผนก: <strong class="text-slate-900">${escapeHtml(appState.machineName)}</strong>
-                                    </p>
+                        <!-- 1. OFFICIAL A4 ENGINEERING REPORT HEADER (NO APP ICON ON A4 SHEET, CRISP ENGINEERING TABLE) -->
+                        <div class="mb-1.5 shrink-0">
+                            <div class="border-2 border-slate-800 rounded-lg overflow-hidden bg-white shadow-sm">
+                                <div class="flex items-stretch justify-between">
+                                    <!-- Title & Machine Name -->
+                                    <div class="p-2 flex-1 flex flex-col justify-center bg-gradient-to-r from-slate-50 via-white to-slate-50">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="px-1.5 py-0.2 bg-slate-900 text-white text-[8px] font-extrabold tracking-widest uppercase rounded">ENGINEERING REPORT</span>
+                                            <span class="text-[9px] text-slate-500 font-bold">ISO / MAINT STANDARD A4</span>
+                                        </div>
+                                        <h2 class="text-[13px] font-extrabold text-slate-900 tracking-tight leading-snug mt-0.5">
+                                            ใบรายงานการซ่อมบำรุงและโอเวอร์ฮอลเครื่องจักร (MACHINE MAINTENANCE REPORT)
+                                        </h2>
+                                        <p class="text-[10px] text-slate-600 font-medium mt-0.5">
+                                            ชื่อเครื่องจักร / แผนก: <strong class="text-slate-900">${escapeHtml(appState.machineName)}</strong>
+                                            <span class="mx-1.5 text-slate-300">|</span>
+                                            ผู้ปฏิบัติงาน: <strong class="text-slate-800">${escapeHtml(appState.techName)}</strong>
+                                        </p>
+                                    </div>
+
+                                    <!-- Machine Code, Date & Page Number Table Cells -->
+                                    <div class="flex items-stretch border-l-2 border-slate-800 shrink-0 text-right">
+                                        <div class="px-2.5 py-1.5 bg-blue-50/60 border-r border-slate-300 flex flex-col justify-center">
+                                            <div class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">รหัสเครื่องจักร (MACHINE CODE)</div>
+                                            <div class="text-xs font-extrabold text-blue-900 tracking-tight">${escapeHtml(appState.machineCode)}</div>
+                                        </div>
+                                        <div class="px-2.5 py-1.5 bg-slate-50 border-r border-slate-300 flex flex-col justify-center">
+                                            <div class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">วันที่เข้าทำ (SERVICE DATE)</div>
+                                            <div class="text-xs font-extrabold text-slate-900">${escapeHtml(appState.serviceDate)}</div>
+                                        </div>
+                                        <div class="px-2.5 py-1.5 bg-slate-900 text-white flex flex-col justify-center text-center min-w-[54px]">
+                                            <div class="text-[7.5px] text-cyan-300 font-bold uppercase tracking-wider">หน้า (PAGE)</div>
+                                            <div class="text-xs font-extrabold">${pageIdx + 1} / ${appState.pages.length}</div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Machine Code & Date Box -->
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <div class="border border-slate-400 rounded px-2.5 py-1 bg-slate-50 text-right">
-                                        <div class="text-[9px] text-slate-500 font-semibold uppercase">รหัสเครื่องจักร (MACHINE CODE)</div>
-                                        <div class="text-xs font-extrabold text-blue-900">${escapeHtml(appState.machineCode)}</div>
+                                <!-- 2. DISTINCT SECTION BANNER (หัวข้อที่ 1 - 7 แยกสัดส่วนชัดเจน ไม่นำไปปนกัน) -->
+                                <div class="px-3 py-1 flex items-center justify-between border-t-2 border-slate-800"
+                                     style="background-color: ${secDef.bgLight};">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded text-[9.5px] font-extrabold text-white shadow-sm" style="background-color: ${secDef.badgeColor};">
+                                            ส่วนหัวข้อที่ ${secDef.num}
+                                        </span>
+                                        <span class="text-xs font-extrabold text-slate-900">
+                                            ${escapeHtml(secDef.title)}
+                                        </span>
                                     </div>
-                                    <div class="border border-slate-400 rounded px-2.5 py-1 bg-slate-50 text-right">
-                                        <div class="text-[9px] text-slate-500 font-semibold uppercase">วันที่เข้าทำ (DATE)</div>
-                                        <div class="text-xs font-bold text-slate-900">${escapeHtml(appState.serviceDate)}</div>
+                                    <div class="text-[9.5px] text-slate-700 font-bold bg-white/80 px-2 py-0.5 rounded border border-slate-300">
+                                        ตาราง ${page.gridCount} รูป • กรอบ ${requestedCm}x${requestedCm} ซม.
                                     </div>
-                                    <div class="border border-slate-400 rounded px-2 py-1 bg-slate-900 text-white text-center">
-                                        <div class="text-[8px] text-slate-300 uppercase">หน้า (PAGE)</div>
-                                        <div class="text-xs font-bold">${pageIdx + 1} / ${appState.pages.length}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 2. DISTINCT SECTION BANNER (หัวข้อที่ 1 - 7 แยกสัดส่วนชัดเจน ไม่นำไปปนกัน) -->
-                            <div class="mt-1.5 rounded-md px-3 py-1 flex items-center justify-between"
-                                 style="background-color: ${secDef.bgLight}; border: 1.5px solid ${secDef.borderColor};">
-                                <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold text-white" style="background-color: ${secDef.badgeColor};">
-                                        สัดส่วนเฉพาะหัวข้อที่ ${secDef.num}
-                                    </span>
-                                    <span class="text-xs font-extrabold text-slate-900">
-                                        ${escapeHtml(secDef.title)}
-                                    </span>
-                                </div>
-                                <div class="text-[10px] text-slate-700 font-semibold">
-                                    ตาราง ${page.gridCount} รูป | กรอบตั้งค่า ${requestedCm}x${requestedCm} ซม.
                                 </div>
                             </div>
                         </div>
@@ -2451,10 +2723,16 @@
                             ${slotsHTML}
                         </div>
 
-                        <!-- 5. CLEAN PAGE FOOTER (NO MIXING OF SEC 6 OR SEC 7 ON OTHER PAGES) -->
-                        <div class="mt-1 pt-1 border-t border-slate-300 flex items-center justify-between text-[10px] text-slate-600 shrink-0">
-                            <span>สัดส่วนหน้ากระดาษ: <strong class="text-slate-900">${escapeHtml(secDef.title)}</strong> (แยกสัดส่วนเฉพาะหัวข้อที่ ${secDef.num})</span>
-                            <span>ผู้ปฏิบัติงาน: <strong class="text-slate-900">${escapeHtml(appState.techName)}</strong> | สถานะ: <strong class="${appState.jobStatus === 'CLOSED' ? 'text-blue-700' : (appState.jobStatus === 'PENDING' ? 'text-amber-600' : 'text-emerald-700')}">${appState.jobStatus === 'CLOSED' ? 'ปิดงานแล้ว (CLOSED)' : (appState.jobStatus === 'PENDING' ? 'รอตรวจสอบ (PENDING)' : 'เปิดงาน (OPEN)')}</strong></span>
+                        <!-- 5. OFFICIAL ENGINEERING PAGE FOOTER (NO MIXING OF SEC 6 OR SEC 7 ON OTHER PAGES) -->
+                        <div class="mt-1 pt-1.5 border-t-2 border-slate-800 flex items-center justify-between text-[9.5px] text-slate-700 shrink-0 bg-slate-50/90 px-2.5 py-1 rounded">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full" style="background-color: ${secDef.badgeColor};"></span>
+                                <span>สัดส่วนหน้ากระดาษ: <strong class="text-slate-900">${escapeHtml(secDef.title)}</strong></span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>ผู้ตรวจสอบ/อนุมัติ: ...........................................</span>
+                                <span>สถานะใบงาน: <strong class="px-1.5 py-0.2 rounded ${appState.jobStatus === 'CLOSED' ? 'bg-blue-100 text-blue-800' : (appState.jobStatus === 'PENDING' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800')}">${appState.jobStatus === 'CLOSED' ? 'ปิดงานแล้ว (CLOSED)' : (appState.jobStatus === 'PENDING' ? 'รอตรวจสอบ (PENDING)' : 'เปิดงาน (OPEN)')}</strong></span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3382,137 +3660,6 @@
             closeSheetsModal();
             renderAll();
             showToast(`เปิดข้อมูลใบงาน ${appState.machineCode} (สถานะ: ${rec.status}) ขึ้นมาตรวจสอบเรียบร้อยแล้ว`);
-        }
-
-        function closeSheetsModal() {
-            document.getElementById('sheetsModal').classList.add('hidden');
-        }
-
-        function toggleWebhookConfig() {
-            document.getElementById('webhookConfigPanel').classList.toggle('hidden');
-        }
-
-        function countTotalPhotosInReport() {
-            let total = 0;
-            appState.pages.forEach(p => {
-                p.slots.forEach(s => { if (s.imageSrc) total++; });
-            });
-            return total;
-        }
-
-        async function saveRecordToSheetsDB(silent = false) {
-            syncJobData();
-            const newRec = {
-                id: 'REC-' + Date.now().toString().slice(-4),
-                date: appState.serviceDate,
-                machineCode: appState.machineCode,
-                machineName: appState.machineName,
-                status: appState.jobStatus === 'CLOSED' ? 'CLOSED (ปิดงานแล้ว)' : 'OPEN (เปิดงาน)',
-                temps: `${appState.tempValues[0]} / ${appState.tempValues[1]} / ${appState.tempValues[2]} °C`,
-                vibs: `${appState.vibValues[0]} / ${appState.vibValues[1]} / ${appState.vibValues[2]} mm/s`,
-                alarmCode: appState.alarmCode,
-                comment: appState.comment,
-                photoCount: countTotalPhotosInReport(),
-                snapshot: JSON.parse(JSON.stringify({
-                    machineCode: appState.machineCode,
-                    serviceDate: appState.serviceDate,
-                    machineName: appState.machineName,
-                    techName: appState.techName,
-                    tempValues: appState.tempValues,
-                    vibValues: appState.vibValues,
-                    alarmCode: appState.alarmCode,
-                    comment: appState.comment,
-                    pages: appState.pages
-                }))
-            };
-
-            appState.savedSheetsRecords.unshift(newRec);
-            try {
-                localStorage.setItem('MAINT_PRO_REPORT_RECORDS', JSON.stringify(appState.savedSheetsRecords.slice(0, 25)));
-            } catch (e) {}
-            renderSheetsTable();
-
-            if (!silent) {
-                showToast(`บันทึกรหัสเครื่องจักร ${appState.machineCode} ลงประวัติใบงานเรียบร้อยแล้ว!`);
-            }
-        }
-
-        function renderSheetsTable() {
-            const tbody = document.getElementById('sheetsTableBody');
-            const q = (document.getElementById('searchSheetInput')?.value || '').toLowerCase();
-
-            const filtered = appState.savedSheetsRecords.filter(r =>
-                r.machineCode.toLowerCase().includes(q) ||
-                r.date.toLowerCase().includes(q) ||
-                r.alarmCode.toLowerCase().includes(q) ||
-                r.comment.toLowerCase().includes(q)
-            );
-
-            if (!filtered.length) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">ไม่พบรายการที่ค้นหา</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((r, idx) => `
-                <tr class="hover:bg-slate-800/70 transition">
-                    <td class="py-2.5 px-3 font-mono text-[11px]">${escapeHtml(r.date)}</td>
-                    <td class="py-2.5 px-3 font-bold text-cyan-300">${escapeHtml(r.machineCode)}</td>
-                    <td class="py-2.5 px-3">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.status.includes('CLOSED') ? 'bg-blue-500/20 text-blue-300' : 'bg-emerald-500/20 text-emerald-300'}">
-                            ${escapeHtml(r.status)}
-                        </span>
-                    </td>
-                    <td class="py-2.5 px-3 text-orange-300 font-semibold">${escapeHtml(r.temps)}</td>
-                    <td class="py-2.5 px-3 text-sky-300 font-semibold">${escapeHtml(r.vibs)}</td>
-                    <td class="py-2.5 px-3 max-w-[200px] truncate" title="${escapeHtml(r.comment)}">
-                        <span class="text-amber-300 font-bold">[${escapeHtml(r.alarmCode)}]</span> ${escapeHtml(r.comment)}
-                    </td>
-                    <td class="py-2.5 px-3 text-center font-bold">${r.photoCount} รูป</td>
-                    <td class="py-2.5 px-3 text-right">
-                        ${
-                            r.snapshot
-                                ? `<button onclick="loadRecordSnapshot('${r.id}')" class="px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-semibold">
-                                    เปิดตรวจสอบ
-                                   </button>`
-                                : `<span class="text-[10px] text-slate-500">ตัวอย่างระบบ</span>`
-                        }
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function loadRecordSnapshot(recId) {
-            const rec = appState.savedSheetsRecords.find(r => r.id === recId);
-            if (!rec || !rec.snapshot) return;
-
-            const s = rec.snapshot;
-            appState.machineCode = s.machineCode;
-            appState.serviceDate = s.serviceDate;
-            appState.machineName = s.machineName;
-            appState.techName = s.techName;
-            appState.tempValues = [...s.tempValues];
-            appState.vibValues = [...s.vibValues];
-            appState.alarmCode = s.alarmCode;
-            appState.comment = s.comment;
-            appState.pages = JSON.parse(JSON.stringify(s.pages));
-            appState.activePageIndex = 0;
-
-            document.getElementById('inputMachineCode').value = appState.machineCode;
-            document.getElementById('inputServiceDate').value = appState.serviceDate;
-            document.getElementById('inputMachineName').value = appState.machineName;
-            document.getElementById('inputTechName').value = appState.techName;
-            document.getElementById('tempVal1').value = appState.tempValues[0];
-            document.getElementById('tempVal2').value = appState.tempValues[1];
-            document.getElementById('tempVal3').value = appState.tempValues[2];
-            document.getElementById('vibVal1').value = appState.vibValues[0];
-            document.getElementById('vibVal2').value = appState.vibValues[1];
-            document.getElementById('vibVal3').value = appState.vibValues[2];
-            document.getElementById('inputAlarmCode').value = appState.alarmCode;
-            document.getElementById('inputComment').value = appState.comment;
-
-            closeSheetsModal();
-            renderAll();
-            showToast(`เปิดข้อมูลใบงาน ${appState.machineCode} ขึ้นมาตรวจสอบเรียบร้อยแล้ว`);
         }
 
         function exportRecordsToCSV() {
