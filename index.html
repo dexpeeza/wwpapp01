@@ -603,7 +603,11 @@
                     <div class="flex gap-1.5">
                         <button onclick="exportEquipmentHistoryToCSV()" class="px-2.5 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-emerald-300 text-[11px] font-semibold flex items-center gap-1">
                             <i class="fa-solid fa-file-csv"></i> ดาวน์โหลด .CSV
-                    <!-- Search & Status Filter -->
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Status Filter -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div class="sm:col-span-2">
                         <input type="text" id="eqSearchKeyword" oninput="renderEquipmentHistoryList()"
@@ -796,68 +800,68 @@
                                 <option value="ONLY_AFTER">เฉพาะ: หลังทำ (AFTER) ทั้งหมด</option>
                                 <option value="PM / ตรวจสอบ">เฉพาะ: PM / ตรวจสอบ</option>
                             </select>
-                            <button onclick="triggerBatchUpload()" class="bg-blue-600 hover:bg-blue-500 text-white rounded px-2.5 py-1 text-xs font-semibold flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> เลือกหลายรูปลงหน้านี้
+                            <button onclick="triggerBatchUpload()" class="bg-blue-600 hover:bg-blue-500 text-white rounded px-2 py-1 text-xs font-bold flex items-center justify-center gap-1 shadow">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> เลือกหลายรูปทันที
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 4. SECTION 6: TEMPERATURE (°C) 3 VALUES & VIBRATION (mm/s) 3 VALUES -->
+                <!-- 4. SECTION 6: TEMPERATURE (°C) 3 VALUES & VIBRATION (mm/s) 3 VALUES (จุดที่ 1, จุดที่ 2, จุดที่ 3) -->
                 <div class="bg-slate-900/90 rounded-xl p-3.5 border border-slate-700/80 space-y-3">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                         <h2 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-temperature-high"></i> ข้อมูลหัวข้อที่ 6 : ความร้อน (3 ค่า) & สั่นสะเทือน (3 ค่า)
+                            <i class="fa-solid fa-temperature-high"></i> ข้อมูลหัวข้อที่ 6 : ความร้อน 3 ค่า & ความสั่นสะเทือน 3 ค่า
                         </h2>
                         <button onclick="openOrCreateSectionPage('SEC_6')" class="text-[10px] bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded font-semibold">
                             ไปที่หน้าหัวข้อ 6
                         </button>
                     </div>
 
-                    <!-- Temperature 3 Values -->
+                    <!-- 6.1 Temperature 3 Points -->
                     <div class="space-y-1.5">
                         <label class="block text-[11px] font-semibold text-orange-300">
-                            <i class="fa-solid fa-fire-flame-simple mr-1"></i>6.1 ค่าความร้อน Temperature (°C) - 3 ค่า (แสดงเฉพาะหน้าหัวข้อที่ 6)
+                            <i class="fa-solid fa-fire-flame-simple mr-1"></i>6.1 ค่าความร้อน Temperature (°C) - 3 ค่า (จุดที่ 1 / จุดที่ 2 / จุดที่ 3)
                         </label>
                         <div class="grid grid-cols-3 gap-2">
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">จุดที่ 1 (Motor DE °C)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-orange-300 mb-1">จุดที่ 1 (°C)</span>
                                 <input type="text" id="tempVal1" value="48.5" oninput="syncJobData()" placeholder="°C"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">จุดที่ 2 (Motor NDE °C)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-orange-300 mb-1">จุดที่ 2 (°C)</span>
                                 <input type="text" id="tempVal2" value="46.2" oninput="syncJobData()" placeholder="°C"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">จุดที่ 3 (Blower Brg °C)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-orange-300 mb-1">จุดที่ 3 (°C)</span>
                                 <input type="text" id="tempVal3" value="44.8" oninput="syncJobData()" placeholder="°C"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Vibration 3 Values -->
+                    <!-- 6.2 Vibration 3 Points (จุดที่ 1, จุดที่ 2, จุดที่ 3) -->
                     <div class="space-y-1.5 pt-1">
                         <label class="block text-[11px] font-semibold text-cyan-300">
-                            <i class="fa-solid fa-wave-square mr-1"></i>6.2 ค่าความสั่นสะเทือน Vibration (mm/s) - 3 ค่า (แสดงเฉพาะหน้าหัวข้อที่ 6)
+                            <i class="fa-solid fa-wave-square mr-1"></i>6.2 ค่าความสั่นสะเทือน Vibration (mm/s) - 3 ค่า (จุดที่ 1 / จุดที่ 2 / จุดที่ 3)
                         </label>
                         <div class="grid grid-cols-3 gap-2">
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 1 Horizontal (H)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-cyan-300 mb-1">จุดที่ 1 (mm/s)</span>
                                 <input type="text" id="vibVal1" value="1.85" oninput="syncJobData()" placeholder="mm/s"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 2 Vertical (V)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-cyan-300 mb-1">จุดที่ 2 (mm/s)</span>
                                 <input type="text" id="vibVal2" value="1.42" oninput="syncJobData()" placeholder="mm/s"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
-                            <div>
-                                <span class="block text-[10px] text-slate-400 mb-0.5">ค่าที่ 3 Axial (A)</span>
+                            <div class="bg-slate-800/90 border border-slate-700 rounded-lg p-2 text-center">
+                                <span class="block text-[10px] font-bold text-cyan-300 mb-1">จุดที่ 3 (mm/s)</span>
                                 <input type="text" id="vibVal3" value="1.15" oninput="syncJobData()" placeholder="mm/s"
-                                    class="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
+                                    class="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white text-center font-bold">
                             </div>
                         </div>
                     </div>
@@ -1067,11 +1071,53 @@
             </div>
         </div>
     </div>
-                    <!-- </div>
+
+    <!-- ==================== MODAL 3: SAVED MAINTENANCE HISTORY LOG ==================== -->
+    <div id="sheetsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i>
+                    <h3 class="text-sm font-extrabold text-white">ประวัติใบงานซ่อมบำรุงเครื่องจักร A4 (เปิดตรวจสอบย้อนหลังได้)</h3>
+                </div>
+                <button onclick="closeSheetsModal()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-rose-600 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-3 flex-1 overflow-y-auto">
+                <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-800/80 p-3 rounded-xl border border-slate-700 text-xs">
+                    <div>
+                        ใบงานปัจจุบัน: <strong id="sheetModalMachinePreview" class="text-cyan-300">MCH-BLW-014</strong> |
+                        สถานะ: <strong id="sheetModalStatusPreview" class="text-amber-300">OPEN</strong>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="searchSheetInput" oninput="renderSheetsTable()" placeholder="ค้นหารหัสเครื่องจักร, วันที่, สถานะ..."
+                            class="bg-slate-900 border border-slate-600 rounded-lg px-3 py-1 text-xs text-white">
+                        <button onclick="saveRecordToSheetsDB(false)" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold">
+                            + บันทึกใบงานปัจจุบัน (รอตรวจสอบ)
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border border-slate-700 rounded-xl">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+                                <th class="py-2 px-3">วันที่เข้าทำ</th>
+                                <th class="py-2 px-3">รหัสเครื่องจักร</th>
+                                <th class="py-2 px-3">สถานะ</th>
+                                <th class="py-2 px-3">Temperature 3 ค่า</th>
+                                <th class="py-2 px-3">Vibration 3 ค่า</th>
+                                <th class="py-2 px-3">Alarm / Comment</th>
+                                <th class="py-2 px-3 text-center">รูปภาพ</th>
+                                <th class="py-2 px-3 text-right">ตรวจสอบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sheetsTableBody" class="divide-y divide-slate-800"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <!-- ==================== MODAL 4: EQUIPMENT STATUS INSPECTOR MODAL (กดดูสถานะจาก 4 การ์ดด้านบน) ==================== -->
     <div id="eqStatusInspectorModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3">
@@ -1228,17 +1274,17 @@
         // 2. APPLICATION STATE
         // ============================================================================
         let appState = {
-            jobStatus: 'OPEN', // 'OPEN' or 'CLOSED'
+            jobStatus: 'OPEN', // 'OPEN', 'PENDING', or 'CLOSED'
             machineCode: 'MCH-BLW-014',
             serviceDate: new Date().toISOString().split('T')[0],
             machineName: 'ชุดมอเตอร์และโบลเวอร์ระบายอากาศ #2',
             techName: 'ทีมวิศวกรรมซ่อมบำรุง (Maintenance Team)',
-            orientation: 'portrait', // 'portrait' or 'landscape'
-            frameSize: '6cm', // '4cm','5cm','6cm','7cm','8cm','9cm'
-            imageFitMode: 'cover', // 'cover' or 'contain'
-            zoom: 1.0,
+            orientation: 'portrait',
+            frameSize: '6cm',
+            imageFitMode: 'cover',
             activePageIndex: 0,
-            // Section 6 Measurements (3 Temps, 3 Vibrations)
+            zoom: 1.0,
+            // Section 6 Measurements (3 Temps, 3 Vibrations: จุดที่ 1, จุดที่ 2, จุดที่ 3)
             tempValues: ['48.5', '46.2', '44.8'],
             vibValues: ['1.85', '1.42', '1.15'],
             // Section 7 Comment & Alarm Code
@@ -1246,7 +1292,7 @@
             comment: 'ดำเนินการ Overhaul เปลี่ยนตลับลูกปืน ตั้งศูนย์เลเซอร์ และทำความสะอาดเรียบร้อย ค่าความร้อนและความสั่นสะเทือนอยู่ในเกณฑ์มาตรฐาน',
             // Multi-Page Array
             pages: [],
-            // In-Memory History Log for Google Sheets inspection
+            // In-Memory History Log for inspection
             savedSheetsRecords: [
                 {
                     id: 'REC-001',
@@ -2522,15 +2568,15 @@
                                     </div>
                                     <div class="grid grid-cols-3 gap-1.5 text-center">
                                         <div class="bg-orange-50 rounded p-1 border border-orange-200">
-                                            <div class="text-[9px] text-slate-600">จุดที่ 1 (Motor DE)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 1</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.tempValues[0])} °C</div>
                                         </div>
                                         <div class="bg-orange-50 rounded p-1 border border-orange-200">
-                                            <div class="text-[9px] text-slate-600">จุดที่ 2 (Motor NDE)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 2</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.tempValues[1])} °C</div>
                                         </div>
                                         <div class="bg-orange-50 rounded p-1 border border-orange-200">
-                                            <div class="text-[9px] text-slate-600">จุดที่ 3 (Blower Brg)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 3</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.tempValues[2])} °C</div>
                                         </div>
                                     </div>
@@ -2542,15 +2588,15 @@
                                     </div>
                                     <div class="grid grid-cols-3 gap-1.5 text-center">
                                         <div class="bg-blue-50 rounded p-1 border border-blue-200">
-                                            <div class="text-[9px] text-slate-600">ค่าที่ 1 Horizontal (H)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 1</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.vibValues[0])} mm/s</div>
                                         </div>
                                         <div class="bg-blue-50 rounded p-1 border border-blue-200">
-                                            <div class="text-[9px] text-slate-600">ค่าที่ 2 Vertical (V)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 2</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.vibValues[1])} mm/s</div>
                                         </div>
                                         <div class="bg-blue-50 rounded p-1 border border-blue-200">
-                                            <div class="text-[9px] text-slate-600">ค่าที่ 3 Axial (A)</div>
+                                            <div class="text-[9px] text-slate-600 font-semibold">จุดที่ 3</div>
                                             <div class="font-extrabold text-slate-900 text-xs">${escapeHtml(appState.vibValues[2])} mm/s</div>
                                         </div>
                                     </div>
@@ -2749,14 +2795,14 @@
             appState.techName = document.getElementById('inputTechName').value;
 
             appState.tempValues = [
-                document.getElementById('tempVal1').value || '-',
-                document.getElementById('tempVal2').value || '-',
-                document.getElementById('tempVal3').value || '-'
+                document.getElementById('tempVal1')?.value || '-',
+                document.getElementById('tempVal2')?.value || '-',
+                document.getElementById('tempVal3')?.value || '-'
             ];
             appState.vibValues = [
-                document.getElementById('vibVal1').value || '-',
-                document.getElementById('vibVal2').value || '-',
-                document.getElementById('vibVal3').value || '-'
+                document.getElementById('vibVal1')?.value || '-',
+                document.getElementById('vibVal2')?.value || '-',
+                document.getElementById('vibVal3')?.value || '-'
             ];
             appState.alarmCode = document.getElementById('inputAlarmCode').value || 'NONE';
             appState.comment = document.getElementById('inputComment').value || '-';
@@ -3356,15 +3402,15 @@
                             <tr>
                                 <td style="padding:6px; border:1px solid #fda4af; width:50%;">
                                     <b>6.1 ค่าความร้อน Temperature (°C) - 3 ค่า:</b><br>
-                                    • จุดที่ 1 (Motor DE) = <b>${escapeHtml(appState.tempValues[0])} °C</b><br>
-                                    • จุดที่ 2 (Motor NDE) = <b>${escapeHtml(appState.tempValues[1])} °C</b><br>
-                                    • จุดที่ 3 (Blower Brg) = <b>${escapeHtml(appState.tempValues[2])} °C</b>
+                                    • จุดที่ 1 = <b>${escapeHtml(appState.tempValues[0])} °C</b><br>
+                                    • จุดที่ 2 = <b>${escapeHtml(appState.tempValues[1])} °C</b><br>
+                                    • จุดที่ 3 = <b>${escapeHtml(appState.tempValues[2])} °C</b>
                                 </td>
                                 <td style="padding:6px; border:1px solid #fda4af; width:50%;">
                                     <b>6.2 ค่าความสั่นสะเทือน Vibration (mm/s) - 3 ค่า:</b><br>
-                                    • ค่าที่ 1 แนวราบ (H) = <b>${escapeHtml(appState.vibValues[0])} mm/s</b><br>
-                                    • ค่าที่ 2 แนวดิ่ง (V) = <b>${escapeHtml(appState.vibValues[1])} mm/s</b><br>
-                                    • ค่าที่ 3 แนวแกน (A) = <b>${escapeHtml(appState.vibValues[2])} mm/s</b>
+                                    • จุดที่ 1 = <b>${escapeHtml(appState.vibValues[0])} mm/s</b><br>
+                                    • จุดที่ 2 = <b>${escapeHtml(appState.vibValues[1])} mm/s</b><br>
+                                    • จุดที่ 3 = <b>${escapeHtml(appState.vibValues[2])} mm/s</b>
                                 </td>
                             </tr>
                         </table>
@@ -3638,6 +3684,9 @@
             appState.techName = s.techName;
             appState.tempValues = [...s.tempValues];
             appState.vibValues = [...s.vibValues];
+            if (Array.isArray(s.vibPoints) && s.vibPoints.length === 3) {
+                appState.vibPoints = JSON.parse(JSON.stringify(s.vibPoints));
+            }
             appState.alarmCode = s.alarmCode;
             appState.comment = s.comment;
             appState.pages = JSON.parse(JSON.stringify(s.pages));
@@ -3650,9 +3699,9 @@
             document.getElementById('tempVal1').value = appState.tempValues[0];
             document.getElementById('tempVal2').value = appState.tempValues[1];
             document.getElementById('tempVal3').value = appState.tempValues[2];
-            document.getElementById('vibVal1').value = appState.vibValues[0];
-            document.getElementById('vibVal2').value = appState.vibValues[1];
-            document.getElementById('vibVal3').value = appState.vibValues[2];
+            if (document.getElementById('vibVal1')) document.getElementById('vibVal1').value = appState.vibValues[0] || '';
+            if (document.getElementById('vibVal2')) document.getElementById('vibVal2').value = appState.vibValues[1] || '';
+            if (document.getElementById('vibVal3')) document.getElementById('vibVal3').value = appState.vibValues[2] || '';
             document.getElementById('inputAlarmCode').value = appState.alarmCode;
             document.getElementById('inputComment').value = appState.comment;
 
